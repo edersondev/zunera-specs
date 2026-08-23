@@ -1,50 +1,102 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+- Version change: 1.3.0 → 1.4.0
+- Modified principles: Delivery Workflow and Quality Gates → Delivery Workflow
+  and Quality Gates (cross-repository feature branch rule added)
+- Added sections: none
+- Removed sections: none
+- Templates requiring updates:
+  - ✅ .specify/templates/plan-template.md
+  - ✅ .specify/templates/spec-template.md
+  - ✅ .specify/templates/tasks-template.md
+  - ✅ .specify/extensions/git/scripts/bash/create-new-feature.sh
+  - ✅ .specify/extensions/git/scripts/powershell/create-new-feature.ps1
+  - ✅ .specify/extensions/git/commands/speckit.git.feature.md
+  - ✅ .specify/extensions/git/README.md
+  - ✅ .specify/templates/commands/ (directory absent; no command templates to update)
+  - ✅ AGENTS.md
+- Follow-up TODOs:
+  - TODO(RATIFICATION_DATE): Original constitution adoption date is not recorded.
+-->
+# Zunera Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Secure, Explicit API Boundaries
+All backend inputs MUST be validated through Laravel Form Requests or equivalent
+validation. Protected routes MUST use appropriate middleware, responses MUST use
+API Resources, and upload handling MUST sanitize and validate files. Controllers
+MUST remain thin; security-sensitive behavior belongs in tested services. This
+keeps authorization, validation, and public contracts consistent and reviewable.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Service-Layer Domain Logic
+Business logic MUST live in `App\\Services` or an equally scoped domain service.
+Use DTOs when inputs contain more than one meaningful field, exceptions rather
+than return codes for exceptional paths, and repositories only for genuinely
+complex data access. Services MUST NOT create global state. This preserves clear
+domain ownership and testability without needless abstraction.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Vue 3 Composition and State Discipline
+Vue interfaces MUST use Vue 3 Composition API with `<script setup>`. Components
+MUST keep API calls in services and UI state shared across views in Pinia stores;
+components MUST NOT contain domain or transport logic. Use Axios for API access
+and Tailwind CSS for styling unless an existing project convention requires a
+compatible alternative. This keeps UI code composable, predictable, and easy to
+test.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Testable, Contract-Safe Changes
+Every behavior change MUST include proportionate automated coverage: Laravel
+feature and unit tests for backend behavior, and frontend service or composable
+tests for frontend behavior. Changes to HTTP endpoints, request validation, or
+response shapes MUST include contract or feature coverage. External dependencies
+MUST be mocked where practical. Tests provide executable evidence that a change
+preserves user-facing and integration contracts. Critical user journeys that
+cross the interface and API MUST have Playwright end-to-end coverage. Playwright
+tests MUST use accessible selectors and preserve scenario isolation.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Focused, Maintainable Delivery
+Features MUST respect existing structure, avoid unrelated refactors, and avoid
+new packages unless explicitly approved. Plans and implementations MUST state
+scope boundaries, preserve clear naming, and justify material complexity in the
+Constitution Check. This limits accidental coupling and keeps delivery work
+reviewable.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Platform Constraints
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+Backend work MUST follow PSR-12 and Laravel conventions. Frontend work MUST use
+Vue 3, Pinia, Axios, Tailwind CSS, and Element Plus as project defaults. Element
+Plus components MUST be preferred for standard interface controls and MUST follow
+the project's configured theme and accessibility conventions. Secrets MUST be
+read from environment variables and MUST NOT enter source control.
+Implementations MUST follow OWASP fundamentals, including authorization, input
+validation, and safe error handling.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Delivery Workflow and Quality Gates
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Each feature specification MUST define independently testable user scenarios,
+functional requirements, edge cases, security implications, and measurable
+outcomes. Every specification, plan, and task set MUST include explicit Backend
+and Frontend scopes in that order. Backend work MUST define and implement its API
+contract, authorization, validation, services, and tests before frontend work
+starts; frontend work MUST consume the established backend contract. Each
+feature branch created for a new specification MUST use the identical name in
+`zunera-specs`, `../zunera-backend`, and `../zunera-frontend`; work MUST start
+on the corresponding backend and frontend branch. Each
+implementation plan MUST pass the Constitution Check before research and again
+after design. Tasks MUST include required verification work next to relevant
+implementation work, then run relevant test and style commands before
+completion. Reviewers MUST verify API boundaries, service ownership, Vue state
+boundaries, security, scope, delivery order, and test evidence.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes conflicting project practices. Amendments MUST be
+documented in this file, include a Sync Impact Report, and update affected
+templates and runtime guidance in the same change. Versioning uses semantic
+versioning: MAJOR for incompatible governance changes, MINOR for principles or
+material guidance added, and PATCH for clarifications. Every plan, task set, and
+review MUST assess compliance; exceptions MUST be explicit and justified in the
+plan's Complexity Tracking section. Runtime guidance lives in `AGENTS.md` and
+the active feature `plan.md`.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.4.0 | **Ratified**: TODO(RATIFICATION_DATE): Original adoption date unknown | **Last Amended**: 2026-08-23

@@ -377,8 +377,45 @@ elif [ "$BRANCH_BYTE_LEN" -gt $MAX_BRANCH_LENGTH ]; then
     >&2 echo "[specify] Truncated to: $BRANCH_NAME (${#BRANCH_NAME} bytes)"
 fi
 
+SIBLING_REPOS=(
+    "$(dirname "$REPO_ROOT")/zunera-backend"
+    "$(dirname "$REPO_ROOT")/zunera-frontend"
+)
+
+preflight_sibling_repositories() {
+    local repo
+    for repo in "${SIBLING_REPOS[@]}"; do
+        if ! git -C "$repo" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+            >&2 echo "Error: Required sibling Git repository not found: $repo"
+            return 1
+        fi
+
+        if git -C "$repo" branch --list "$BRANCH_NAME" | grep -q . \
+            && [ "$ALLOW_EXISTING" != true ]; then
+            >&2 echo "Error: Branch '$BRANCH_NAME' already exists in $repo. Use --allow-existing-branch to switch to it."
+            return 1
+        fi
+    done
+}
+
+create_or_switch_sibling_branch() {
+    local repo="$1"
+    local current_branch
+    current_branch="$(git -C "$repo" rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+
+    if git -C "$repo" branch --list "$BRANCH_NAME" | grep -q .; then
+        if [ "$current_branch" = "$BRANCH_NAME" ]; then
+            return 0
+        fi
+        git -C "$repo" checkout -q "$BRANCH_NAME"
+    else
+        git -C "$repo" checkout -q -b "$BRANCH_NAME"
+    fi
+}
+
 if [ "$DRY_RUN" != true ]; then
     if [ "$HAS_GIT" = true ]; then
+        preflight_sibling_repositories || exit 1
         branch_create_error=""
         if ! branch_create_error=$(git checkout -q -b "$BRANCH_NAME" 2>&1); then
             current_branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
@@ -410,6 +447,13 @@ if [ "$DRY_RUN" != true ]; then
                 exit 1
             fi
         fi
+
+        for sibling_repo in "${SIBLING_REPOS[@]}"; do
+            if ! create_or_switch_sibling_branch "$sibling_repo"; then
+                >&2 echo "Error: Failed to create or switch branch '$BRANCH_NAME' in $sibling_repo."
+                exit 1
+            fi
+        done
     else
         >&2 echo "[specify] Warning: Git repository not detected; skipped branch creation for $BRANCH_NAME"
     fi

@@ -324,8 +324,53 @@ if ($branchName.Length -gt $maxBranchLength) {
     Write-Warning "[specify] Truncated to: $branchName ($($branchName.Length) bytes)"
 }
 
+$siblingRepos = @(
+    (Join-Path (Split-Path $repoRoot -Parent) 'zunera-backend'),
+    (Join-Path (Split-Path $repoRoot -Parent) 'zunera-frontend')
+)
+
+function Test-SiblingRepositories {
+    foreach ($repo in $siblingRepos) {
+        try {
+            git -C $repo rev-parse --is-inside-work-tree 2>$null | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+                throw "Required sibling Git repository not found: $repo"
+            }
+
+            $existingBranch = git -C $repo branch --list $branchName 2>$null
+            if ($existingBranch -and -not $AllowExistingBranch) {
+                throw "Branch '$branchName' already exists in $repo. Use -AllowExistingBranch to switch to it."
+            }
+        } catch {
+            Write-Error "Error: $($_.Exception.Message)"
+            return $false
+        }
+    }
+    return $true
+}
+
+function Set-SiblingFeatureBranch {
+    param([string]$Repo)
+
+    $currentBranch = (git -C $Repo rev-parse --abbrev-ref HEAD 2>$null).Trim()
+    $existingBranch = git -C $Repo branch --list $branchName 2>$null
+    if ($existingBranch) {
+        if ($currentBranch -eq $branchName) {
+            return $true
+        }
+        git -C $Repo checkout -q $branchName 2>$null
+    } else {
+        git -C $Repo checkout -q -b $branchName 2>$null
+    }
+
+    return $LASTEXITCODE -eq 0
+}
+
 if (-not $DryRun) {
     if ($hasGit) {
+        if (-not (Test-SiblingRepositories)) {
+            exit 1
+        }
         $branchCreated = $false
         $branchCreateError = ''
         try {
@@ -369,6 +414,13 @@ if (-not $DryRun) {
                 } else {
                     Write-Error "Error: Failed to create git branch '$branchName'. Please check your git configuration and try again."
                 }
+                exit 1
+            }
+        }
+
+        foreach ($siblingRepo in $siblingRepos) {
+            if (-not (Set-SiblingFeatureBranch -Repo $siblingRepo)) {
+                Write-Error "Error: Failed to create or switch branch '$branchName' in $siblingRepo."
                 exit 1
             }
         }

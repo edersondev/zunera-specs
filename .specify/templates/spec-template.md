@@ -1,6 +1,8 @@
 # Feature Specification: [FEATURE NAME]
 
 **Feature Branch**: `[###-feature-name]`  
+**Backend Branch**: `[###-feature-name]` (`../zunera-backend`)
+**Frontend Branch**: `[###-feature-name]` (`../zunera-frontend`)
 **Created**: [DATE]  
 **Status**: Draft  
 **Input**: User description: "$ARGUMENTS"
@@ -94,6 +96,27 @@
 
 - **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
 - **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+
+### Security and Quality Requirements *(mandatory)*
+
+- **SQR-001**: Define authorization and input-validation rules for every changed
+  user-facing action or endpoint.
+- **SQR-002**: Define required automated test coverage, including API-contract
+  coverage when request or response shapes change and Playwright end-to-end
+  coverage for critical UI-to-API journeys.
+- **SQR-003**: State any environment-secret, upload-safety, or data-handling
+  constraints, or explicitly mark them not applicable.
+
+### Delivery Scope *(mandatory)*
+
+List this section in exact order. Do not omit either scope.
+
+1. **Backend** (`../zunera-backend`): API contract, authorization, validation,
+   service, persistence, and test requirements.
+2. **Frontend** (`../zunera-frontend`): Screens, Element Plus components,
+   frontend service/state, and test requirements that consume backend contract.
+
+Frontend requirements MUST depend on the backend contract defined above.
 
 ### Key Entities *(include if feature involves data)*
 

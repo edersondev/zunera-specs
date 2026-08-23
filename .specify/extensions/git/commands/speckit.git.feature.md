@@ -4,7 +4,11 @@ description: "Create a feature branch with sequential or timestamp numbering"
 
 # Create Feature Branch
 
-Create and switch to a new git feature branch for the given specification. This command handles **branch creation only** — the spec directory and files are created by the core `/speckit.specify` workflow.
+Create and switch to a new git feature branch for the given specification. The
+command creates and switches to the identical branch in `zunera-specs`,
+`../zunera-backend`, and `../zunera-frontend`. It handles **branch creation
+only** — the spec directory and files are created by the core `/speckit.specify`
+workflow.
 
 ## User Input
 
@@ -53,6 +57,8 @@ Run the appropriate script based on your platform:
 - Always include the JSON flag (`--json` for Bash, `-Json` for PowerShell) so the output can be parsed reliably
 - You must only ever run this script once per feature
 - The JSON output will contain `BRANCH_NAME` and `FEATURE_NUM`
+- All three repositories MUST successfully create or switch to the same branch;
+  otherwise the command fails before specification work starts.
 
 ## Graceful Degradation
 
