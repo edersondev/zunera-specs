@@ -12,3 +12,7 @@ shell commands, and other important information, read the current plan
   only after backend API contract, authorization, validation, and tests are done.
 - Feature branches use identical names in specs, backend, and frontend. Before
   editing either application, verify its local branch matches specification branch.
+- When `speckit-specify` creates a spec branch, create matching branches only in
+  applications affected by that spec: backend-only changes get a backend branch
+  only; frontend-only changes get a frontend branch only; full-stack changes get
+  both.
