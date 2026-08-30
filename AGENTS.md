@@ -16,3 +16,9 @@ shell commands, and other important information, read the current plan
   applications affected by that spec: backend-only changes get a backend branch
   only; frontend-only changes get a frontend branch only; full-stack changes get
   both.
+- For every frontend implementation planned with `speckit-plan`, follow these
+  design documents:
+  - `docs/design/design-foundation.md`
+  - `docs/design/app-shell.md`
+  - `docs/design/navigation.md`
+  - `docs/design/components.md`
