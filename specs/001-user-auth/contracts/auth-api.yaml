@@ -1,0 +1,48 @@
+openapi: 3.1.0
+info:
+  title: Zunera Authentication API
+  version: 1.0.0
+servers:
+  - url: /api/v1
+paths:
+  /auth/register:
+    post:
+      operationId: register
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/RegisterRequest' } } } }
+      responses: { '201': { description: Authenticated session, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResponse' } } } }, '422': { $ref: '#/components/responses/ValidationError' } }
+  /auth/login:
+    post:
+      operationId: login
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/LoginRequest' } } } }
+      responses: { '200': { description: Authenticated session, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResponse' } } } }, '401': { $ref: '#/components/responses/GenericError' }, '429': { $ref: '#/components/responses/ThrottleError' } }
+  /auth/session:
+    get: { operationId: session, security: [{ cookieAuth: [] }], responses: { '200': { description: Current session, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResponse' } } } }, '401': { $ref: '#/components/responses/GenericError' } } }
+    delete: { operationId: logout, security: [{ cookieAuth: [] }], responses: { '204': { description: Session ended }, '401': { $ref: '#/components/responses/GenericError' } } }
+  /auth/session/continue:
+    post: { operationId: continueSession, security: [{ cookieAuth: [] }], responses: { '200': { description: Idle deadline refreshed, content: { application/json: { schema: { $ref: '#/components/schemas/Session' } } } }, '401': { $ref: '#/components/responses/GenericError' } } }
+  /auth/password/recovery:
+    post:
+      operationId: requestRecovery
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/RecoveryRequest' } } } }
+      responses: { '202': { description: Neutral response for every well-formed request, content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } } }, '422': { $ref: '#/components/responses/ValidationError' } }
+  /auth/password/reset:
+    post:
+      operationId: resetPassword
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ResetRequest' } } } }
+      responses: { '200': { description: Password changed and sessions invalidated, content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } } }, '422': { $ref: '#/components/responses/ValidationError' } }
+components:
+  securitySchemes: { cookieAuth: { type: apiKey, in: cookie, name: zunera_session } }
+  schemas:
+    RegisterRequest: { type: object, required: [email, password, password_confirmation], properties: { email: { type: string, format: email }, password: { type: string, minLength: 15, maxLength: 64 }, password_confirmation: { type: string } } }
+    LoginRequest: { type: object, required: [email, password], properties: { email: { type: string, format: email }, password: { type: string } } }
+    RecoveryRequest: { type: object, required: [email], properties: { email: { type: string, format: email } } }
+    ResetRequest: { type: object, required: [email, token, password, password_confirmation], properties: { email: { type: string, format: email }, token: { type: string }, password: { type: string, minLength: 15, maxLength: 64 }, password_confirmation: { type: string } } }
+    User: { type: object, required: [id, email], properties: { id: { type: integer }, email: { type: string, format: email }, name: { type: [string, 'null'] } } }
+    Session: { type: object, required: [idle_expires_at, absolute_expires_at], properties: { idle_expires_at: { type: string, format: date-time }, absolute_expires_at: { type: string, format: date-time } } }
+    AuthResponse: { type: object, required: [data], properties: { data: { type: object, required: [user, session], properties: { user: { $ref: '#/components/schemas/User' }, session: { $ref: '#/components/schemas/Session' } } } } }
+    Message: { type: object, required: [message], properties: { message: { type: string } } }
+    Error: { type: object, required: [message], properties: { message: { type: string }, errors: { type: object, additionalProperties: { type: array, items: { type: string } } } } }
+  responses:
+    GenericError: { description: Generic operational error, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    ValidationError: { description: Validation error, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    ThrottleError: { description: Delayed request, headers: { Retry-After: { schema: { type: integer } } }, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
