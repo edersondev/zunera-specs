@@ -8,9 +8,9 @@
 - **Alternatives considered**: Personal access tokens were rejected because they add long-lived client secrets and do not improve this first-party browser flow.
 
 ### Password policy and compromise checks
-- **Decision**: Enforce 15–64 characters, printable characters including spaces, confirmation, and Laravel's uncompromised-password validator. Keep the verifier behind a service boundary so tests can mock it and failures are observable.
+- **Decision**: Enforce 15–64 characters, printable characters including spaces, confirmation, and Laravel's uncompromised-password validator. Keep the verifier behind a service boundary so tests can mock it and failures are observable. If the remote verifier is unavailable, fail closed with a temporary `password_safety_unavailable` outcome while retaining the local common-password blocklist; never describe an unchecked password as compromised.
 - **Rationale**: NIST SP 800-63B recommends at least 15 characters for single-factor passwords and long-password support; the spec requires rejecting common or compromised choices.
-- **Alternatives considered**: Arbitrary upper/lower/number composition was rejected because it harms usability without satisfying the stated requirement. A new password-scanning package was rejected to avoid an unapproved dependency.
+- **Alternatives considered**: Arbitrary upper/lower/number composition was rejected because it harms usability without satisfying the stated requirement. Failing open was rejected because it would accept a password without completing the required safety check. A new password-scanning package was rejected to avoid an unapproved dependency.
 
 ### Email-only registration
 - **Decision**: Make the existing `users.name` column nullable in a backend migration; registration accepts only email, password, and confirmation. Do not synthesize a display name from the email address.
@@ -21,6 +21,11 @@
 - **Decision**: Return one neutral recovery response for every well-formed request, queue the notification after commit, cap sends at three per normalized address per hour, and use the framework's 60-minute, newest-token-only broker behavior. Reset sends a separate security notification and invalidates all sessions.
 - **Rationale**: This prevents account enumeration, keeps the request responsive, and directly implements the clarified security requirements.
 - **Alternatives considered**: Synchronous mail and account-specific responses were rejected because they expose timing/account state and make the request dependent on SMTP latency.
+
+### Recovery-link error contract
+- **Decision**: Return stable `recovery_link_expired` and `recovery_link_invalid` codes. Used, superseded, and malformed instructions share the privacy-safe invalid outcome; only an extant expired instruction receives the expired outcome.
+- **Rationale**: The frontend needs deterministic states without requiring the backend to retain consumed recovery secrets or disclose unnecessary token history.
+- **Alternatives considered**: Separate used and superseded responses were rejected because they require extra token-history persistence and reveal more lifecycle information without improving the recovery path.
 
 ### Session policy
 - **Decision**: Configure 15-minute idle expiry and enforce an 8-hour absolute expiry in backend middleware using signed-in session metadata. Return both authoritative deadlines; the frontend warns one minute before idle expiry and can continue only through an authenticated backend call.

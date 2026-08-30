@@ -188,7 +188,9 @@ new password while the old password and used recovery instruction no longer work
   require a password of at least 15 characters, support a maximum permitted
   length of at least 64 characters, allow spaces and printable characters, avoid
   mandatory character-category combinations, and reject known common or
-  compromised choices with clear guidance to choose another password.
+  compromised choices with clear guidance to choose another password. If the
+  compromised-password check is unavailable, the system MUST reject the action
+  temporarily, invite a retry, and MUST NOT claim that the password is compromised.
 - **FR-003**: The system MUST reject account creation when required values are
   missing, malformed, mismatched, or do not satisfy the displayed requirements,
   with an actionable message for every affected field.
@@ -221,6 +223,8 @@ new password while the old password and used recovery instruction no longer work
   that account.
 - **FR-017**: An expired, used, superseded, or invalid recovery instruction MUST
   NOT change the password and MUST provide a clear way to request a new one.
+  Feedback MUST distinguish an expired instruction from the privacy-safe general
+  invalid outcome used for consumed, superseded, and malformed instructions.
 - **FR-018**: Every authentication action MUST provide clear loading, validation,
   error, and success feedback and MUST prevent repeat submission while the action
   is in progress.
@@ -313,14 +317,17 @@ new password while the old password and used recovery instruction no longer work
   remains understandable at 200% zoom and 320px width, and exposes no critical
   information through color alone.
 - **SC-009**: For at least 95% of authentication actions under normal operating
-  conditions, users see a meaningful success or error outcome within two seconds.
+  conditions, users see a meaningful success or error outcome within two seconds,
+  measured over at least 100 representative actions in a production-like release
+  environment.
 - **SC-010**: 100% of tested sessions warn one minute before idle expiration,
   deny protected access after 15 minutes of inactivity, and deny protected access
   after eight total hours regardless of activity.
 - **SC-011**: At least 95% of recovery emails for valid-account requests arrive
-  within five minutes, while 100% of recovery requests retain equivalent neutral
-  confirmation and troubleshooting regardless of account existence or delivery
-  outcome.
+  within five minutes, measured from request acceptance to provider delivery
+  event over at least 100 valid-account requests in a production-like release
+  environment, while 100% of requests retain equivalent neutral confirmation and
+  troubleshooting regardless of account existence or delivery outcome.
 - **SC-012**: 100% of successful password resets send the required security
   notice without including a password or reusable recovery link.
 - **SC-013**: Every signed-out authentication journey provides access to the

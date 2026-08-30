@@ -19,11 +19,11 @@ and the Zunera Design Foundation.
 **Language/Version**: PHP 8.3 / Laravel 13.26.1; JavaScript ES modules / Vue 3.5.41
 **Primary Dependencies**: Sanctum 4.3.3, PHPUnit 12.5.33, Vue Router 5.2.0, Pinia 4.0.3, Axios 1.19.0, Element Plus 2.14.5, Vitest 4.1.11, Playwright 1.62.1
 **Storage**: Existing MySQL-compatible users, database sessions, password-reset-token, cache, queue, and SMTP services
-**Testing**: PHPUnit feature/unit, Vitest component/service/store, Playwright Chromium/Firefox/WebKit, Pint
+**Testing**: PHPUnit feature/unit, scripted production-like API percentile checks, auth-mail delivery-event acceptance checks, Vitest component/service/store, Playwright Chromium/Firefox/WebKit, Pint
 **Target Platform**: Credentialed browser SPA and Laravel JSON API
 **Project Type**: Full-stack web feature
-**Performance Goals**: 95% normal auth actions within 2 seconds; 95% valid recovery emails dispatched within 5 minutes
-**Constraints**: No password/token leakage; 15-minute idle and 8-hour absolute limits; neutral recovery; LGPD; no new packages; backend contract/tests precede frontend
+**Performance Goals**: p95 normal auth outcomes within 2 seconds across 100 production-like actions; at least 95 of 100 valid-account recovery emails reach a provider delivery event within 5 minutes
+**Constraints**: No password/token leakage; fail-closed compromised-password checks; 15-minute idle and 8-hour absolute limits; stable recovery-link error codes; neutral recovery; LGPD; no new packages; the complete backend contract/tests precede all frontend changes
 **Scale/Scope**: Authentication surfaces and API only; use existing deployment capacity with auth-mail, throttle, and expiry metrics
 
 ## Delivery Scope and Order
@@ -38,8 +38,9 @@ and the Zunera Design Foundation.
    expiry dialog, semantic theme/bootstrap, and Vitest/Playwright coverage.
    Passwords and reset secrets stay local to forms and are never persisted.
 
-Frontend implementation MUST start only after the backend API contract,
-authorization, validation, and tests are complete.
+No frontend file may be changed until registration, session, recovery/reset,
+cross-cutting backend behavior, the full API contract, authorization, validation,
+and backend tests are complete and the backend gate is recorded as passing.
 
 ## Constitution Check
 
@@ -78,6 +79,9 @@ specs/001-user-auth/
 ├── app/Services/Authentication/
 ├── app/Notifications/Auth/
 ├── app/Http/Middleware/EnforceSessionLifetime.php
+├── app/Console/Commands/VerifyAuthMailDelivery.php
+├── scripts/auth-performance-smoke.sh
+├── docs/auth-mail-operations.md
 ├── database/migrations/*_make_user_name_nullable.php
 ├── routes/api.php
 └── tests/Feature/Auth/ and tests/Unit/Authentication/

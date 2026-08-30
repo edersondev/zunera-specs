@@ -3,7 +3,7 @@
 ## User
 
 - `id`: existing primary key.
-- `name`: nullable display field; not collected by this feature.
+- `name`: nullable legacy display field; not collected or serialized by this feature.
 - `email`: unique normalized (trimmed, lowercase) login identifier.
 - `password`: framework-hashed secret; never serialized or logged.
 - `email_verified_at`: remains nullable; this feature does not add email verification.
