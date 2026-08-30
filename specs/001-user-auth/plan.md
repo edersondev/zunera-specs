@@ -19,11 +19,11 @@ and the Zunera Design Foundation.
 **Language/Version**: PHP 8.3 / Laravel 13.26.1; JavaScript ES modules / Vue 3.5.41
 **Primary Dependencies**: Sanctum 4.3.3, PHPUnit 12.5.33, Vue Router 5.2.0, Pinia 4.0.3, Axios 1.19.0, Element Plus 2.14.5, Vitest 4.1.11, Playwright 1.62.1
 **Storage**: Existing MySQL-compatible users, database sessions, password-reset-token, cache, queue, SMTP services, and a minimized authentication-mail delivery-event table
-**Testing**: PHPUnit feature/unit, scripted production-like API percentile checks, auth-mail delivery-event acceptance checks, Vitest component/service/store, Playwright Chromium/Firefox/WebKit, Pint
+**Testing**: PHPUnit feature/unit, scripted monotonic client-observed production-like API percentile checks, versioned HMAC mail-delivery contract/acceptance checks, Vitest component/service/store, Playwright Chromium/Firefox/WebKit, Pint
 **Target Platform**: Credentialed browser SPA and Laravel JSON API
 **Project Type**: Full-stack web feature
 **Performance Goals**: After 10 excluded warm-ups, p95 within 2 seconds for 100 actions at concurrency five: 10 registrations, 20 successful sign-ins, 10 invalid sign-ins with distinct limiter keys, 20 session reads, 10 continuations, 10 recovery requests, 10 valid resets, and 10 invalid/expired resets; at least 95 of 100 valid-account recovery emails reach a signed canonical provider delivery event within 5 minutes
-**Constraints**: No password/token leakage; fail-closed compromised-password checks; 15-minute idle and 8-hour absolute limits; stable recovery-link error codes; neutral recovery; provider-neutral HMAC-signed delivery events with five-minute replay protection and no recipient data; LGPD; no new packages; the complete backend contract/tests precede all frontend changes
+**Constraints**: No password/token leakage; fail-closed compromised-password checks; 15-minute idle and 8-hour absolute limits; stable recovery-link error codes; neutral recovery; lowercase UUID `X-Zunera-Message-ID`; `v1` lowercase-hex HMAC-SHA256 over timestamp + period + raw body; constant-time verification; ±300-second replay window; no recipient event data; LGPD; no new packages; the complete backend contract/tests precede all frontend changes
 **Scale/Scope**: Authentication surfaces and API only; use existing deployment capacity with auth-mail, throttle, and expiry metrics
 
 ## Delivery Scope and Order

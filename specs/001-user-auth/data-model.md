@@ -31,7 +31,8 @@
 ## Authentication mail delivery event
 
 - `event_id`: unique opaque event identifier used for idempotency.
-- `message_id`: opaque Zunera correlation identifier added to outgoing auth mail.
+- `message_id`: lowercase RFC 4122 UUID added to outgoing auth mail as
+  `X-Zunera-Message-ID` and echoed unchanged by the canonical event.
 - `status`: `delivered`, `bounced`, `deferred`, or `rejected`.
 - `occurred_at` and `received_at`: provider/gateway and application timestamps.
 - The signed canonical event contains no recipient address, subject, body, token,
