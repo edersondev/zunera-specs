@@ -318,8 +318,11 @@ new password while the old password and used recovery instruction no longer work
   information through color alone.
 - **SC-009**: For at least 95% of authentication actions under normal operating
   conditions, users see a meaningful success or error outcome within two seconds,
-  measured over at least 100 representative actions in a production-like release
-  environment.
+  measured in a production-like release environment after 10 excluded warm-up
+  actions using 100 actions at concurrency five: 10 registrations, 20 successful
+  sign-ins, 10 invalid sign-ins with distinct limiter keys, 20 session reads, 10
+  session continuations, 10 recovery requests, 10 valid resets, and 10 invalid or
+  expired reset attempts.
 - **SC-010**: 100% of tested sessions warn one minute before idle expiration,
   deny protected access after 15 minutes of inactivity, and deny protected access
   after eight total hours regardless of activity.

@@ -2,7 +2,7 @@
 
 **Input**: Design artifacts from `/specs/001-user-auth/`
 **Tests**: Required by SQR-005 and the constitution.
-**Delivery gate**: Complete T001–T044 before changing any frontend file.
+**Delivery gate**: Complete T001–T046 before changing any frontend file.
 
 ## Format
 
@@ -85,14 +85,14 @@
 
 - [ ] T025 [P] [US3] Write failing neutral-response, equivalent-path, three-emails-per-hour, queued-delivery, unknown-email, and retry tests in `../zunera-backend/tests/Feature/Auth/PasswordRecoveryRequestTest.php`
 - [ ] T026 [P] [US3] Write failing valid, expired, used, superseded, malformed, validation-preserved, concurrent reset, old-password denial, remember-token rotation, all-session deletion, and stable recovery-code tests in `../zunera-backend/tests/Feature/Auth/PasswordResetTest.php`
-- [ ] T027 [P] [US3] Write failing encrypted-queue, after-commit, superseded-send suppression, delivery metric, and safe security-notice tests in `../zunera-backend/tests/Unit/Authentication/AuthenticationNotificationTest.php`
+- [ ] T027 [P] [US3] Write failing encrypted-queue, after-commit, superseded-send suppression, opaque message-correlation, delivery metric, and safe security-notice tests in `../zunera-backend/tests/Unit/Authentication/AuthenticationNotificationTest.php`
 
 ### Implementation
 
 - [ ] T028 [US3] Implement normalized recovery/reset Requests and DTOs in `../zunera-backend/app/Http/Requests/Auth/RequestPasswordRecoveryRequest.php`, `../zunera-backend/app/Http/Requests/Auth/ResetPasswordRequest.php`, `../zunera-backend/app/Data/Authentication/RecoveryRequestData.php`, and `../zunera-backend/app/Data/Authentication/ResetPasswordData.php`
 - [ ] T029 [US3] Implement neutral queued recovery and the HMAC-keyed three-send rolling-hour limit in `../zunera-backend/app/Services/Authentication/PasswordRecoveryService.php` and `../zunera-backend/app/Services/Authentication/RecoveryEmailLimiter.php`
 - [ ] T030 [US3] Implement transactional token validation, expired/general-invalid outcomes, password update, token consumption, remember-token rotation, and session deletion in `../zunera-backend/app/Services/Authentication/PasswordResetService.php`
-- [ ] T031 [US3] Implement encrypted queued reset instructions, current-token recheck, and password-change notices after commit in `../zunera-backend/app/Notifications/Auth/ResetPasswordNotification.php` and `../zunera-backend/app/Notifications/Auth/PasswordChangedNotification.php`
+- [ ] T031 [US3] Implement encrypted queued reset instructions, opaque message-correlation headers, current-token recheck, and password-change notices after commit in `../zunera-backend/app/Notifications/Auth/ResetPasswordNotification.php` and `../zunera-backend/app/Notifications/Auth/PasswordChangedNotification.php`
 - [ ] T032 [US3] Expose neutral recovery and reset endpoints with stable recovery/password-safety errors in `../zunera-backend/app/Http/Controllers/Api/V1/AuthController.php` and `../zunera-backend/routes/api.php`
 - [ ] T033 [US3] Add explicit recovery error-schema contract assertions in `../zunera-backend/tests/Feature/Auth/PasswordResetContractTest.php`
 - [ ] T034 [US3] Run recovery/reset/notification tests and verify all schemas against `specs/001-user-auth/contracts/auth-api.yaml`
@@ -104,17 +104,19 @@
 **Purpose**: Finish cross-cutting backend work and prove the contract before frontend starts.
 
 - [ ] T035 Add secret-free auth events and queue/delivery/throttle/expiry metrics in `../zunera-backend/app/Services/Authentication/AuthenticationAudit.php` and `../zunera-backend/config/logging.php`
-- [ ] T036 Add recovery-token, session, rate-key, failed-job, and security-log retention schedules in `../zunera-backend/routes/console.php` and `../zunera-backend/.env.example`
-- [ ] T037 [P] Create a dependency-free 100-sample API timing harness with p95 assertions in `../zunera-backend/scripts/auth-performance-smoke.sh` and `../zunera-backend/tests/Performance/AuthenticationLatencyTest.php`
-- [ ] T038 [P] Create a 100-message provider-delivery acceptance command and tests in `../zunera-backend/app/Console/Commands/VerifyAuthMailDelivery.php` and `../zunera-backend/tests/Feature/Auth/AuthMailDeliveryVerificationTest.php`
-- [ ] T039 [P] Document provider delivery events, queue-age alerts, the five-minute threshold, incident steps, and LGPD-safe metrics in `../zunera-backend/docs/auth-mail-operations.md`
-- [ ] T040 Validate and reconcile every backend operation, stable error code, status, and schema in `specs/001-user-auth/contracts/auth-api.yaml`
-- [ ] T041 Run the full backend PHPUnit suite and Pint and record results in `specs/001-user-auth/quickstart.md`
-- [ ] T042 Run the 100-action production-like latency check and record p95 evidence in `specs/001-user-auth/quickstart.md`
-- [ ] T043 Run the 100-message production-like provider-delivery check and record delivery-percent evidence in `specs/001-user-auth/quickstart.md`
-- [ ] T044 Record a passing backend gate covering contract, authorization, validation, services, security, tests, performance, and mail delivery in `specs/001-user-auth/quickstart.md`
+- [ ] T036 Add recovery-token, session, rate-key, delivery-event, failed-job, and security-log retention schedules in `../zunera-backend/routes/console.php` and `../zunera-backend/.env.example`
+- [ ] T037 [P] Create the fixed release timing profile with 10 warm-ups, concurrency five, and the SC-009 10/20/10/20/10/10/10/10 operation mix in `../zunera-backend/scripts/auth-performance-smoke.sh`, `../zunera-backend/tests/Performance/AuthenticationLatencyTest.php`, and `../zunera-backend/tests/Performance/Fixtures/auth-release-profile.json`
+- [ ] T038 [P] Write failing canonical delivery-event tests for HMAC signatures, five-minute replay rejection, idempotency, allowed statuses, recipient-data rejection, message correlation, and the 100-message acceptance calculation in `../zunera-backend/tests/Feature/Auth/AuthMailDeliveryEventTest.php` and `../zunera-backend/tests/Feature/Auth/AuthMailDeliveryVerificationTest.php`
+- [ ] T039 Implement minimized idempotent delivery-event persistence and the provider-neutral event-source contract in `../zunera-backend/database/migrations/2026_08_30_000002_create_auth_mail_delivery_events.php`, `../zunera-backend/app/Data/Authentication/AuthenticationMailDeliveryEventData.php`, `../zunera-backend/app/Contracts/AuthenticationMailDeliveryEventSource.php`, and `../zunera-backend/app/Services/Authentication/AuthenticationMailDeliveryEvents.php`
+- [ ] T040 Implement the signed canonical delivery-event Request/controller/route and 100-message verification command in `../zunera-backend/app/Http/Requests/Auth/StoreAuthenticationMailDeliveryEventRequest.php`, `../zunera-backend/app/Http/Controllers/Api/V1/AuthMailDeliveryEventController.php`, `../zunera-backend/app/Console/Commands/VerifyAuthMailDelivery.php`, and `../zunera-backend/routes/api.php`
+- [ ] T041 [P] Document provider delivery events, queue-age alerts, the five-minute threshold, incident steps, and LGPD-safe metrics in `../zunera-backend/docs/auth-mail-operations.md`
+- [ ] T042 Validate and reconcile every backend operation, stable error code, status, and schema in `specs/001-user-auth/contracts/auth-api.yaml`
+- [ ] T043 Run the full backend PHPUnit suite and Pint and record results in `specs/001-user-auth/quickstart.md`
+- [ ] T044 Run the 100-action production-like latency check and record p95 evidence in `specs/001-user-auth/quickstart.md`
+- [ ] T045 Run the 100-message production-like provider-delivery check and record delivery-percent evidence in `specs/001-user-auth/quickstart.md`
+- [ ] T046 Record a passing backend gate covering contract, authorization, validation, services, security, tests, performance, and mail delivery in `specs/001-user-auth/quickstart.md`
 
-**Checkpoint**: T044 is mandatory before T045 or any other frontend change.
+**Checkpoint**: T046 is mandatory before T047 or any other frontend change.
 
 ---
 
@@ -122,13 +124,13 @@
 
 **Purpose**: Build shared design, transport, state, routing, and privacy foundations from the verified backend contract.
 
-- [ ] T045 Add backend base URL and LGPD privacy/privacy-rights URL variables to `../zunera-frontend/.env.example`
-- [ ] T046 [P] Write failing CSRF, `419` retry, validation, authentication, throttle, stable recovery-code, password-safety outage, and secret-redaction transport tests in `../zunera-frontend/src/services/__tests__/httpClient.spec.js`
-- [ ] T047 Bootstrap Tailwind, Element Plus, semantic Zunera tokens, and the router outlet in `../zunera-frontend/vite.config.js`, `../zunera-frontend/src/main.js`, `../zunera-frontend/src/assets/main.css`, `../zunera-frontend/src/assets/theme.css`, and `../zunera-frontend/src/App.vue`
-- [ ] T048 Implement credentialed Axios, one-time CSRF refresh/retry, verified error-code normalization, and secret-safe transport in `../zunera-frontend/src/services/httpClient.js` and `../zunera-frontend/src/services/authService.js`
-- [ ] T049 [P] Create the centered `AuthLayout` with mandatory privacy links before form submission in `../zunera-frontend/src/layouts/AuthLayout.vue` and `../zunera-frontend/src/components/auth/PrivacyNoticeLinks.vue`
-- [ ] T050 [P] Write layout tests for visible privacy/privacy-rights links, keyboard access, and signed-out content placement in `../zunera-frontend/src/layouts/__tests__/AuthLayout.spec.js`
-- [ ] T051 Implement setup-style shared session state and bootstrap without persisting credentials or recovery secrets in `../zunera-frontend/src/stores/auth/sessionStore.js`
+- [ ] T047 Add backend base URL and LGPD privacy/privacy-rights URL variables to `../zunera-frontend/.env.example`
+- [ ] T048 [P] Write failing CSRF, `419` retry, validation, authentication, throttle, stable recovery-code, password-safety outage, and secret-redaction transport tests in `../zunera-frontend/src/services/__tests__/httpClient.spec.js`
+- [ ] T049 Bootstrap Tailwind, Element Plus, semantic Zunera tokens, and the router outlet in `../zunera-frontend/vite.config.js`, `../zunera-frontend/src/main.js`, `../zunera-frontend/src/assets/main.css`, `../zunera-frontend/src/assets/theme.css`, and `../zunera-frontend/src/App.vue`
+- [ ] T050 Implement credentialed Axios, one-time CSRF refresh/retry, verified error-code normalization, and secret-safe transport in `../zunera-frontend/src/services/httpClient.js` and `../zunera-frontend/src/services/authService.js`
+- [ ] T051 [P] Create the centered `AuthLayout` with mandatory privacy links before form submission in `../zunera-frontend/src/layouts/AuthLayout.vue` and `../zunera-frontend/src/components/auth/PrivacyNoticeLinks.vue`
+- [ ] T052 [P] Write layout tests for visible privacy/privacy-rights links, keyboard access, and signed-out content placement in `../zunera-frontend/src/layouts/__tests__/AuthLayout.spec.js`
+- [ ] T053 Implement setup-style shared session state and bootstrap without persisting credentials or recovery secrets in `../zunera-frontend/src/stores/auth/sessionStore.js`
 
 ---
 
@@ -139,19 +141,19 @@
 
 ### Tests
 
-- [ ] T052 [P] [US1] Write registration response, validation, `503 password_safety_unavailable`, and `name`-absence tests in `../zunera-frontend/src/services/__tests__/authService.registration.spec.js`
-- [ ] T053 [P] [US1] Write registration/bootstrap/session-state tests in `../zunera-frontend/src/stores/auth/__tests__/sessionStore.registration.spec.js`
-- [ ] T054 [P] [US1] Write top-label, password-guidance, validation, loading-lock, outage, duplicate-feedback, and privacy-link tests in `../zunera-frontend/src/components/auth/__tests__/RegisterForm.spec.js`
+- [ ] T054 [P] [US1] Write registration response, validation, `503 password_safety_unavailable`, and `name`-absence tests in `../zunera-frontend/src/services/__tests__/authService.registration.spec.js`
+- [ ] T055 [P] [US1] Write registration/bootstrap/session-state tests in `../zunera-frontend/src/stores/auth/__tests__/sessionStore.registration.spec.js`
+- [ ] T056 [P] [US1] Write top-label, password-guidance, validation, loading-lock, outage, duplicate-feedback, and privacy-link tests in `../zunera-frontend/src/components/auth/__tests__/RegisterForm.spec.js`
 
 ### Implementation
 
-- [ ] T055 [US1] Add registration transport and error handling in `../zunera-frontend/src/services/authService.js`
-- [ ] T056 [US1] Add registration and authenticated-session actions in `../zunera-frontend/src/stores/auth/sessionStore.js`
-- [ ] T057 [US1] Create registration UI using `<ElForm label-position="top">`, `<ElFormItem>`, durable alerts, and one loading state in `../zunera-frontend/src/components/auth/RegisterForm.vue` and `../zunera-frontend/src/components/auth/PasswordRequirements.vue`
-- [ ] T058 [US1] Create registration and protected landing views, wrapping the signed-out form in `AuthLayout`, in `../zunera-frontend/src/views/auth/RegisterView.vue` and `../zunera-frontend/src/views/ProtectedHomeView.vue`
-- [ ] T059 [US1] Add registration, protected landing, guest-only, and intended-destination routes in `../zunera-frontend/src/router/index.js` and `../zunera-frontend/src/router/authGuard.js`
-- [ ] T060 [US1] Add success, duplicate/repeated submit, outage, validation, protected access, 320px, keyboard, and privacy-link Playwright coverage in `../zunera-frontend/e2e/authentication-registration.spec.js`
-- [ ] T061 [US1] Run registration Vitest, Playwright, and build checks and record results in `specs/001-user-auth/quickstart.md`
+- [ ] T057 [US1] Add registration transport and error handling in `../zunera-frontend/src/services/authService.js`
+- [ ] T058 [US1] Add registration and authenticated-session actions in `../zunera-frontend/src/stores/auth/sessionStore.js`
+- [ ] T059 [US1] Create registration UI using `<ElForm label-position="top">`, `<ElFormItem>`, durable alerts, and one loading state in `../zunera-frontend/src/components/auth/RegisterForm.vue` and `../zunera-frontend/src/components/auth/PasswordRequirements.vue`
+- [ ] T060 [US1] Create registration and protected landing views, wrapping the signed-out form in `AuthLayout`, in `../zunera-frontend/src/views/auth/RegisterView.vue` and `../zunera-frontend/src/views/ProtectedHomeView.vue`
+- [ ] T061 [US1] Add registration, protected landing, guest-only, and intended-destination routes in `../zunera-frontend/src/router/index.js` and `../zunera-frontend/src/router/authGuard.js`
+- [ ] T062 [US1] Add success, duplicate/repeated submit, outage, validation, protected access, 320px, keyboard, and privacy-link Playwright coverage in `../zunera-frontend/e2e/authentication-registration.spec.js`
+- [ ] T063 [US1] Run registration Vitest, Playwright, and build checks and record results in `specs/001-user-auth/quickstart.md`
 
 ---
 
@@ -162,20 +164,20 @@
 
 ### Tests
 
-- [ ] T062 [P] [US2] Write login, logout, session, continuation, invalid-credential, throttle, `419`, and `401` transport tests in `../zunera-frontend/src/services/__tests__/authService.session.spec.js`
-- [ ] T063 [P] [US2] Write bootstrap, login, logout, invalidation, and authoritative-expiry store tests in `../zunera-frontend/src/stores/auth/__tests__/sessionStore.session.spec.js`
-- [ ] T064 [P] [US2] Write top-label, retained-email, cleared-password, alert, loading-lock, and privacy-link tests in `../zunera-frontend/src/components/auth/__tests__/SignInForm.spec.js`
-- [ ] T065 [P] [US2] Write warning, focus-trap, keyboard, continue, sign-out, and expiration tests in `../zunera-frontend/src/components/auth/__tests__/SessionExpiryDialog.spec.js`
+- [ ] T064 [P] [US2] Write login, logout, session, continuation, invalid-credential, throttle, `419`, and `401` transport tests in `../zunera-frontend/src/services/__tests__/authService.session.spec.js`
+- [ ] T065 [P] [US2] Write bootstrap, login, logout, invalidation, and authoritative-expiry store tests in `../zunera-frontend/src/stores/auth/__tests__/sessionStore.session.spec.js`
+- [ ] T066 [P] [US2] Write top-label, retained-email, cleared-password, alert, loading-lock, and privacy-link tests in `../zunera-frontend/src/components/auth/__tests__/SignInForm.spec.js`
+- [ ] T067 [P] [US2] Write warning, focus-trap, keyboard, continue, sign-out, and expiration tests in `../zunera-frontend/src/components/auth/__tests__/SessionExpiryDialog.spec.js`
 
 ### Implementation
 
-- [ ] T066 [US2] Add login, logout, session, continuation, throttle, and invalidation methods/actions in `../zunera-frontend/src/services/authService.js` and `../zunera-frontend/src/stores/auth/sessionStore.js`
-- [ ] T067 [US2] Create sign-in UI with `<ElForm label-position="top">`, durable feedback, retained email, cleared password, and `AuthLayout` privacy links in `../zunera-frontend/src/components/auth/SignInForm.vue` and `../zunera-frontend/src/views/auth/SignInView.vue`
-- [ ] T068 [US2] Implement authoritative timers and accessible warning behavior in `../zunera-frontend/src/composables/useSessionExpiry.js` and `../zunera-frontend/src/components/auth/SessionExpiryDialog.vue`
-- [ ] T069 [US2] Enforce protected/guest routes, safe redirects, bootstrap-before-render, and global expiry handling in `../zunera-frontend/src/router/authGuard.js`, `../zunera-frontend/src/router/index.js`, and `../zunera-frontend/src/App.vue`
-- [ ] T070 [US2] Add sign-in, invalid credential, protected route, logout, and expiry Playwright journeys in `../zunera-frontend/e2e/authentication-session.spec.js`
-- [ ] T071 [P] [US2] Add throttle, recovery availability, keyboard, alert, 200%-zoom, 320px, and privacy-link coverage in `../zunera-frontend/e2e/authentication-security-accessibility.spec.js`
-- [ ] T072 [US2] Run session Vitest, Playwright, and build checks and record results in `specs/001-user-auth/quickstart.md`
+- [ ] T068 [US2] Add login, logout, session, continuation, throttle, and invalidation methods/actions in `../zunera-frontend/src/services/authService.js` and `../zunera-frontend/src/stores/auth/sessionStore.js`
+- [ ] T069 [US2] Create sign-in UI with `<ElForm label-position="top">`, durable feedback, retained email, cleared password, and `AuthLayout` privacy links in `../zunera-frontend/src/components/auth/SignInForm.vue` and `../zunera-frontend/src/views/auth/SignInView.vue`
+- [ ] T070 [US2] Implement authoritative timers and accessible warning behavior in `../zunera-frontend/src/composables/useSessionExpiry.js` and `../zunera-frontend/src/components/auth/SessionExpiryDialog.vue`
+- [ ] T071 [US2] Enforce protected/guest routes, safe redirects, bootstrap-before-render, and global expiry handling in `../zunera-frontend/src/router/authGuard.js`, `../zunera-frontend/src/router/index.js`, and `../zunera-frontend/src/App.vue`
+- [ ] T072 [US2] Add sign-in, invalid credential, protected route, logout, and expiry Playwright journeys in `../zunera-frontend/e2e/authentication-session.spec.js`
+- [ ] T073 [P] [US2] Add throttle, recovery availability, keyboard, alert, 200%-zoom, 320px, and privacy-link coverage in `../zunera-frontend/e2e/authentication-security-accessibility.spec.js`
+- [ ] T074 [US2] Run session Vitest, Playwright, and build checks and record results in `specs/001-user-auth/quickstart.md`
 
 ---
 
@@ -186,28 +188,28 @@
 
 ### Tests
 
-- [ ] T073 [P] [US3] Write neutral recovery, reset success, stable expired/general-invalid mapping, password-safety outage, and token-redaction tests in `../zunera-frontend/src/services/__tests__/authService.recovery.spec.js`
-- [ ] T074 [P] [US3] Write top-label, neutral confirmation, retry, loading-lock, password guidance, recovery states, local-token, and privacy-link tests in `../zunera-frontend/src/components/auth/__tests__/RecoveryAndResetForms.spec.js`
+- [ ] T075 [P] [US3] Write neutral recovery, reset success, stable expired/general-invalid mapping, password-safety outage, and token-redaction tests in `../zunera-frontend/src/services/__tests__/authService.recovery.spec.js`
+- [ ] T076 [P] [US3] Write top-label, neutral confirmation, retry, loading-lock, password guidance, recovery states, local-token, and privacy-link tests in `../zunera-frontend/src/components/auth/__tests__/RecoveryAndResetForms.spec.js`
 
 ### Implementation
 
-- [ ] T075 [US3] Add recovery/reset transports with stable error mapping and no token persistence in `../zunera-frontend/src/services/authService.js`
-- [ ] T076 [US3] Create recovery request/confirmation UI with `<ElForm label-position="top">`, durable neutral feedback, troubleshooting, retry, and `AuthLayout` in `../zunera-frontend/src/components/auth/RecoveryRequestForm.vue`, `../zunera-frontend/src/components/auth/RecoveryConfirmation.vue`, and `../zunera-frontend/src/views/auth/ForgotPasswordView.vue`
-- [ ] T077 [US3] Create reset UI with `<ElForm label-position="top">`, password guidance, stable expired/general-invalid states, sign-in path, and `AuthLayout` in `../zunera-frontend/src/components/auth/ResetPasswordForm.vue`, `../zunera-frontend/src/components/auth/RecoveryLinkState.vue`, and `../zunera-frontend/src/views/auth/ResetPasswordView.vue`
-- [ ] T078 [US3] Add recovery/reset routes while keeping email/token route-local and out of Pinia/storage in `../zunera-frontend/src/router/index.js`
-- [ ] T079 [US3] Add known/unknown recovery, newest-token, expired/general-invalid, reset, old-password, session-invalidation, and privacy-link Playwright journeys in `../zunera-frontend/e2e/authentication-recovery.spec.js`
-- [ ] T080 [US3] Run recovery/reset Vitest, Playwright, and build checks and record results in `specs/001-user-auth/quickstart.md`
+- [ ] T077 [US3] Add recovery/reset transports with stable error mapping and no token persistence in `../zunera-frontend/src/services/authService.js`
+- [ ] T078 [US3] Create recovery request/confirmation UI with `<ElForm label-position="top">`, durable neutral feedback, troubleshooting, retry, and `AuthLayout` in `../zunera-frontend/src/components/auth/RecoveryRequestForm.vue`, `../zunera-frontend/src/components/auth/RecoveryConfirmation.vue`, and `../zunera-frontend/src/views/auth/ForgotPasswordView.vue`
+- [ ] T079 [US3] Create reset UI with `<ElForm label-position="top">`, password guidance, stable expired/general-invalid states, sign-in path, and `AuthLayout` in `../zunera-frontend/src/components/auth/ResetPasswordForm.vue`, `../zunera-frontend/src/components/auth/RecoveryLinkState.vue`, and `../zunera-frontend/src/views/auth/ResetPasswordView.vue`
+- [ ] T080 [US3] Add recovery/reset routes while keeping email/token route-local and out of Pinia/storage in `../zunera-frontend/src/router/index.js`
+- [ ] T081 [US3] Add known/unknown recovery, newest-token, expired/general-invalid, reset, old-password, session-invalidation, and privacy-link Playwright journeys in `../zunera-frontend/e2e/authentication-recovery.spec.js`
+- [ ] T082 [US3] Run recovery/reset Vitest, Playwright, and build checks and record results in `specs/001-user-auth/quickstart.md`
 
 ---
 
 ## Phase 11: Frontend Polish and Full Verification
 
-- [ ] T081 [P] Verify every signed-out view renders current privacy/privacy-rights links before form submission in `../zunera-frontend/src/views/auth/__tests__/SignedOutPrivacyLinks.spec.js`
-- [ ] T082 [P] Complete keyboard, focus, alert, contrast, light/dark/system, 200%-zoom, and 320px regression coverage in `../zunera-frontend/e2e/authentication-security-accessibility.spec.js`
-- [ ] T083 Run the full frontend Vitest suite and record results in `specs/001-user-auth/quickstart.md`
-- [ ] T084 Run the frontend production build and record results in `specs/001-user-auth/quickstart.md`
-- [ ] T085 Run the isolated Chromium/Firefox/WebKit Playwright suite and record results in `specs/001-user-auth/quickstart.md`
-- [ ] T086 Execute all manual authentication smoke scenarios and record outcomes in `specs/001-user-auth/quickstart.md`
+- [ ] T083 [P] Verify every signed-out view renders current privacy/privacy-rights links before form submission in `../zunera-frontend/src/views/auth/__tests__/SignedOutPrivacyLinks.spec.js`
+- [ ] T084 [P] Complete keyboard, focus, alert, contrast, light/dark/system, 200%-zoom, and 320px regression coverage in `../zunera-frontend/e2e/authentication-security-accessibility.spec.js`
+- [ ] T085 Run the full frontend Vitest suite and record results in `specs/001-user-auth/quickstart.md`
+- [ ] T086 Run the frontend production build and record results in `specs/001-user-auth/quickstart.md`
+- [ ] T087 Run the isolated Chromium/Firefox/WebKit Playwright suite and record results in `specs/001-user-auth/quickstart.md`
+- [ ] T088 Execute all manual authentication smoke scenarios and record outcomes in `specs/001-user-auth/quickstart.md`
 
 ---
 
@@ -215,33 +217,33 @@
 
 1. T001–T010 establish the backend foundation.
 2. Backend story slices T011–T016, T017–T024, and T025–T034 may run in parallel after T010, with shared-file edits sequenced.
-3. T035–T044 follow all backend stories. T044 is the feature-wide backend gate.
-4. T045–T051 start only after T044 and establish shared frontend files.
-5. Frontend story slices T052–T061, T062–T072, and T073–T080 follow T051; shared service/store/router edits must be sequenced US1 → US2 → US3.
-6. T081–T086 follow all selected frontend stories.
+3. T035–T046 follow all backend stories. T046 is the feature-wide backend gate.
+4. T047–T053 start only after T046 and establish shared frontend files.
+5. Frontend story slices T054–T063, T064–T074, and T075–T082 follow T053; shared service/store/router edits must be sequenced US1 → US2 → US3.
+6. T083–T088 follow all selected frontend stories.
 
 ### User Story Dependencies
 
 - Backend US1, US2, and US3 have no cross-story domain dependency after T010.
-- Frontend US1, US2, and US3 all depend on the complete backend gate T044 and frontend foundation T051.
+- Frontend US1, US2, and US3 all depend on the complete backend gate T046 and frontend foundation T053.
 - Frontend shared-file changes execute US1 → US2 → US3 even when independent components/tests run in parallel.
 
 ## Parallel Examples
 
 ```text
 Backend after T010: T011/T012 | T017/T018/T019 | T025/T026/T027
-Backend release work after T034: T037 | T038 | T039
-Frontend foundation after T044: T046 | T049/T050
-Frontend tests after T051: T052/T053/T054 | T062/T063/T064/T065 | T073/T074
+Backend release work after T034: T037 | T038 | T041
+Frontend foundation after T046: T048 | T051/T052
+Frontend tests after T053: T054/T055/T056 | T064/T065/T066/T067 | T075/T076
 ```
 
 ## Implementation Strategy
 
 ### MVP
 
-1. Complete the entire backend through T044.
-2. Complete frontend foundation T045–T051.
-3. Complete frontend US1 T052–T061.
+1. Complete the entire backend through T046.
+2. Complete frontend foundation T047–T053.
+3. Complete frontend US1 T054–T063.
 4. Validate registration independently before adding remaining frontend stories.
 
 ### Incremental Frontend Delivery

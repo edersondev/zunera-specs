@@ -22,6 +22,16 @@
 - **Rationale**: This prevents account enumeration, keeps the request responsive, and directly implements the clarified security requirements.
 - **Alternatives considered**: Synchronous mail and account-specific responses were rejected because they expose timing/account state and make the request dependent on SMTP latency.
 
+### Provider-neutral delivery evidence
+- **Decision**: Accept a canonical, HMAC-signed delivery event through a provider-neutral adapter. The deployment mail gateway maps its provider payload to an opaque message correlation ID, event ID, status, and timestamps; the application stores no recipient address in delivery-event records. Duplicate events are idempotent and signatures have a five-minute replay window.
+- **Rationale**: This makes the five-minute acceptance check implementable without coupling the feature to a paid vendor or adding a package, while preserving a production provider delivery signal.
+- **Alternatives considered**: SMTP acceptance was rejected because it proves handoff rather than provider delivery. A vendor-specific SDK was rejected because no provider is mandated and new packages are out of scope.
+
+### Performance acceptance profile
+- **Decision**: Use 10 excluded warm-up actions followed by the fixed 100-action mix in SC-009 at concurrency five. Pre-provision accounts and reset fixtures; use distinct limiter keys for invalid sign-ins; calculate one combined p95 from server-observed request durations.
+- **Rationale**: A fixed mix makes reruns comparable and covers every externally visible authentication action without allowing throttling setup to distort the normal-operation sample.
+- **Alternatives considered**: An arbitrary 100-request sample was rejected because implementations could choose only the fastest action and still claim success.
+
 ### Recovery-link error contract
 - **Decision**: Return stable `recovery_link_expired` and `recovery_link_invalid` codes. Used, superseded, and malformed instructions share the privacy-safe invalid outcome; only an extant expired instruction receives the expired outcome.
 - **Rationale**: The frontend needs deterministic states without requiring the backend to retain consumed recovery secrets or disclose unnecessary token history.

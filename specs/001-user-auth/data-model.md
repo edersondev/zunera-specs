@@ -28,9 +28,20 @@
 - Keys use a one-way hash of normalized email plus secondary IP context; values include attempt count and expiry.
 - No password, token, or recoverable email content is stored in these keys.
 
+## Authentication mail delivery event
+
+- `event_id`: unique opaque event identifier used for idempotency.
+- `message_id`: opaque Zunera correlation identifier added to outgoing auth mail.
+- `status`: `delivered`, `bounced`, `deferred`, or `rejected`.
+- `occurred_at` and `received_at`: provider/gateway and application timestamps.
+- The signed canonical event contains no recipient address, subject, body, token,
+  or provider-specific payload and is retained only for the documented metric window.
+
 ## Relationships and lifecycle
 
 - A user has many authenticated sessions and at most one active broker recovery token.
 - Registration creates a user and authenticates one session transactionally.
 - Sign-out invalidates only the current session.
 - Successful password reset changes the hash, consumes the token, deletes all sessions for the user, and queues a security notification after commit.
+- Recovery notification attempts correlate to zero or more idempotent delivery
+  events through the opaque `message_id`.

@@ -3,7 +3,7 @@
 ## Backend-first setup
 
 1. In `../zunera-backend`, check out branch `001-user-auth` and install the already-declared dependencies.
-2. Configure the database, DB session/cache/queue, production transactional email provider, `FRONTEND_URL`, credentialed CORS origins, and Sanctum stateful domains through environment variables.
+2. Configure the database, DB session/cache/queue, production transactional email gateway, canonical delivery-event URL/HMAC secret/replay window, `FRONTEND_URL`, credentialed CORS origins, and Sanctum stateful domains through environment variables.
 3. Run migrations. The feature migration makes `users.name` nullable; no seed account is required.
 4. Start the queue worker and mail service. Recovery and security notifications are queued after transaction commit.
 5. Run focused PHPUnit tests, then the full suite and Pint.
@@ -32,7 +32,7 @@
 php artisan route:list -vv --path=api
 php artisan test --compact
 vendor/bin/pint --dirty --format agent
-scripts/auth-performance-smoke.sh --samples=100
+scripts/auth-performance-smoke.sh --profile=release --warmup=10 --samples=100 --concurrency=5
 php artisan auth-mail:verify-delivery --samples=100
 npm run test:unit -- --run
 npm run build

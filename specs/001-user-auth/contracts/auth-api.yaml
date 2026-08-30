@@ -39,13 +39,26 @@ paths:
       security: []
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ResetRequest' } } } }
       responses: { '200': { description: Password changed and sessions invalidated, content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } } }, '422': { $ref: '#/components/responses/ResetRequestError' }, '503': { $ref: '#/components/responses/PasswordSafetyUnavailable' } }
+  /integrations/auth-mail/delivery-events:
+    post:
+      summary: Record a canonical authentication-mail delivery event
+      description: The deployment mail gateway maps provider events to this recipient-free payload and signs the timestamp plus raw body. Duplicate event IDs are accepted idempotently; timestamps outside the five-minute replay window are rejected.
+      operationId: recordAuthenticationMailDeliveryEvent
+      security: [{ webhookSignature: [] }]
+      parameters:
+        - { name: X-Zunera-Timestamp, in: header, required: true, schema: { type: integer, format: int64 } }
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AuthenticationMailDeliveryEventRequest' } } } }
+      responses: { '202': { description: Event accepted or previously recorded, content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } } }, '401': { $ref: '#/components/responses/GenericError' }, '422': { $ref: '#/components/responses/ValidationError' } }
 components:
-  securitySchemes: { cookieAuth: { type: apiKey, in: cookie, name: zunera_session } }
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: zunera_session }
+    webhookSignature: { type: apiKey, in: header, name: X-Zunera-Signature, description: HMAC of the timestamp and raw request body using the deployment delivery-event secret }
   schemas:
     RegisterRequest: { type: object, required: [email, password, password_confirmation], properties: { email: { type: string, format: email }, password: { type: string, minLength: 15, maxLength: 64 }, password_confirmation: { type: string } } }
     LoginRequest: { type: object, required: [email, password], properties: { email: { type: string, format: email }, password: { type: string } } }
     RecoveryRequest: { type: object, required: [email], properties: { email: { type: string, format: email } } }
     ResetRequest: { type: object, required: [email, token, password, password_confirmation], properties: { email: { type: string, format: email }, token: { type: string }, password: { type: string, minLength: 15, maxLength: 64 }, password_confirmation: { type: string } } }
+    AuthenticationMailDeliveryEventRequest: { type: object, additionalProperties: false, required: [event_id, message_id, status, occurred_at], properties: { event_id: { type: string, minLength: 16, maxLength: 255 }, message_id: { type: string, minLength: 16, maxLength: 255 }, status: { type: string, enum: [delivered, bounced, deferred, rejected] }, occurred_at: { type: string, format: date-time } } }
     User: { type: object, required: [id, email], additionalProperties: false, properties: { id: { type: integer }, email: { type: string, format: email } } }
     Session: { type: object, required: [idle_expires_at, absolute_expires_at], properties: { idle_expires_at: { type: string, format: date-time }, absolute_expires_at: { type: string, format: date-time } } }
     AuthResponse: { type: object, required: [data], properties: { data: { type: object, required: [user, session], properties: { user: { $ref: '#/components/schemas/User' }, session: { $ref: '#/components/schemas/Session' } } } } }
