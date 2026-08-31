@@ -65,3 +65,24 @@ Pending release evidence before frontend work:
 - 100-message provider delivery-event check proving at least 95 delivered
   canonical events within five minutes.
 - Backend gate T046 remains open until both release checks are recorded.
+- Frontend implementation proceeded after explicit owner waiver on 2026-08-30;
+  T044-T046 remain open and must be completed before release.
+
+Frontend evidence recorded 2026-08-30:
+
+- Frontend uses local machine commands per owner instruction.
+- Unit suite passed:
+  `npm run test:unit -- --run` reported 13 passing files and 16 passing tests.
+- Production build passed with Vite:
+  `npm run build`.
+- ESLint passed without cache:
+  `npx eslint . --fix`. The package script with `--cache` could not write
+  `.eslintcache` on the read-only mounted path.
+- Oxlint passed:
+  `npm run lint:oxlint`.
+- Playwright browser binaries were installed with `npx playwright install`.
+- Chromium and Firefox E2E passed:
+  `CI=1 npm run test:e2e -- --project=chromium --project=firefox`
+  reported 10 passing tests.
+- Full Playwright remains open because WebKit cannot launch on this host without
+  missing system dependency `libavif16`; `npx playwright install-deps` failed.
