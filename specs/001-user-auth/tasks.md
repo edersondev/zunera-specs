@@ -14,8 +14,8 @@
 
 **Purpose**: Coordinate branches and document backend environment settings.
 
-- [ ] T001 Verify branch `001-user-auth` in `.git/HEAD`, `../zunera-backend/.git/HEAD`, and `../zunera-frontend/.git/HEAD`
-- [ ] T002 Add Sanctum domains, frontend URL, credentialed CORS, 15-minute session lifetime, auth-mail queue/provider, delivery-event, and retention variables to `../zunera-backend/.env.example`
+- [X] T001 Verify branch `001-user-auth` in `.git/HEAD`, `../zunera-backend/.git/HEAD`, and `../zunera-frontend/.git/HEAD`
+- [X] T002 Add Sanctum domains, frontend URL, credentialed CORS, 15-minute session lifetime, auth-mail queue/provider, delivery-event, and retention variables to `../zunera-backend/.env.example`
 
 ---
 
@@ -23,14 +23,14 @@
 
 **Purpose**: Build shared secure session, validation, response, and persistence foundations.
 
-- [ ] T003 Write failing stateful-cookie, CSRF, JSON unauthenticated-response, and secret-redaction tests in `../zunera-backend/tests/Feature/Auth/AuthenticationInfrastructureTest.php`
-- [ ] T004 Enable Sanctum stateful API middleware, authenticated-session middleware, and JSON API error rendering in `../zunera-backend/bootstrap/app.php`
-- [ ] T005 [P] Configure exact credentialed origins, secure session cookies, 15-minute idle lifetime, and auth-mail queue in `../zunera-backend/config/cors.php`, `../zunera-backend/config/session.php`, and `../zunera-backend/config/queue.php`
-- [ ] T006 [P] Create the nullable-name migration for email-only registration in `../zunera-backend/database/migrations/2026_08_30_000001_make_user_name_nullable.php`
-- [ ] T007 [P] Implement email normalization and 15–64 character password validation with local common-password blocking and fail-closed remote-verifier handling in `../zunera-backend/app/Services/Authentication/EmailNormalizer.php` and `../zunera-backend/app/Services/Authentication/PasswordRules.php`
-- [ ] T008 [P] Create allow-listed auth resources that serialize only user `id`/`email` and session expiry timestamps in `../zunera-backend/app/Http/Resources/Auth/UserResource.php` and `../zunera-backend/app/Http/Resources/Auth/AuthenticatedSessionResource.php`
-- [ ] T009 Standardize validation, authentication, throttle, CSRF, session-expiry, `password_safety_unavailable`, `recovery_link_expired`, and `recovery_link_invalid` JSON errors in `../zunera-backend/app/Exceptions/AuthenticationException.php` and `../zunera-backend/bootstrap/app.php`
-- [ ] T010 Run infrastructure tests and migration checks, then reconcile foundation responses in `specs/001-user-auth/contracts/auth-api.yaml`
+- [X] T003 Write failing stateful-cookie, CSRF, JSON unauthenticated-response, and secret-redaction tests in `../zunera-backend/tests/Feature/Auth/AuthenticationInfrastructureTest.php`
+- [X] T004 Enable Sanctum stateful API middleware, authenticated-session middleware, and JSON API error rendering in `../zunera-backend/bootstrap/app.php`
+- [X] T005 [P] Configure exact credentialed origins, secure session cookies, 15-minute idle lifetime, and auth-mail queue in `../zunera-backend/config/cors.php`, `../zunera-backend/config/session.php`, and `../zunera-backend/config/queue.php`
+- [X] T006 [P] Create the nullable-name migration for email-only registration in `../zunera-backend/database/migrations/2026_08_30_000001_make_user_name_nullable.php`
+- [X] T007 [P] Implement email normalization and 15–64 character password validation with local common-password blocking and fail-closed remote-verifier handling in `../zunera-backend/app/Services/Authentication/EmailNormalizer.php` and `../zunera-backend/app/Services/Authentication/PasswordRules.php`
+- [X] T008 [P] Create allow-listed auth resources that serialize only user `id`/`email` and session expiry timestamps in `../zunera-backend/app/Http/Resources/Auth/UserResource.php` and `../zunera-backend/app/Http/Resources/Auth/AuthenticatedSessionResource.php`
+- [X] T009 Standardize validation, authentication, throttle, CSRF, session-expiry, `password_safety_unavailable`, `recovery_link_expired`, and `recovery_link_invalid` JSON errors in `../zunera-backend/app/Exceptions/AuthenticationException.php` and `../zunera-backend/bootstrap/app.php`
+- [X] T010 Run infrastructure tests and migration checks, then reconcile foundation responses in `specs/001-user-auth/contracts/auth-api.yaml`
 
 **Checkpoint**: Backend foundation passes before story work.
 
@@ -43,15 +43,15 @@
 
 ### Tests
 
-- [ ] T011 [P] [US1] Write failing registration contract tests for success, normalization, duplicate email, validation, repeated submission, authenticated response, `name` exclusion, and `503 password_safety_unavailable` in `../zunera-backend/tests/Feature/Auth/RegistrationTest.php`
-- [ ] T012 [P] [US1] Write failing unit tests for email normalization, password length/spaces/confirmation, local common-password rejection, compromised matches, verifier timeout, and fail-closed outage behavior in `../zunera-backend/tests/Unit/Authentication/EmailNormalizerTest.php` and `../zunera-backend/tests/Unit/Authentication/PasswordRulesTest.php`
+- [X] T011 [P] [US1] Write failing registration contract tests for success, normalization, duplicate email, validation, repeated submission, authenticated response, `name` exclusion, and `503 password_safety_unavailable` in `../zunera-backend/tests/Feature/Auth/RegistrationTest.php`
+- [X] T012 [P] [US1] Write failing unit tests for email normalization, password length/spaces/confirmation, local common-password rejection, compromised matches, verifier timeout, and fail-closed outage behavior in `../zunera-backend/tests/Unit/Authentication/EmailNormalizerTest.php` and `../zunera-backend/tests/Unit/Authentication/PasswordRulesTest.php`
 
 ### Implementation
 
-- [ ] T013 [US1] Implement normalized registration validation and immutable DTO mapping in `../zunera-backend/app/Http/Requests/Auth/RegisterRequest.php` and `../zunera-backend/app/Data/Authentication/RegisterData.php`
-- [ ] T014 [US1] Implement transactional account creation, unique-conflict handling, login, session regeneration, and absolute-expiry metadata in `../zunera-backend/app/Services/Authentication/AuthenticationService.php`
-- [ ] T015 [US1] Expose `POST /api/v1/auth/register` with the allow-listed resource and password-safety outage response in `../zunera-backend/app/Http/Controllers/Api/V1/AuthController.php` and `../zunera-backend/routes/api.php`
-- [ ] T016 [US1] Run registration/unit tests and verify all registration schemas against `specs/001-user-auth/contracts/auth-api.yaml`
+- [X] T013 [US1] Implement normalized registration validation and immutable DTO mapping in `../zunera-backend/app/Http/Requests/Auth/RegisterRequest.php` and `../zunera-backend/app/Data/Authentication/RegisterData.php`
+- [X] T014 [US1] Implement transactional account creation, unique-conflict handling, login, session regeneration, and absolute-expiry metadata in `../zunera-backend/app/Services/Authentication/AuthenticationService.php`
+- [X] T015 [US1] Expose `POST /api/v1/auth/register` with the allow-listed resource and password-safety outage response in `../zunera-backend/app/Http/Controllers/Api/V1/AuthController.php` and `../zunera-backend/routes/api.php`
+- [X] T016 [US1] Run registration/unit tests and verify all registration schemas against `specs/001-user-auth/contracts/auth-api.yaml`
 
 ---
 
@@ -62,17 +62,17 @@
 
 ### Tests
 
-- [ ] T017 [P] [US2] Write failing login, session-read, continuation, logout, generic-credential, regeneration, and current-session invalidation tests in `../zunera-backend/tests/Feature/Auth/LoginSessionLogoutTest.php`
-- [ ] T018 [P] [US2] Write failing 15-minute idle, one-minute warning, explicit continuation, polling exclusion, and eight-hour absolute-expiry tests in `../zunera-backend/tests/Feature/Auth/SessionLifetimeTest.php`
-- [ ] T019 [P] [US2] Write failing five-attempt window, 1/2/4/8/15-minute delay, `Retry-After`, unknown-account equivalence, recovery availability, and success-clear tests in `../zunera-backend/tests/Unit/Authentication/ProgressiveLoginLimiterTest.php`
+- [X] T017 [P] [US2] Write failing login, session-read, continuation, logout, generic-credential, regeneration, and current-session invalidation tests in `../zunera-backend/tests/Feature/Auth/LoginSessionLogoutTest.php`
+- [X] T018 [P] [US2] Write failing 15-minute idle, one-minute warning, explicit continuation, polling exclusion, and eight-hour absolute-expiry tests in `../zunera-backend/tests/Feature/Auth/SessionLifetimeTest.php`
+- [X] T019 [P] [US2] Write failing five-attempt window, 1/2/4/8/15-minute delay, `Retry-After`, unknown-account equivalence, recovery availability, and success-clear tests in `../zunera-backend/tests/Unit/Authentication/ProgressiveLoginLimiterTest.php`
 
 ### Implementation
 
-- [ ] T020 [US2] Implement normalized login validation and DTO mapping in `../zunera-backend/app/Http/Requests/Auth/LoginRequest.php` and `../zunera-backend/app/Data/Authentication/LoginData.php`
-- [ ] T021 [US2] Implement HMAC-keyed account/IP throttling and retry metadata in `../zunera-backend/app/Services/Authentication/ProgressiveLoginLimiter.php` and `../zunera-backend/app/Exceptions/LoginThrottledException.php`
-- [ ] T022 [US2] Implement login, generic failure, session read/continue, current-session logout, idle tracking, and absolute expiry in `../zunera-backend/app/Services/Authentication/AuthenticationService.php` and `../zunera-backend/app/Http/Middleware/EnforceSessionLifetime.php`
-- [ ] T023 [US2] Expose login, session read/continue, and logout routes with `auth:sanctum` protection in `../zunera-backend/app/Http/Controllers/Api/V1/AuthController.php` and `../zunera-backend/routes/api.php`
-- [ ] T024 [US2] Run login/session/limiter tests and verify `401`, `429`, `Retry-After`, and expiry schemas against `specs/001-user-auth/contracts/auth-api.yaml`
+- [X] T020 [US2] Implement normalized login validation and DTO mapping in `../zunera-backend/app/Http/Requests/Auth/LoginRequest.php` and `../zunera-backend/app/Data/Authentication/LoginData.php`
+- [X] T021 [US2] Implement HMAC-keyed account/IP throttling and retry metadata in `../zunera-backend/app/Services/Authentication/ProgressiveLoginLimiter.php` and `../zunera-backend/app/Exceptions/LoginThrottledException.php`
+- [X] T022 [US2] Implement login, generic failure, session read/continue, current-session logout, idle tracking, and absolute expiry in `../zunera-backend/app/Services/Authentication/AuthenticationService.php` and `../zunera-backend/app/Http/Middleware/EnforceSessionLifetime.php`
+- [X] T023 [US2] Expose login, session read/continue, and logout routes with `auth:sanctum` protection in `../zunera-backend/app/Http/Controllers/Api/V1/AuthController.php` and `../zunera-backend/routes/api.php`
+- [X] T024 [US2] Run login/session/limiter tests and verify `401`, `429`, `Retry-After`, and expiry schemas against `specs/001-user-auth/contracts/auth-api.yaml`
 
 ---
 
@@ -83,19 +83,19 @@
 
 ### Tests
 
-- [ ] T025 [P] [US3] Write failing neutral-response, equivalent-path, three-emails-per-hour, queued-delivery, unknown-email, and retry tests in `../zunera-backend/tests/Feature/Auth/PasswordRecoveryRequestTest.php`
-- [ ] T026 [P] [US3] Write failing valid, expired, used, superseded, malformed, validation-preserved, concurrent reset, old-password denial, remember-token rotation, all-session deletion, and stable recovery-code tests in `../zunera-backend/tests/Feature/Auth/PasswordResetTest.php`
-- [ ] T027 [P] [US3] Write failing encrypted-queue, after-commit, superseded-send suppression, lowercase UUID `X-Zunera-Message-ID`, delivery metric, and safe security-notice tests in `../zunera-backend/tests/Unit/Authentication/AuthenticationNotificationTest.php`
+- [X] T025 [P] [US3] Write failing neutral-response, equivalent-path, three-emails-per-hour, queued-delivery, unknown-email, and retry tests in `../zunera-backend/tests/Feature/Auth/PasswordRecoveryRequestTest.php`
+- [X] T026 [P] [US3] Write failing valid, expired, used, superseded, malformed, validation-preserved, concurrent reset, old-password denial, remember-token rotation, all-session deletion, and stable recovery-code tests in `../zunera-backend/tests/Feature/Auth/PasswordResetTest.php`
+- [X] T027 [P] [US3] Write failing encrypted-queue, after-commit, superseded-send suppression, lowercase UUID `X-Zunera-Message-ID`, delivery metric, and safe security-notice tests in `../zunera-backend/tests/Unit/Authentication/AuthenticationNotificationTest.php`
 
 ### Implementation
 
-- [ ] T028 [US3] Implement normalized recovery/reset Requests and DTOs in `../zunera-backend/app/Http/Requests/Auth/RequestPasswordRecoveryRequest.php`, `../zunera-backend/app/Http/Requests/Auth/ResetPasswordRequest.php`, `../zunera-backend/app/Data/Authentication/RecoveryRequestData.php`, and `../zunera-backend/app/Data/Authentication/ResetPasswordData.php`
-- [ ] T029 [US3] Implement neutral queued recovery and the HMAC-keyed three-send rolling-hour limit in `../zunera-backend/app/Services/Authentication/PasswordRecoveryService.php` and `../zunera-backend/app/Services/Authentication/RecoveryEmailLimiter.php`
-- [ ] T030 [US3] Implement transactional token validation, expired/general-invalid outcomes, password update, token consumption, remember-token rotation, and session deletion in `../zunera-backend/app/Services/Authentication/PasswordResetService.php`
-- [ ] T031 [US3] Implement encrypted queued reset instructions, lowercase UUID `X-Zunera-Message-ID` headers, current-token recheck, and password-change notices after commit in `../zunera-backend/app/Notifications/Auth/ResetPasswordNotification.php` and `../zunera-backend/app/Notifications/Auth/PasswordChangedNotification.php`
-- [ ] T032 [US3] Expose neutral recovery and reset endpoints with stable recovery/password-safety errors in `../zunera-backend/app/Http/Controllers/Api/V1/AuthController.php` and `../zunera-backend/routes/api.php`
-- [ ] T033 [US3] Add explicit recovery error-schema contract assertions in `../zunera-backend/tests/Feature/Auth/PasswordResetContractTest.php`
-- [ ] T034 [US3] Run recovery/reset/notification tests and verify all schemas against `specs/001-user-auth/contracts/auth-api.yaml`
+- [X] T028 [US3] Implement normalized recovery/reset Requests and DTOs in `../zunera-backend/app/Http/Requests/Auth/RequestPasswordRecoveryRequest.php`, `../zunera-backend/app/Http/Requests/Auth/ResetPasswordRequest.php`, `../zunera-backend/app/Data/Authentication/RecoveryRequestData.php`, and `../zunera-backend/app/Data/Authentication/ResetPasswordData.php`
+- [X] T029 [US3] Implement neutral queued recovery and the HMAC-keyed three-send rolling-hour limit in `../zunera-backend/app/Services/Authentication/PasswordRecoveryService.php` and `../zunera-backend/app/Services/Authentication/RecoveryEmailLimiter.php`
+- [X] T030 [US3] Implement transactional token validation, expired/general-invalid outcomes, password update, token consumption, remember-token rotation, and session deletion in `../zunera-backend/app/Services/Authentication/PasswordResetService.php`
+- [X] T031 [US3] Implement encrypted queued reset instructions, lowercase UUID `X-Zunera-Message-ID` headers, current-token recheck, and password-change notices after commit in `../zunera-backend/app/Notifications/Auth/ResetPasswordNotification.php` and `../zunera-backend/app/Notifications/Auth/PasswordChangedNotification.php`
+- [X] T032 [US3] Expose neutral recovery and reset endpoints with stable recovery/password-safety errors in `../zunera-backend/app/Http/Controllers/Api/V1/AuthController.php` and `../zunera-backend/routes/api.php`
+- [X] T033 [US3] Add explicit recovery error-schema contract assertions in `../zunera-backend/tests/Feature/Auth/PasswordResetContractTest.php`
+- [X] T034 [US3] Run recovery/reset/notification tests and verify all schemas against `specs/001-user-auth/contracts/auth-api.yaml`
 
 ---
 
@@ -103,15 +103,15 @@
 
 **Purpose**: Finish cross-cutting backend work and prove the contract before frontend starts.
 
-- [ ] T035 Add secret-free auth events and queue/delivery/throttle/expiry metrics in `../zunera-backend/app/Services/Authentication/AuthenticationAudit.php` and `../zunera-backend/config/logging.php`
-- [ ] T036 Add recovery-token, session, rate-key, delivery-event, failed-job, and security-log retention schedules in `../zunera-backend/routes/console.php` and `../zunera-backend/.env.example`
-- [ ] T037 [P] Create the fixed release profile with 10 warm-ups, concurrency five, the SC-009 10/20/10/20/10/10/10/10 mix, and monotonic client timing from pre-transmission through complete response-body receipt in `../zunera-backend/scripts/auth-performance-smoke.sh`, `../zunera-backend/tests/Performance/AuthenticationLatencyTest.php`, and `../zunera-backend/tests/Performance/Fixtures/auth-release-profile.json`
-- [ ] T038 [P] Write failing delivery-event tests for `v1` lowercase-hex HMAC-SHA256 over ASCII timestamp + period + exact raw body, constant-time verification, malformed versions, ±300-second replay rejection, lowercase UUID message correlation, idempotency, statuses, recipient-data rejection, and the 100-message calculation in `../zunera-backend/tests/Feature/Auth/AuthMailDeliveryEventTest.php` and `../zunera-backend/tests/Feature/Auth/AuthMailDeliveryVerificationTest.php`
-- [ ] T039 Implement minimized idempotent delivery-event persistence and the provider-neutral event-source contract in `../zunera-backend/database/migrations/2026_08_30_000002_create_auth_mail_delivery_events.php`, `../zunera-backend/app/Data/Authentication/AuthenticationMailDeliveryEventData.php`, `../zunera-backend/app/Contracts/AuthenticationMailDeliveryEventSource.php`, and `../zunera-backend/app/Services/Authentication/AuthenticationMailDeliveryEvents.php`
-- [ ] T040 Implement exact `v1` signature parsing, HMAC-SHA256/constant-time verification, ±300-second replay enforcement, the canonical delivery-event Request/controller/route, and 100-message command in `../zunera-backend/app/Http/Requests/Auth/StoreAuthenticationMailDeliveryEventRequest.php`, `../zunera-backend/app/Http/Controllers/Api/V1/AuthMailDeliveryEventController.php`, `../zunera-backend/app/Console/Commands/VerifyAuthMailDelivery.php`, and `../zunera-backend/routes/api.php`
-- [ ] T041 [P] Document provider delivery events, queue-age alerts, the five-minute threshold, incident steps, and LGPD-safe metrics in `../zunera-backend/docs/auth-mail-operations.md`
-- [ ] T042 Validate and reconcile every backend operation, stable error code, status, and schema in `specs/001-user-auth/contracts/auth-api.yaml`
-- [ ] T043 Run the full backend PHPUnit suite and Pint and record results in `specs/001-user-auth/quickstart.md`
+- [X] T035 Add secret-free auth events and queue/delivery/throttle/expiry metrics in `../zunera-backend/app/Services/Authentication/AuthenticationAudit.php` and `../zunera-backend/config/logging.php`
+- [X] T036 Add recovery-token, session, rate-key, delivery-event, failed-job, and security-log retention schedules in `../zunera-backend/routes/console.php` and `../zunera-backend/.env.example`
+- [X] T037 [P] Create the fixed release profile with 10 warm-ups, concurrency five, the SC-009 10/20/10/20/10/10/10/10 mix, and monotonic client timing from pre-transmission through complete response-body receipt in `../zunera-backend/scripts/auth-performance-smoke.sh`, `../zunera-backend/tests/Performance/AuthenticationLatencyTest.php`, and `../zunera-backend/tests/Performance/Fixtures/auth-release-profile.json`
+- [X] T038 [P] Write failing delivery-event tests for `v1` lowercase-hex HMAC-SHA256 over ASCII timestamp + period + exact raw body, constant-time verification, malformed versions, ±300-second replay rejection, lowercase UUID message correlation, idempotency, statuses, recipient-data rejection, and the 100-message calculation in `../zunera-backend/tests/Feature/Auth/AuthMailDeliveryEventTest.php` and `../zunera-backend/tests/Feature/Auth/AuthMailDeliveryVerificationTest.php`
+- [X] T039 Implement minimized idempotent delivery-event persistence and the provider-neutral event-source contract in `../zunera-backend/database/migrations/2026_08_30_000002_create_auth_mail_delivery_events.php`, `../zunera-backend/app/Data/Authentication/AuthenticationMailDeliveryEventData.php`, `../zunera-backend/app/Contracts/AuthenticationMailDeliveryEventSource.php`, and `../zunera-backend/app/Services/Authentication/AuthenticationMailDeliveryEvents.php`
+- [X] T040 Implement exact `v1` signature parsing, HMAC-SHA256/constant-time verification, ±300-second replay enforcement, the canonical delivery-event Request/controller/route, and 100-message command in `../zunera-backend/app/Http/Requests/Auth/StoreAuthenticationMailDeliveryEventRequest.php`, `../zunera-backend/app/Http/Controllers/Api/V1/AuthMailDeliveryEventController.php`, `../zunera-backend/app/Console/Commands/VerifyAuthMailDelivery.php`, and `../zunera-backend/routes/api.php`
+- [X] T041 [P] Document provider delivery events, queue-age alerts, the five-minute threshold, incident steps, and LGPD-safe metrics in `../zunera-backend/docs/auth-mail-operations.md`
+- [X] T042 Validate and reconcile every backend operation, stable error code, status, and schema in `specs/001-user-auth/contracts/auth-api.yaml`
+- [X] T043 Run the full backend PHPUnit suite and Pint and record results in `specs/001-user-auth/quickstart.md`
 - [ ] T044 Run the 100-action production-like latency check and record client-observed p95 plus diagnostic server timing in `specs/001-user-auth/quickstart.md`
 - [ ] T045 Run the 100-message production-like provider-delivery check and record delivery-percent evidence in `specs/001-user-auth/quickstart.md`
 - [ ] T046 Record a passing backend gate covering contract, authorization, validation, services, security, tests, performance, and mail delivery in `specs/001-user-auth/quickstart.md`

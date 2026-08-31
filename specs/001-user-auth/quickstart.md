@@ -38,3 +38,30 @@ npm run test:unit -- --run
 npm run build
 npm run test:e2e
 ```
+
+## Implementation evidence
+
+Recorded 2026-08-30:
+
+- Backend routes compile in Docker with eight authentication API routes under
+  `/api/v1`.
+- Backend migrations ran in Docker with `php artisan migrate --force`; all six
+  migrations report `Ran`, including nullable `users.name` and
+  `auth_mail_delivery_events`.
+- Focused backend authentication suite passed in Docker:
+  `php artisan test --compact tests/Unit/Authentication tests/Feature/Auth tests/Performance`
+  reported 24 passing tests.
+- Full backend suite passed in Docker:
+  `php artisan test --compact` reported 25 passing tests.
+- Laravel Pint ran in Docker with `vendor/bin/pint --format agent`; it formatted
+  three changed PHP files. `--dirty` could not be used inside the container
+  because the mounted container path does not expose Git metadata.
+- OpenAPI contract lint passed:
+  `npx @redocly/cli lint specs/001-user-auth/contracts/auth-api.yaml`.
+
+Pending release evidence before frontend work:
+
+- SC-009 100-action production-like latency check with monotonic client timing.
+- 100-message provider delivery-event check proving at least 95 delivered
+  canonical events within five minutes.
+- Backend gate T046 remains open until both release checks are recorded.
