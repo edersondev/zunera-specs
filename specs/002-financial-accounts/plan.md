@@ -86,6 +86,8 @@ specs/002-financial-accounts/
 ├── research.md
 ├── data-model.md
 ├── quickstart.md
+├── checklists/
+│   └── requirements.md
 ├── contracts/
 │   └── financial-accounts-api.yaml
 └── tasks.md

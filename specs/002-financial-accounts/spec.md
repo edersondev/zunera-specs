@@ -224,14 +224,16 @@ historical details when needed, and restore it when the account state allows.
 - **FR-012**: The system MUST validate selected account types before creation or
   update and reject unsupported types with actionable feedback.
 - **FR-013**: The system MUST treat financial institution as optional
-  user-entered text and MUST NOT require the institution to match a managed
-  catalog in this feature.
+  user-entered text, MUST NOT require the institution to match a managed
+  catalog in this feature, and MUST store no institution when the user does not
+  provide one while rejecting unusable empty institution text.
 - **FR-014**: The system MUST validate optional financial institution, color, and
   icon values before saving them and reject unsupported values with actionable
   feedback.
 - **FR-015**: Account color and icon customization MUST use predefined accessible
   choices and MUST provide defaults when the user does not choose custom visual
-  identifiers.
+  identifiers, and saved account details MUST always show the applied default or
+  chosen visual values.
 - **FR-016**: The system MUST allow users to define an initial balance when
   creating an account.
 - **FR-017**: The initial balance MUST represent money already available, owed,

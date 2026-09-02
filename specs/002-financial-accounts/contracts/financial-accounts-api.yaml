@@ -153,9 +153,16 @@ components:
         institution_name:
           type: [string, 'null']
           maxLength: 120
-          description: Optional user-entered financial institution text; no catalog match required.
-        color: { type: [string, 'null'], enum: [teal, blue, violet, amber, rose, cyan, null] }
-        icon: { type: [string, 'null'], enum: [bank, piggy_bank, wallet, chart, smartphone, circle, null] }
+          minLength: 1
+          description: Optional user-entered financial institution text; null or omitted means no institution, and no catalog match is required.
+        color:
+          type: [string, 'null']
+          enum: [teal, blue, violet, amber, rose, cyan, null]
+          description: Predefined accessible color; null or omitted applies the default accessible choice.
+        icon:
+          type: [string, 'null']
+          enum: [bank, piggy_bank, wallet, chart, smartphone, circle, null]
+          description: Predefined accessible icon; null or omitted applies the default accessible choice.
         initial_balance_centavos:
           type: integer
           minimum: -999999999999
@@ -175,9 +182,16 @@ components:
         institution_name:
           type: [string, 'null']
           maxLength: 120
-          description: Optional user-entered financial institution text; no catalog match required.
-        color: { type: [string, 'null'], enum: [teal, blue, violet, amber, rose, cyan, null] }
-        icon: { type: [string, 'null'], enum: [bank, piggy_bank, wallet, chart, smartphone, circle, null] }
+          minLength: 1
+          description: Optional user-entered financial institution text; null or omitted clears the institution, and no catalog match is required.
+        color:
+          type: [string, 'null']
+          enum: [teal, blue, violet, amber, rose, cyan, null]
+          description: Predefined accessible color; null or omitted restores the default accessible choice.
+        icon:
+          type: [string, 'null']
+          enum: [bank, piggy_bank, wallet, chart, smartphone, circle, null]
+          description: Predefined accessible icon; null or omitted restores the default accessible choice.
         initial_balance_centavos:
           type: integer
           minimum: -999999999999
@@ -202,7 +216,7 @@ components:
         - created_at
         - updated_at
       properties:
-        id: { type: integer }
+        id: { type: integer, description: Numeric account identifier; always scoped to the signed-in user }
         name:
           type: string
           description: User-defined account label, separate from financial institution.
@@ -210,9 +224,15 @@ components:
         status: { $ref: '#/components/schemas/AccountStatus' }
         institution_name:
           type: [string, 'null']
-          description: Optional user-entered financial institution text.
-        color: { type: string, enum: [teal, blue, violet, amber, rose, cyan] }
-        icon: { type: string, enum: [bank, piggy_bank, wallet, chart, smartphone, circle] }
+          description: Optional user-entered financial institution text; null when no institution is stored.
+        color:
+          type: string
+          enum: [teal, blue, violet, amber, rose, cyan]
+          description: Applied predefined accessible color; server default when null or omitted on write.
+        icon:
+          type: string
+          enum: [bank, piggy_bank, wallet, chart, smartphone, circle]
+          description: Applied predefined accessible icon; server default when null or omitted on write.
         initial_balance_centavos: { type: integer, minimum: -999999999999, maximum: 999999999999 }
         current_balance_centavos: { type: integer, minimum: -999999999999, maximum: 999999999999 }
         currency_code: { $ref: '#/components/schemas/CurrencyCode' }

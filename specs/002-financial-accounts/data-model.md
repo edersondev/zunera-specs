@@ -2,8 +2,8 @@
 
 ## FinancialAccount
 
-- `id`: internal primary identifier exposed as an opaque account identifier in
-  the API.
+- `id`: internal numeric primary identifier exposed in the API; every exposed
+  value is scoped to the signed-in user.
 - `user_id`: owner identifier. Required; every query and action is scoped to this
   owner.
 - `name`: user-visible account label chosen by the user, separate from financial
@@ -85,11 +85,16 @@ Permanent deletion is not exposed by this feature.
 - Name is required, trimmed, user-visible, separate from financial institution,
   and must remain unique among the owner's active accounts after trimming
   surrounding spaces, collapsing repeated internal spaces, and ignoring case and
-  accent differences.
+  accent differences. Database enforcement uses a partial unique index on
+  `(user_id, normalized_name)` for active accounts so concurrent
+  create/restore/rename operations cannot bypass service checks.
 - Account type must be one of the supported account types.
 - Institution name is optional user-entered text and must stay within a practical
-  display length.
-- Color and icon must be omitted or selected from predefined accessible choices.
+  display length; empty institution text is rejected, and null or omitted means
+  no institution is stored.
+- Color and icon must be omitted or selected from predefined accessible choices;
+  null or omitted means the default accessible choice is stored, and responses
+  always include the applied color and icon.
 - Initial balance is required on creation, accepted as BRL, converted to signed
   integer centavos, limited to +/-999,999,999,999 centavos, and must preserve
   exact centavo value.

@@ -27,7 +27,7 @@ before frontend tasks.
 **Purpose**: Confirm branch alignment and prepare feature-owned folders without
 changing behavior.
 
-- [ ] T001 Verify branch `002-financial-accounts` in `/home/ederson/workspace/zunera/zunera-specs/.git/HEAD`, `/home/ederson/workspace/zunera/zunera-backend/.git/HEAD`, and `/home/ederson/workspace/zunera/zunera-frontend/.git/HEAD`
+- [ ] T001 Verify branch `002-financial-accounts` in `.git/HEAD`, `../zunera-backend/.git/HEAD`, and `../zunera-frontend/.git/HEAD`
 - [ ] T002 [P] Create backend feature directories in `../zunera-backend/app/Data/FinancialAccounts/`, `../zunera-backend/app/Enums/FinancialAccounts/`, `../zunera-backend/app/Exceptions/FinancialAccounts/`, `../zunera-backend/app/Http/Requests/FinancialAccounts/`, `../zunera-backend/app/Http/Resources/FinancialAccounts/`, and `../zunera-backend/app/Services/FinancialAccounts/`
 - [ ] T003 [P] Create backend test directories in `../zunera-backend/tests/Feature/FinancialAccounts/` and `../zunera-backend/tests/Unit/FinancialAccounts/`
 - [ ] T004 [P] Create frontend feature directories in `../zunera-frontend/src/components/financial-accounts/`, `../zunera-frontend/src/composables/financial-accounts/`, `../zunera-frontend/src/stores/financial-accounts/`, `../zunera-frontend/src/utils/financial-accounts/`, and `../zunera-frontend/src/views/financial-accounts/`
@@ -42,7 +42,7 @@ stories.
 
 **Critical**: No user story work starts until this phase is complete.
 
-- [ ] T006 Create financial accounts migration in `../zunera-backend/database/migrations/2026_09_02_000000_create_financial_accounts_table.php`
+- [ ] T006 Create financial accounts migration in `../zunera-backend/database/migrations/2026_09_02_000000_create_financial_accounts_table.php`, including `normalized_name` and a partial unique index on `(user_id, normalized_name)` for active accounts so normalized active-name uniqueness is enforced at the database layer
 - [ ] T007 [P] Create account type enum in `../zunera-backend/app/Enums/FinancialAccounts/AccountType.php`
 - [ ] T008 [P] Create account status enum in `../zunera-backend/app/Enums/FinancialAccounts/AccountStatus.php`
 - [ ] T009 [P] Create financial account model in `../zunera-backend/app/Models/FinancialAccount.php`
@@ -50,7 +50,7 @@ stories.
 - [ ] T011 [P] Create create/update DTOs in `../zunera-backend/app/Data/FinancialAccounts/CreateFinancialAccountData.php` and `../zunera-backend/app/Data/FinancialAccounts/UpdateFinancialAccountData.php`
 - [ ] T012 [P] Create visual identity option catalog in `../zunera-backend/app/Services/FinancialAccounts/FinancialAccountVisualOptions.php`
 - [ ] T013 [P] Create state and name conflict exceptions in `../zunera-backend/app/Exceptions/FinancialAccounts/FinancialAccountStateException.php` and `../zunera-backend/app/Exceptions/FinancialAccounts/FinancialAccountNameConflictException.php`
-- [ ] T014 Add authenticated financial account route declarations in `../zunera-backend/routes/api.php`
+- [ ] T014 Add authenticated financial account route declarations in `../zunera-backend/routes/api.php`, registering `/financial-accounts/summary` before `/financial-accounts/{account_id}` so the summary route cannot be captured by account-id lookup
 
 **Checkpoint**: Foundation ready - user story implementation can begin.
 
@@ -68,7 +68,7 @@ combined active balance.
 
 ### Tests for User Story 1
 
-- [ ] T015 [P] [US1] Add backend create/list/summary feature tests, including duplicate create suppression for repeated submissions, in `../zunera-backend/tests/Feature/FinancialAccounts/CreateAndListFinancialAccountsTest.php`
+- [ ] T015 [P] [US1] Add backend create/list/summary feature tests, including duplicate create suppression for repeated submissions, concurrent duplicate-name protection, and `/financial-accounts/summary` route resolution before account-id lookup, in `../zunera-backend/tests/Feature/FinancialAccounts/CreateAndListFinancialAccountsTest.php`
 - [ ] T016 [P] [US1] Add backend money precision, range, and balance summary unit tests in `../zunera-backend/tests/Unit/FinancialAccounts/FinancialAccountMoneyTest.php`
 - [ ] T017 [P] [US1] Add backend normalized active-name uniqueness tests in `../zunera-backend/tests/Unit/FinancialAccounts/FinancialAccountNameNormalizerTest.php`
 
@@ -78,7 +78,7 @@ combined active balance.
 
 - [ ] T018 [US1] Implement name normalization rules in `../zunera-backend/app/Services/FinancialAccounts/FinancialAccountNameNormalizer.php`
 - [ ] T019 [US1] Implement BRL centavo value rules in `../zunera-backend/app/Services/FinancialAccounts/FinancialAccountMoney.php`
-- [ ] T020 [US1] Implement create request validation in `../zunera-backend/app/Http/Requests/FinancialAccounts/StoreFinancialAccountRequest.php`
+- [ ] T020 [US1] Implement create request validation in `../zunera-backend/app/Http/Requests/FinancialAccounts/StoreFinancialAccountRequest.php`, including BRL centavo bounds, name normalization, and optional institution/color/icon null-and-default semantics
 - [ ] T021 [US1] Implement list request validation for status filtering in `../zunera-backend/app/Http/Requests/FinancialAccounts/ListFinancialAccountsRequest.php`
 - [ ] T022 [US1] Implement account and summary resources in `../zunera-backend/app/Http/Resources/FinancialAccounts/FinancialAccountResource.php` and `../zunera-backend/app/Http/Resources/FinancialAccounts/FinancialAccountSummaryResource.php`
 - [ ] T023 [US1] Implement create, active list, archived list, and summary service behavior in `../zunera-backend/app/Services/FinancialAccounts/FinancialAccountService.php`
@@ -91,14 +91,14 @@ combined active balance.
 - [ ] T027 [P] [US1] Add financial account API service tests in `../zunera-frontend/src/services/__tests__/financialAccountService.spec.js`
 - [ ] T028 [P] [US1] Add create/list/summary store tests, including repeated create-action suppression, in `../zunera-frontend/src/stores/financial-accounts/__tests__/financialAccountStore.createList.spec.js`
 - [ ] T029 [P] [US1] Add create/list view component tests in `../zunera-frontend/src/views/financial-accounts/__tests__/FinancialAccountsListView.spec.js`
-- [ ] T030 [P] [US1] Add create/list Playwright journey, including double-click submit protection, in `../zunera-frontend/e2e/financial-accounts.spec.js`
+- [ ] T030 [P] [US1] Add create/list Playwright journey, including double-click submit protection, accessible selectors, and scenario isolation, in `../zunera-frontend/e2e/financial-accounts.spec.js`
 - [ ] T031 [US1] Implement financial account API service in `../zunera-frontend/src/services/financialAccountService.js`
 - [ ] T032 [US1] Implement BRL currency formatting and account options in `../zunera-frontend/src/utils/financial-accounts/currency.js` and `../zunera-frontend/src/utils/financial-accounts/accountOptions.js`
 - [ ] T033 [US1] Implement financial account Pinia store in `../zunera-frontend/src/stores/financial-accounts/financialAccountStore.js`
-- [ ] T034 [US1] Implement reusable account form for create mode in `../zunera-frontend/src/components/financial-accounts/FinancialAccountForm.vue`
+- [ ] T034 [US1] Implement reusable account form for create mode in `../zunera-frontend/src/components/financial-accounts/FinancialAccountForm.vue`, labeling the initial balance as the account's starting/opening balance rather than income
 - [ ] T035 [US1] Implement active balance summary and active account list components in `../zunera-frontend/src/components/financial-accounts/FinancialAccountSummary.vue` and `../zunera-frontend/src/components/financial-accounts/FinancialAccountList.vue`
-- [ ] T036 [US1] Implement authenticated app shell, page header, primary navigation, and financial accounts list route view in `../zunera-frontend/src/layouts/AppShell.vue`, `../zunera-frontend/src/components/layout/PageHeader.vue`, `../zunera-frontend/src/components/navigation/AppNavigation.vue`, and `../zunera-frontend/src/views/financial-accounts/FinancialAccountsListView.vue`
-- [ ] T037 [US1] Wire authenticated shell routing, protected financial accounts route, and primary navigation entry in `../zunera-frontend/src/App.vue` and `../zunera-frontend/src/router/index.js`
+- [ ] T036 [US1] Implement authenticated app shell, page header, primary navigation, and financial accounts list route view in `../zunera-frontend/src/layouts/AppShell.vue`, `../zunera-frontend/src/components/layout/PageHeader.vue`, `../zunera-frontend/src/components/navigation/AppNavigation.vue`, and `../zunera-frontend/src/views/financial-accounts/FinancialAccountsListView.vue`, migrating the existing authenticated `ProtectedHomeView` experience into the shared shell
+- [ ] T037 [US1] Wire authenticated shell routing, protected financial accounts route, and primary navigation entry in `../zunera-frontend/src/App.vue` and `../zunera-frontend/src/router/index.js`, replacing the standalone authenticated-home layout pattern and updating the affected route/view tests
 
 **Checkpoint**: User Story 1 is independently usable as the MVP.
 
@@ -125,14 +125,14 @@ initial-balance lock behavior after movements exist.
 
 #### Backend (complete first)
 
-- [ ] T042 [US2] Implement update request validation in `../zunera-backend/app/Http/Requests/FinancialAccounts/UpdateFinancialAccountRequest.php`
+- [ ] T042 [US2] Implement update request validation in `../zunera-backend/app/Http/Requests/FinancialAccounts/UpdateFinancialAccountRequest.php`, including optional-field null/clear semantics and initial-balance lock eligibility
 - [ ] T043 [US2] Extend detail, update, ownership, name conflict, and initial-balance lock rules in `../zunera-backend/app/Services/FinancialAccounts/FinancialAccountService.php`
 - [ ] T044 [US2] Extend get and update controller behavior in `../zunera-backend/app/Http/Controllers/Api/V1/FinancialAccountController.php`
 - [ ] T045 [US2] Verify US2 backend route and test evidence in `../zunera-backend/tests/Feature/FinancialAccounts/ViewAndUpdateFinancialAccountsTest.php`
 
 #### Frontend (after Backend)
 
-- [ ] T046 [P] [US2] Add detail/update Playwright journey in `../zunera-frontend/e2e/financial-accounts.spec.js`
+- [ ] T046 [P] [US2] Add detail/update Playwright journey using accessible selectors with isolated scenarios in `../zunera-frontend/e2e/financial-accounts.spec.js`
 - [ ] T047 [US2] Extend financial account API service with detail and update methods in `../zunera-frontend/src/services/financialAccountService.js`
 - [ ] T048 [US2] Extend Pinia store with selected detail, update action, and server validation mapping in `../zunera-frontend/src/stores/financial-accounts/financialAccountStore.js`
 - [ ] T049 [US2] Extend account form for update mode and locked initial-balance feedback in `../zunera-frontend/src/components/financial-accounts/FinancialAccountForm.vue`
@@ -170,7 +170,7 @@ feedback for already-archived, already-active, or duplicate-name restore cases.
 
 #### Frontend (after Backend)
 
-- [ ] T059 [P] [US3] Add archive/restore Playwright journey, including repeated lifecycle-action protection, in `../zunera-frontend/e2e/financial-accounts.spec.js`
+- [ ] T059 [P] [US3] Add archive/restore Playwright journey, including repeated lifecycle-action protection, accessible selectors, and scenario isolation, in `../zunera-frontend/e2e/financial-accounts.spec.js`
 - [ ] T060 [US3] Extend financial account API service with archive and restore methods in `../zunera-frontend/src/services/financialAccountService.js`
 - [ ] T061 [US3] Extend Pinia store with archive, restore, archived list, and state conflict handling in `../zunera-frontend/src/stores/financial-accounts/financialAccountStore.js`
 - [ ] T062 [US3] Implement lifecycle confirmation dialog in `../zunera-frontend/src/components/financial-accounts/FinancialAccountLifecycleDialog.vue`
@@ -193,7 +193,8 @@ across all stories.
 - [ ] T069 [P] Run frontend build verification in `../zunera-frontend/src/`
 - [ ] T070 [P] Run Playwright financial account journey in `../zunera-frontend/e2e/financial-accounts.spec.js`
 - [ ] T071 Validate app shell, primary navigation, Light, Dark, System, 320px viewport, 200 percent zoom, keyboard-only navigation, and accessible labels against `docs/design/design-foundation.md`, `docs/design/app-shell.md`, and `docs/design/navigation.md`
-- [ ] T072 Record quickstart release evidence in `specs/002-financial-accounts/quickstart.md`
+- [ ] T072 [P] Verify financial-account data handling treats balances and institution text as personal financial information with no exposure in logs or responses beyond the authenticated features in `../zunera-backend` and `../zunera-frontend`
+- [ ] T073 Record quickstart release evidence in `specs/002-financial-accounts/quickstart.md`
 
 ---
 
@@ -240,8 +241,8 @@ across all stories.
   target different files.
 - Frontend service/store tests and view tests can run in parallel after backend
   behavior is known.
-- Full verification tasks T065 through T070 can run in parallel after all stories
-  are implemented.
+- Full verification tasks T065 through T070 and T072 can run in parallel after
+  all stories are implemented.
 
 ## Parallel Example: User Story 1
 
