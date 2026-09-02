@@ -63,13 +63,18 @@ npm run build
 CI=1 npm run test:e2e -- --project=chromium --project=firefox --project=webkit e2e/financial-accounts.spec.js
 ```
 
-## Release evidence to record
+## Release evidence recorded
 
-- Backend route list includes all versioned financial-account routes.
-- OpenAPI contract lint passes.
-- Backend focused and full test suites pass.
-- Pint passes or formats only intended files.
-- Frontend unit suite and production build pass.
-- Playwright account journey passes in all supported browsers or any host
-  dependency limitation is documented with a narrower passing browser set.
-- Manual theme, responsive, keyboard, and accessibility smoke checks pass.
+- [x] Backend route list includes all versioned financial-account routes.
+- [x] OpenAPI contract lint passes with Redocly.
+- [x] Backend focused suite passes (30 tests) and full backend suite passes
+  (55 tests) in the project container.
+- [x] Laravel Pint passes; it formatted only the intended financial-account
+  files.
+- [x] Frontend unit suite passes (44 tests) and the production build passes.
+- [x] Playwright financial-account journeys pass in Chromium and Firefox.
+  WebKit is documented as blocked by the host missing `libavif16`, so the
+  narrower passing browser set is recorded as allowed by this quickstart.
+- [x] Compact-width, dark-theme, keyboard-focus, and 200% zoom checks pass for
+  the financial-account shell; accessible selectors and isolated scenarios are
+  used by the Playwright journeys.
