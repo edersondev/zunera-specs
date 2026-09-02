@@ -1,0 +1,294 @@
+openapi: 3.1.0
+info:
+  title: Zunera Financial Accounts API
+  version: 1.0.0
+  license: { name: Proprietary, identifier: LicenseRef-Proprietary }
+servers:
+  - url: /api/v1
+paths:
+  /financial-accounts:
+    get:
+      summary: List financial accounts owned by the signed-in user
+      operationId: listFinancialAccounts
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema: { type: string, enum: [active, archived], default: active }
+      responses:
+        '200':
+          description: Financial account collection
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FinancialAccountCollectionResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+    post:
+      summary: Create a financial account
+      operationId: createFinancialAccount
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateFinancialAccountRequest' }
+      responses:
+        '201':
+          description: Financial account created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FinancialAccountResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /financial-accounts/summary:
+    get:
+      summary: Read active account balance summary for the signed-in user
+      operationId: getFinancialAccountSummary
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200':
+          description: Active account balance summary
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BalanceSummaryResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+  /financial-accounts/{account_id}:
+    get:
+      summary: Read details for one owned financial account
+      operationId: getFinancialAccount
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/AccountId' }
+      responses:
+        '200':
+          description: Financial account details
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FinancialAccountResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    patch:
+      summary: Update editable fields for one owned financial account
+      operationId: updateFinancialAccount
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/AccountId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateFinancialAccountRequest' }
+      responses:
+        '200':
+          description: Financial account updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FinancialAccountResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/StateConflictError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /financial-accounts/{account_id}/archive:
+    post:
+      summary: Archive one owned financial account
+      operationId: archiveFinancialAccount
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/AccountId' }
+      responses:
+        '200':
+          description: Financial account archived
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FinancialAccountResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/StateConflictError' }
+  /financial-accounts/{account_id}/restore:
+    post:
+      summary: Restore one owned archived financial account
+      operationId: restoreFinancialAccount
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/AccountId' }
+      responses:
+        '200':
+          description: Financial account restored
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FinancialAccountResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/StateConflictError' }
+components:
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: zunera_session }
+  parameters:
+    AccountId:
+      name: account_id
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+  schemas:
+    AccountType:
+      type: string
+      enum: [checking, savings, cash_wallet, investment, digital, other]
+    AccountStatus:
+      type: string
+      enum: [active, archived]
+    CurrencyCode:
+      type: string
+      const: BRL
+    CreateFinancialAccountRequest:
+      type: object
+      additionalProperties: false
+      required: [name, account_type, initial_balance_centavos]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+          description: User-defined account label, separate from financial institution, and unique among the signed-in user's active accounts after trimming, collapsing repeated spaces, and case/accent-insensitive comparison.
+        account_type: { $ref: '#/components/schemas/AccountType' }
+        institution_name:
+          type: [string, 'null']
+          maxLength: 120
+          description: Optional user-entered financial institution text; no catalog match required.
+        color: { type: [string, 'null'], enum: [teal, blue, violet, amber, rose, cyan, null] }
+        icon: { type: [string, 'null'], enum: [bank, piggy_bank, wallet, chart, smartphone, circle, null] }
+        initial_balance_centavos:
+          type: integer
+          minimum: -999999999999
+          maximum: 999999999999
+          description: Signed BRL centavos, capped at +/- R$ 9.999.999.999,99.
+    UpdateFinancialAccountRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+          description: User-defined account label, separate from financial institution, and unique among the signed-in user's active accounts after trimming, collapsing repeated spaces, and case/accent-insensitive comparison.
+        account_type: { $ref: '#/components/schemas/AccountType' }
+        institution_name:
+          type: [string, 'null']
+          maxLength: 120
+          description: Optional user-entered financial institution text; no catalog match required.
+        color: { type: [string, 'null'], enum: [teal, blue, violet, amber, rose, cyan, null] }
+        icon: { type: [string, 'null'], enum: [bank, piggy_bank, wallet, chart, smartphone, circle, null] }
+        initial_balance_centavos:
+          type: integer
+          minimum: -999999999999
+          maximum: 999999999999
+          description: Signed BRL centavos, capped at +/- R$ 9.999.999.999,99; rejected after movements exist.
+    FinancialAccount:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - account_type
+        - status
+        - institution_name
+        - color
+        - icon
+        - initial_balance_centavos
+        - current_balance_centavos
+        - currency_code
+        - has_financial_movements
+        - archived_at
+        - created_at
+        - updated_at
+      properties:
+        id: { type: integer }
+        name:
+          type: string
+          description: User-defined account label, separate from financial institution.
+        account_type: { $ref: '#/components/schemas/AccountType' }
+        status: { $ref: '#/components/schemas/AccountStatus' }
+        institution_name:
+          type: [string, 'null']
+          description: Optional user-entered financial institution text.
+        color: { type: string, enum: [teal, blue, violet, amber, rose, cyan] }
+        icon: { type: string, enum: [bank, piggy_bank, wallet, chart, smartphone, circle] }
+        initial_balance_centavos: { type: integer, minimum: -999999999999, maximum: 999999999999 }
+        current_balance_centavos: { type: integer, minimum: -999999999999, maximum: 999999999999 }
+        currency_code: { $ref: '#/components/schemas/CurrencyCode' }
+        has_financial_movements: { type: boolean }
+        archived_at: { type: [string, 'null'], format: date-time }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    FinancialAccountResponse:
+      type: object
+      required: [data]
+      properties:
+        data: { $ref: '#/components/schemas/FinancialAccount' }
+    FinancialAccountCollectionResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/FinancialAccount' }
+    BalanceSummary:
+      type: object
+      additionalProperties: false
+      required: [active_account_count, active_combined_balance_centavos, currency_code]
+      properties:
+        active_account_count: { type: integer, minimum: 0 }
+        active_combined_balance_centavos:
+          type: integer
+          description: Sum across active accounts only; zero when no active accounts exist.
+        currency_code: { $ref: '#/components/schemas/CurrencyCode' }
+    BalanceSummaryResponse:
+      type: object
+      required: [data]
+      properties:
+        data: { $ref: '#/components/schemas/BalanceSummary' }
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+        code: { type: string }
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+    StateConflict:
+      allOf:
+        - { $ref: '#/components/schemas/Error' }
+        - type: object
+          required: [code]
+          properties:
+            code:
+              type: string
+              enum:
+                - account_already_archived
+                - account_already_active
+                - account_name_conflict
+                - initial_balance_locked
+  responses:
+    GenericError:
+      description: Generic operational error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFoundError:
+      description: Account not found or not accessible to the signed-in user
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    StateConflictError:
+      description: Requested account state change or locked-field update cannot be completed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/StateConflict' }
