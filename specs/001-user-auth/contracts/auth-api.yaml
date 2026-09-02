@@ -1,0 +1,74 @@
+openapi: 3.1.0
+info:
+  title: Zunera Authentication API
+  version: 1.0.0
+  license: { name: Proprietary, identifier: LicenseRef-Proprietary }
+servers:
+  - url: /api/v1
+paths:
+  /auth/register:
+    post:
+      summary: Register an account and start a session
+      operationId: register
+      security: []
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/RegisterRequest' } } } }
+      responses: { '201': { description: Authenticated session, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResponse' } } } }, '422': { $ref: '#/components/responses/ValidationError' }, '503': { $ref: '#/components/responses/PasswordSafetyUnavailable' } }
+  /auth/login:
+    post:
+      summary: Sign in with email and password
+      operationId: login
+      security: []
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/LoginRequest' } } } }
+      responses: { '200': { description: Authenticated session, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResponse' } } } }, '401': { $ref: '#/components/responses/GenericError' }, '429': { $ref: '#/components/responses/ThrottleError' } }
+  /auth/session:
+    get: { summary: Read the current authenticated session, operationId: session, security: [{ cookieAuth: [] }], responses: { '200': { description: Current session, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResponse' } } } }, '401': { $ref: '#/components/responses/GenericError' } } }
+    delete: { summary: End the current authenticated session, operationId: logout, security: [{ cookieAuth: [] }], responses: { '204': { description: Session ended }, '401': { $ref: '#/components/responses/GenericError' } } }
+  /auth/session/continue:
+    post: { summary: Confirm presence and refresh the idle deadline, operationId: continueSession, security: [{ cookieAuth: [] }], responses: { '200': { description: Idle deadline refreshed, content: { application/json: { schema: { $ref: '#/components/schemas/Session' } } } }, '401': { $ref: '#/components/responses/GenericError' } } }
+  /auth/password/recovery:
+    post:
+      summary: Request neutral password-recovery handling
+      operationId: requestRecovery
+      security: []
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/RecoveryRequest' } } } }
+      responses: { '202': { description: Neutral response for every well-formed request, content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } } }, '422': { $ref: '#/components/responses/ValidationError' } }
+  /auth/password/reset:
+    post:
+      summary: Reset a password with a recovery instruction
+      operationId: resetPassword
+      security: []
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ResetRequest' } } } }
+      responses: { '200': { description: Password changed and sessions invalidated, content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } } }, '422': { $ref: '#/components/responses/ResetRequestError' }, '503': { $ref: '#/components/responses/PasswordSafetyUnavailable' } }
+  /integrations/auth-mail/delivery-events:
+    post:
+      summary: Record a canonical authentication-mail delivery event
+      description: The gateway echoes the outbound lowercase UUID X-Zunera-Message-ID in message_id and sends X-Zunera-Signature as v1= followed by lowercase hexadecimal HMAC-SHA256 of ASCII X-Zunera-Timestamp, one literal period, and the exact raw body bytes. Verification uses constant-time comparison. Duplicate event IDs are accepted idempotently; timestamps outside ±300 seconds are rejected.
+      operationId: recordAuthenticationMailDeliveryEvent
+      security: [{ webhookSignature: [] }]
+      parameters:
+        - { name: X-Zunera-Timestamp, in: header, required: true, description: ASCII Unix timestamp in whole seconds used in the signed byte sequence, schema: { type: integer, format: int64 } }
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AuthenticationMailDeliveryEventRequest' } } } }
+      responses: { '202': { description: Event accepted or previously recorded, content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } } }, '401': { $ref: '#/components/responses/GenericError' }, '422': { $ref: '#/components/responses/ValidationError' } }
+components:
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: zunera_session }
+    webhookSignature: { type: apiKey, in: header, name: X-Zunera-Signature, description: v1= followed by lowercase hexadecimal HMAC-SHA256 of ASCII timestamp + literal period + exact raw body bytes }
+  schemas:
+    RegisterRequest: { type: object, required: [email, password, password_confirmation], properties: { email: { type: string, format: email }, password: { type: string, minLength: 15, maxLength: 64 }, password_confirmation: { type: string } } }
+    LoginRequest: { type: object, required: [email, password], properties: { email: { type: string, format: email }, password: { type: string } } }
+    RecoveryRequest: { type: object, required: [email], properties: { email: { type: string, format: email } } }
+    ResetRequest: { type: object, required: [email, token, password, password_confirmation], properties: { email: { type: string, format: email }, token: { type: string }, password: { type: string, minLength: 15, maxLength: 64 }, password_confirmation: { type: string } } }
+    AuthenticationMailDeliveryEventRequest: { type: object, additionalProperties: false, required: [event_id, message_id, status, occurred_at], properties: { event_id: { type: string, minLength: 16, maxLength: 255 }, message_id: { type: string, format: uuid, description: Lowercase RFC 4122 UUID copied unchanged from the outbound X-Zunera-Message-ID header }, status: { type: string, enum: [delivered, bounced, deferred, rejected] }, occurred_at: { type: string, format: date-time } } }
+    User: { type: object, required: [id, email], additionalProperties: false, properties: { id: { type: integer }, email: { type: string, format: email } } }
+    Session: { type: object, required: [idle_expires_at, absolute_expires_at], properties: { idle_expires_at: { type: string, format: date-time }, absolute_expires_at: { type: string, format: date-time } } }
+    AuthResponse: { type: object, required: [data], properties: { data: { type: object, required: [user, session], properties: { user: { $ref: '#/components/schemas/User' }, session: { $ref: '#/components/schemas/Session' } } } } }
+    Message: { type: object, required: [message], properties: { message: { type: string } } }
+    Error: { type: object, required: [message], properties: { message: { type: string }, code: { type: string }, errors: { type: object, additionalProperties: { type: array, items: { type: string } } } } }
+    RecoveryLinkError: { allOf: [{ $ref: '#/components/schemas/Error' }, { type: object, required: [code], properties: { code: { type: string, enum: [recovery_link_expired, recovery_link_invalid] } } }] }
+    PasswordSafetyUnavailableError: { allOf: [{ $ref: '#/components/schemas/Error' }, { type: object, required: [code], properties: { code: { type: string, const: password_safety_unavailable } } }] }
+  responses:
+    GenericError: { description: Generic operational error, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    ValidationError: { description: Validation error, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    ThrottleError: { description: Delayed request, headers: { Retry-After: { schema: { type: integer } } }, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    ResetRequestError: { description: Invalid reset fields or an expired/privacy-safe invalid recovery instruction, content: { application/json: { schema: { anyOf: [{ $ref: '#/components/schemas/Error' }, { $ref: '#/components/schemas/RecoveryLinkError' }] } } } }
+    PasswordSafetyUnavailable: { description: Password safety validation is temporarily unavailable; the password was not accepted or described as compromised, content: { application/json: { schema: { $ref: '#/components/schemas/PasswordSafetyUnavailableError' } } } }
