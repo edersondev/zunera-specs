@@ -1,6 +1,6 @@
 <!-- SPECKIT START -->
 For additional context about technologies, project structure, shell commands,
-and implementation order, read [specs/001-user-auth/plan.md](specs/001-user-auth/plan.md).
+and implementation order, read [specs/002-financial-accounts/plan.md](specs/002-financial-accounts/plan.md).
 <!-- SPECKIT END -->
 
 ## Zunera Workspace Layout
