@@ -1,0 +1,238 @@
+openapi: 3.1.0
+info:
+  title: Zunera Categories API
+  version: 1.0.0
+  license: { name: Proprietary, identifier: LicenseRef-Proprietary }
+servers:
+  - url: /api/v1
+paths:
+  /categories:
+    get:
+      summary: List categories available to the signed-in user
+      operationId: listCategories
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema: { type: string, enum: [active, archived], default: active }
+          description: Active returns system defaults plus active personal categories; archived returns only the signed-in user's archived personal categories.
+      responses:
+        '200':
+          description: Category collection
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CategoryCollectionResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    post:
+      summary: Create a personal category for the signed-in user
+      operationId: createCategory
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateCategoryRequest' }
+      responses:
+        '201':
+          description: Personal category created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CategoryResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '409': { $ref: '#/components/responses/StateConflictError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /categories/{category_id}:
+    get:
+      summary: Read an available system category or an owned personal category
+      operationId: getCategory
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/CategoryId' }
+      responses:
+        '200':
+          description: Category details
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CategoryResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    patch:
+      summary: Update editable fields of an owned personal category
+      operationId: updateCategory
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/CategoryId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateCategoryRequest' }
+      responses:
+        '200':
+          description: Personal category updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CategoryResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/StateConflictError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /categories/{category_id}/archive:
+    post:
+      summary: Archive an owned active personal category
+      operationId: archiveCategory
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/CategoryId' }
+      responses:
+        '200':
+          description: Personal category archived
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CategoryResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/StateConflictError' }
+  /categories/{category_id}/restore:
+    post:
+      summary: Restore an owned archived personal category
+      operationId: restoreCategory
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/CategoryId' }
+      responses:
+        '200':
+          description: Personal category restored
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CategoryResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/StateConflictError' }
+components:
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: zunera_session }
+  parameters:
+    CategoryId:
+      name: category_id
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+  schemas:
+    CategoryClassification:
+      type: string
+      enum: [income, expense]
+    CategoryOrigin:
+      type: string
+      enum: [system, personal]
+    CategoryStatus:
+      type: string
+      enum: [active, archived]
+    CategoryColor:
+      type: string
+      enum: [teal, blue, violet, amber, rose, cyan]
+    CategoryIcon:
+      type: string
+      enum: [home, utensils, car, heart, book, gamepad, shopping_bag, receipt, landmark, circle, wallet, briefcase, chart, gift, refund]
+    CreateCategoryRequest:
+      type: object
+      additionalProperties: false
+      required: [name, classification]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+          description: Personal category name, normalized by trimming, collapsed internal spaces, and case/accent-insensitive comparison before active conflict checks.
+        classification: { $ref: '#/components/schemas/CategoryClassification' }
+        color:
+          type: [string, 'null']
+          enum: [teal, blue, violet, amber, rose, cyan, null]
+          description: Optional categorical visual identifier; null or omission applies the personal-category default.
+        icon:
+          type: [string, 'null']
+          enum: [home, utensils, car, heart, book, gamepad, shopping_bag, receipt, landmark, circle, wallet, briefcase, chart, gift, refund, null]
+          description: Optional visual identifier; null or omission applies the personal-category default.
+    UpdateCategoryRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+          description: Personal category name subject to normalized active conflict checks.
+        classification:
+          allOf: [{ $ref: '#/components/schemas/CategoryClassification' }]
+          description: Accepted only before the category has a financial transaction association.
+        color:
+          type: [string, 'null']
+          enum: [teal, blue, violet, amber, rose, cyan, null]
+        icon:
+          type: [string, 'null']
+          enum: [home, utensils, car, heart, book, gamepad, shopping_bag, receipt, landmark, circle, wallet, briefcase, chart, gift, refund, null]
+    Category:
+      type: object
+      additionalProperties: false
+      required: [id, origin, name, classification, color, icon, status, has_financial_transactions, archived_at, created_at, updated_at]
+      properties:
+        id: { type: integer, description: Numeric category identifier scoped to availability rules. }
+        origin: { $ref: '#/components/schemas/CategoryOrigin' }
+        name: { type: string }
+        classification: { $ref: '#/components/schemas/CategoryClassification' }
+        color: { $ref: '#/components/schemas/CategoryColor' }
+        icon: { $ref: '#/components/schemas/CategoryIcon' }
+        status: { $ref: '#/components/schemas/CategoryStatus' }
+        has_financial_transactions:
+          type: boolean
+          description: Locks personal-category classification when true.
+        archived_at: { type: [string, 'null'], format: date-time }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    CategoryResponse:
+      type: object
+      required: [data]
+      properties:
+        data: { $ref: '#/components/schemas/Category' }
+    CategoryCollectionResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Category' }
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+        code: { type: string }
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+  responses:
+    GenericError:
+      description: Authentication or generic error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFoundError:
+      description: Category is unavailable or not owned by the signed-in user
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    StateConflictError:
+      description: Category state, read-only origin, classification lock, or normalized-name conflict prevents this action
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
