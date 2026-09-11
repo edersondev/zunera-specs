@@ -1,0 +1,368 @@
+openapi: 3.1.0
+info:
+  title: Zunera Transactions API
+  version: 1.0.0
+  license: { name: Proprietary, identifier: LicenseRef-Proprietary }
+servers:
+  - url: /api/v1
+paths:
+  /transactions:
+    get:
+      summary: List the signed-in user's transactions, newest first
+      operationId: listTransactions
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/FromDate' }
+        - { $ref: '#/components/parameters/ToDate' }
+        - { $ref: '#/components/parameters/TypeFilter' }
+        - { $ref: '#/components/parameters/AccountFilter' }
+        - { $ref: '#/components/parameters/CategoryFilter' }
+        - { $ref: '#/components/parameters/StatusFilter' }
+        - { $ref: '#/components/parameters/SearchQuery' }
+        - { $ref: '#/components/parameters/ViewFilter' }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+      responses:
+        '200':
+          description: Paginated transaction collection for the signed-in user, with meta.total as the count of matching transactions
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransactionCollectionResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    post:
+      summary: Record a transaction for one of the signed-in user's financial accounts
+      operationId: createTransaction
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateTransactionRequest' }
+      responses:
+        '201':
+          description: Transaction recorded
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransactionResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /transactions/{transaction_id}:
+    get:
+      summary: Read one transaction owned by the signed-in user
+      operationId: getTransaction
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/TransactionId' }
+      responses:
+        '200':
+          description: Transaction details
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransactionResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    patch:
+      summary: Correct an owned transaction
+      operationId: updateTransaction
+      description: A removed transaction cannot be edited; restore it first. The action then returns a state conflict.
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/TransactionId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateTransactionRequest' }
+      responses:
+        '200':
+          description: Transaction updated; affected account balances are restated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransactionResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/StateConflictError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /transactions/{transaction_id}/remove:
+    post:
+      summary: Remove an owned transaction without deleting it
+      description: The transaction keeps its data, leaves balances and the normal history, and becomes available in the removed view.
+      operationId: removeTransaction
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/TransactionId' }
+      responses:
+        '200':
+          description: Transaction removed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransactionResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/StateConflictError' }
+  /transactions/{transaction_id}/restore:
+    post:
+      summary: Restore an owned removed transaction
+      description: The restored transaction becomes pending or effective under the same rules as a new transaction.
+      operationId: restoreTransaction
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/TransactionId' }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RestoreTransactionRequest' }
+      responses:
+        '200':
+          description: Transaction restored
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransactionResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/StateConflictError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: zunera_session
+  parameters:
+    TransactionId:
+      name: transaction_id
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+    FromDate:
+      name: from
+      in: query
+      required: false
+      schema: { type: string, format: date }
+      description: Inclusive earliest transaction date.
+    ToDate:
+      name: to
+      in: query
+      required: false
+      schema: { type: string, format: date }
+      description: Inclusive latest transaction date.
+    TypeFilter:
+      name: type
+      in: query
+      required: false
+      schema: { $ref: '#/components/schemas/TransactionType' }
+    AccountFilter:
+      name: financial_account_id
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1 }
+      description: Must belong to the signed-in user, active or archived.
+    CategoryFilter:
+      name: category_id
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1 }
+      description: Must be available to the signed-in user, active or archived.
+    StatusFilter:
+      name: status
+      in: query
+      required: false
+      schema: { $ref: '#/components/schemas/TransactionStatus' }
+    SearchQuery:
+      name: q
+      in: query
+      required: false
+      schema: { type: string, maxLength: 200 }
+      description: Free text matched against description and notes, ignoring case and accents.
+    ViewFilter:
+      name: view
+      in: query
+      required: false
+      schema: { type: string, enum: [active, removed], default: active }
+    Page:
+      name: page
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1, default: 1 }
+    PerPage:
+      name: per_page
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1, maximum: 50, default: 50 }
+  schemas:
+    TransactionType:
+      type: string
+      enum: [income, expense]
+    TransactionStatus:
+      type: string
+      enum: [pending, effective]
+    TransactionAccountSummary:
+      type: object
+      required: [id, name, status]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        status: { type: string, enum: [active, archived] }
+        color: { type: [string, 'null'] }
+        icon: { type: [string, 'null'] }
+    TransactionCategorySummary:
+      type: object
+      required: [id, name, classification, origin, status]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        classification: { type: string, enum: [income, expense] }
+        origin: { type: string, enum: [system, personal] }
+        status: { type: string, enum: [active, archived] }
+        color: { type: [string, 'null'] }
+        icon: { type: [string, 'null'] }
+    TransactionResource:
+      type: object
+      required:
+        - id
+        - type
+        - status
+        - description
+        - amount_centavos
+        - currency_code
+        - transaction_date
+        - financial_account
+        - category
+        - created_at
+        - updated_at
+      properties:
+        id: { type: integer }
+        type: { $ref: '#/components/schemas/TransactionType' }
+        status: { $ref: '#/components/schemas/TransactionStatus' }
+        description: { type: string, maxLength: 200 }
+        notes: { type: [string, 'null'], maxLength: 1000 }
+        amount_centavos:
+          type: integer
+          minimum: 1
+          maximum: 99999999999
+          description: Always positive; the type determines the balance effect.
+        currency_code: { type: string, enum: [BRL] }
+        transaction_date:
+          type: string
+          format: date
+          description: A date in the future stores the transaction as pending; status effective is rejected for future dates on create.
+        removed_at: { type: [string, 'null'], format: date-time }
+        financial_account: { $ref: '#/components/schemas/TransactionAccountSummary' }
+        category: { $ref: '#/components/schemas/TransactionCategorySummary' }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    CreateTransactionRequest:
+      type: object
+      required: [financial_account_id, category_id, type, description, amount_centavos, transaction_date]
+      properties:
+        financial_account_id: { type: integer, minimum: 1 }
+        category_id: { type: integer, minimum: 1 }
+        type: { $ref: '#/components/schemas/TransactionType' }
+        status:
+          allOf:
+            - $ref: '#/components/schemas/TransactionStatus'
+          description: Optional on create. Defaults to effective, or to pending when the transaction date is in the future. A future-dated transaction cannot be created as effective.
+        description: { type: string, minLength: 1, maxLength: 200 }
+        notes: { type: [string, 'null'], maxLength: 1000 }
+        amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
+        transaction_date: { type: string, format: date }
+    UpdateTransactionRequest:
+      type: object
+      minProperties: 1
+      properties:
+        financial_account_id: { type: integer, minimum: 1 }
+        category_id: { type: integer, minimum: 1 }
+        type: { $ref: '#/components/schemas/TransactionType' }
+        status: { $ref: '#/components/schemas/TransactionStatus' }
+        description: { type: string, minLength: 1, maxLength: 200 }
+        notes: { type: [string, 'null'], maxLength: 1000 }
+        amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
+        transaction_date:
+          type: string
+          format: date
+          description: Editing an effective transaction's date into the future keeps it effective and keeps its balance effect; the result carries a notice that it remains effective, with the option to set it pending. No date edit changes status on its own.
+    RestoreTransactionRequest:
+      type: object
+      properties:
+        status:
+          allOf:
+            - $ref: '#/components/schemas/TransactionStatus'
+          description: Optional. Defaults to effective, or to pending when the transaction date is in the future.
+    TransactionResponse:
+      type: object
+      required: [data]
+      properties:
+        data: { $ref: '#/components/schemas/TransactionResource' }
+    TransactionCollectionResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/TransactionResource' }
+        meta:
+          type: object
+          required: [current_page, last_page, per_page, total]
+          properties:
+            current_page: { type: integer, minimum: 1 }
+            last_page: { type: integer, minimum: 1 }
+            per_page: { type: integer, minimum: 1, maximum: 50 }
+            total:
+              type: integer
+              minimum: 0
+              description: Count of transactions matching the active filters, used as the visible matching count.
+        links:
+          type: object
+          properties:
+            first: { type: [string, 'null'] }
+            last: { type: [string, 'null'] }
+            prev: { type: [string, 'null'] }
+            next: { type: [string, 'null'] }
+    GenericError:
+      type: object
+      properties:
+        message: { type: string }
+    ValidationError:
+      type: object
+      properties:
+        message: { type: string }
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+    StateConflictError:
+      type: object
+      properties:
+        message: { type: string }
+        code:
+          type: string
+          enum:
+            - transaction_already_removed
+            - transaction_already_active
+            - transaction_edit_requires_restore
+            - transaction_state_not_allowed
+  responses:
+    GenericError:
+      description: Authentication required or request rejected
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/GenericError' }
+    ValidationError:
+      description: Invalid input or an unavailable account, category, state, or amount combination
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ValidationError' }
+    NotFoundError:
+      description: The transaction, account, or category is missing or not accessible to the signed-in user
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/GenericError' }
+    StateConflictError:
+      description: The requested lifecycle action cannot be applied to the transaction's current state
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/StateConflictError' }
