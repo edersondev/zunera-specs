@@ -127,13 +127,16 @@ specs/004-transaction-management/
 │   ├── Models/Transaction.php
 │   └── Services/Transactions/
 │       ├── TransactionService.php
+│       ├── TransactionIdempotencyService.php
 │       ├── TransactionMoney.php
 │       ├── TransactionDateRange.php
 │       ├── TransactionTextNormalizer.php
 │       └── TransactionBalanceReconciler.php
 ├── database/
 │   ├── factories/TransactionFactory.php
-│   └── migrations/*_create_transactions_table.php
+│   └── migrations/
+│       ├── *_create_transactions_table.php
+│       └── *_create_transaction_mutation_requests_table.php
 ├── routes/api.php
 └── tests/
     ├── Feature/Transactions/
@@ -216,6 +219,12 @@ state stays in the feature store.
   filters so results remain predictable, and it is matched against the derived
   `search_text` column produced by `TransactionTextNormalizer` so behavior is
   identical on MySQL and SQLite.
+- Require a fresh `Idempotency-Key` for every transaction mutation. Persist the
+  owner-scoped key, request fingerprint, and completed response in the same
+  database transaction as the mutation: matching retries replay the response;
+  reused keys with a different request return typed 409 and never change a
+  balance. This preserves legitimate identical transactions with different
+  keys.
 - Set the existing forward-compatible history flags when a transaction is
   created: `financial_accounts.has_financial_movements` and
   `categories.has_financial_transactions` become true and stay true, so the

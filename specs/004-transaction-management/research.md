@@ -271,6 +271,27 @@ future movement.
 - ISO input only: rejected because the product targets Brazilian users who
   enter `DD/MM/YYYY`.
 
+## Decision: Persist idempotency records for transaction mutations
+
+**Rationale**: Disabling a form button stops only one browser interaction. A
+network retry, a refreshed page, or concurrent requests can still repeat a
+create or lifecycle action. Every transaction mutation therefore requires a
+new opaque `Idempotency-Key` header. The service stores a user-scoped request
+fingerprint and completed response in the same database transaction as the
+mutation. A matching retry replays that response without a second balance
+effect; a mismatched request with the same key returns a typed 409 conflict.
+Identical intentional transactions remain valid because they use different
+keys.
+
+**Alternatives considered**:
+
+- Client-only duplicate-submit guards: rejected because they do not protect
+  retries, multiple browser contexts, or direct API callers.
+- A uniqueness constraint on transaction content: rejected because identical
+  real-world transactions are explicitly valid.
+- Best-effort cache keys: rejected because expiry or eviction can permit a late
+  retry to mutate a balance again.
+
 ## Decision: Reuse the existing API envelope and lifecycle route conventions
 
 **Rationale**: Transactions reuse the versioned `/api/v1` prefix, the
@@ -279,6 +300,11 @@ authenticated `auth:sanctum` plus `session.lifetime` middleware group, the
 account and category features (`POST /transactions/{id}/remove`,
 `POST /transactions/{id}/restore`). Consistent shapes keep the frontend service
 layer predictable.
+
+The single-resource envelope additionally permits an optional `meta.notice`.
+`effective_future_date` is returned after the date-edit case where a transaction
+remains effective in the future, giving the frontend a typed source for the
+required notice and pending-status action.
 
 **Alternatives considered**:
 

@@ -29,11 +29,14 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/TransactionCollectionResponse' }
         '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
         '422': { $ref: '#/components/responses/ValidationError' }
     post:
       summary: Record a transaction for one of the signed-in user's financial accounts
       operationId: createTransaction
       security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
       requestBody:
         required: true
         content:
@@ -47,6 +50,7 @@ paths:
               schema: { $ref: '#/components/schemas/TransactionResponse' }
         '401': { $ref: '#/components/responses/GenericError' }
         '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/StateConflictError' }
         '422': { $ref: '#/components/responses/ValidationError' }
   /transactions/{transaction_id}:
     get:
@@ -70,6 +74,7 @@ paths:
       security: [{ cookieAuth: [] }]
       parameters:
         - { $ref: '#/components/parameters/TransactionId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
       requestBody:
         required: true
         content:
@@ -93,6 +98,7 @@ paths:
       security: [{ cookieAuth: [] }]
       parameters:
         - { $ref: '#/components/parameters/TransactionId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
       responses:
         '200':
           description: Transaction removed
@@ -110,6 +116,7 @@ paths:
       security: [{ cookieAuth: [] }]
       parameters:
         - { $ref: '#/components/parameters/TransactionId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
       requestBody:
         required: false
         content:
@@ -141,14 +148,14 @@ components:
       name: from
       in: query
       required: false
-      schema: { type: string, format: date }
-      description: Inclusive earliest transaction date.
+      schema: { $ref: '#/components/schemas/TransactionDateInput' }
+      description: Inclusive earliest transaction date, in `YYYY-MM-DD` or `DD/MM/YYYY` form.
     ToDate:
       name: to
       in: query
       required: false
-      schema: { type: string, format: date }
-      description: Inclusive latest transaction date.
+      schema: { $ref: '#/components/schemas/TransactionDateInput' }
+      description: Inclusive latest transaction date, in `YYYY-MM-DD` or `DD/MM/YYYY` form.
     TypeFilter:
       name: type
       in: query
@@ -159,13 +166,13 @@ components:
       in: query
       required: false
       schema: { type: integer, minimum: 1 }
-      description: Must belong to the signed-in user, active or archived.
+      description: Must belong to the signed-in user, active or archived. A missing or foreign ID returns privacy-safe 404.
     CategoryFilter:
       name: category_id
       in: query
       required: false
       schema: { type: integer, minimum: 1 }
-      description: Must be available to the signed-in user, active or archived.
+      description: Must be available to the signed-in user, active or archived. A missing or unavailable ID returns privacy-safe 404.
     StatusFilter:
       name: status
       in: query
@@ -192,6 +199,12 @@ components:
       in: query
       required: false
       schema: { type: integer, minimum: 1, maximum: 50, default: 50 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: A new opaque key for one logical mutation. Repeating the same key with an identical request replays its original result; reusing it for a different request returns `409 idempotency_key_reused`.
+      schema: { type: string, minLength: 1, maxLength: 255 }
   schemas:
     TransactionType:
       type: string
@@ -199,6 +212,12 @@ components:
     TransactionStatus:
       type: string
       enum: [pending, effective]
+    TransactionDateInput:
+      type: string
+      description: Calendar date accepted as ISO `YYYY-MM-DD` or Brazilian `DD/MM/YYYY`; the server validates calendar correctness and the supported range.
+      oneOf:
+        - pattern: '^\\d{4}-\\d{2}-\\d{2}$'
+        - pattern: '^\\d{2}/\\d{2}/\\d{4}$'
     TransactionAccountSummary:
       type: object
       required: [id, name, status]
@@ -268,7 +287,7 @@ components:
         description: { type: string, minLength: 1, maxLength: 200 }
         notes: { type: [string, 'null'], maxLength: 1000 }
         amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
-        transaction_date: { type: string, format: date }
+        transaction_date: { $ref: '#/components/schemas/TransactionDateInput' }
     UpdateTransactionRequest:
       type: object
       minProperties: 1
@@ -281,8 +300,7 @@ components:
         notes: { type: [string, 'null'], maxLength: 1000 }
         amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
         transaction_date:
-          type: string
-          format: date
+          $ref: '#/components/schemas/TransactionDateInput'
           description: Editing an effective transaction's date into the future keeps it effective and keeps its balance effect; the result carries a notice that it remains effective, with the option to set it pending. No date edit changes status on its own.
     RestoreTransactionRequest:
       type: object
@@ -296,6 +314,17 @@ components:
       required: [data]
       properties:
         data: { $ref: '#/components/schemas/TransactionResource' }
+        meta:
+          $ref: '#/components/schemas/TransactionResponseMeta'
+    TransactionResponseMeta:
+      type: object
+      properties:
+        notice:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string, enum: [effective_future_date] }
+            message: { type: string }
     TransactionCollectionResponse:
       type: object
       required: [data, meta]
@@ -345,6 +374,7 @@ components:
             - transaction_already_active
             - transaction_edit_requires_restore
             - transaction_state_not_allowed
+            - idempotency_key_reused
   responses:
     GenericError:
       description: Authentication required or request rejected
@@ -362,7 +392,7 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/GenericError' }
     StateConflictError:
-      description: The requested lifecycle action cannot be applied to the transaction's current state
+      description: The requested lifecycle action cannot be applied to the transaction's current state, or an idempotency key was reused for a different request
       content:
         application/json:
           schema: { $ref: '#/components/schemas/StateConflictError' }

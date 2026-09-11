@@ -15,10 +15,13 @@
 5. Reconcile account balances by delta inside the same database transaction as
    every create, update, status change, account change, type change, removal,
    and restoration, locking the affected account rows.
-6. Set `financial_accounts.has_financial_movements` and
+6. Require and persist a unique `Idempotency-Key` for every transaction
+   mutation. Matching retries must replay the original response; the same key
+   with different payload must return `409 idempotency_key_reused`.
+7. Set `financial_accounts.has_financial_movements` and
    `categories.has_financial_transactions` on first association, keeping the
    locks promised by those features.
-7. Add feature and unit coverage. Then run migrations, inspect routes, run
+8. Add feature and unit coverage. Then run migrations, inspect routes, run
    focused tests, full backend tests, Pint, and contract lint.
 
 ## Frontend after backend gate
@@ -26,6 +29,8 @@
 1. In `../zunera-frontend`, confirm branch `004-transaction-management`.
 2. Consume only the confirmed `contracts/transactions-api.yaml` contract through
    a feature Axios service and setup-style Pinia store.
+   Generate one `Idempotency-Key` per logical save/remove/restore action and
+   reuse it only when retrying that exact action.
 3. Add authenticated transaction routes: history with filters and search, a
    record form, an edit path, a details view, and a removed-transactions view
    with restore.
@@ -57,6 +62,9 @@
 - Edit an effective transaction's date into the future; verify it stays
   effective, keeps affecting the balance, and shows a notice offering to set it
   pending.
+- Retry a completed create, update, remove, and restore request with the same
+  `Idempotency-Key`; verify the original response is replayed and balances move
+  only once. Reuse a key with a changed payload and verify the typed 409.
 - Attempt invalid input: zero, negative, over-precision, or over-limit amounts;
   a date outside 1900-01-01..2100-12-31; a blank or overlong description; an
   income transaction with an expense category and vice versa. Verify no
@@ -76,6 +84,8 @@
 - Filter by date range, type, account, category, and status, combine filters,
   and search text; verify only matching transactions are listed, the matching
   count and active criteria are visible, and no-match shows a clear empty state.
+  Attempt account/category filters using another user's identifiers; verify a
+  privacy-safe 404 with no data exposed.
 - Verify a 5,000-transaction history loads newest first, that the first batch
   appears quickly, and that the classic "identical duplicate" pair is allowed
   while a repeated submit of one action does not double-apply a balance effect.

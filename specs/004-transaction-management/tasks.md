@@ -13,7 +13,7 @@ selectors.
 
 **Organization**: Backend tasks for each story complete before that story's
 frontend tasks. Stories are independently testable at their checkpoints, except
-the single cross-story balance test called out in T035.
+the single cross-story balance test called out in T055.
 
 **Branch coordination**: Before work, confirm `004-transaction-management` in
 `zunera-specs`, `../zunera-backend`, and `../zunera-frontend`.
@@ -63,11 +63,13 @@ All user-story work waits for this phase.
   `transaction_already_removed`, `transaction_already_active`,
   `transaction_edit_requires_restore`, and `transaction_state_not_allowed` codes
   in `../zunera-backend/app/Exceptions/Transactions/TransactionStateException.php`.
-- [ ] T009 Create the transactions table with owner, account, category, type,
-  status, description, notes, `amount_centavos`, `currency_code`,
-  `transaction_date`, derived `search_text`, `removed_at`, the owner/date,
-  owner/status/removal, owner/search, and association indexes in
-  `../zunera-backend/database/migrations/*_create_transactions_table.php`.
+- [ ] T009 Create the transactions and transaction-mutation-request tables:
+  transaction ownership, associations, type, status, monetary and search fields,
+  removal state, history indexes, plus user-scoped idempotency key, request
+  fingerprint, target transaction, and replayable response fields with a unique
+  owner/key constraint in
+  `../zunera-backend/database/migrations/*_create_transactions_table.php` and
+  `../zunera-backend/database/migrations/*_create_transaction_mutation_requests_table.php`.
 - [ ] T010 Create the guarded `Transaction` model with casts, `user`,
   `financialAccount`, and `category` relations, `search_text` rebuild hook,
   and active/removed/effective/counting scopes in
@@ -80,10 +82,14 @@ All user-story work waits for this phase.
   `../zunera-backend/app/Data/Transactions/`.
 - [ ] T013 [P] Create `ListTransactionsRequest`, `StoreTransactionRequest`,
   `UpdateTransactionRequest`, and `LifecycleTransactionRequest` skeletons in
-  `../zunera-backend/app/Http/Requests/Transactions/`.
+  `../zunera-backend/app/Http/Requests/Transactions/`, including required
+  `Idempotency-Key` header validation for mutations.
 - [ ] T014 Implement `TransactionBalanceReconciler` that applies the previous
-  and resulting effect to one or two locked accounts exactly once in
-  `../zunera-backend/app/Services/Transactions/TransactionBalanceReconciler.php`.
+  and resulting effect to one or two locked accounts exactly once, and
+  `TransactionIdempotencyService` that acquires/replays owner-scoped mutation
+  requests inside the same database transaction, in
+  `../zunera-backend/app/Services/Transactions/TransactionBalanceReconciler.php`
+  and `../zunera-backend/app/Services/Transactions/TransactionIdempotencyService.php`.
 - [ ] T015 Create `TransactionResource` exposing owner-safe fields plus embedded
   account and category summaries with lifecycle status in
   `../zunera-backend/app/Http/Resources/Transactions/TransactionResource.php`.
@@ -117,7 +123,8 @@ feedback while unauthenticated access is denied.
 ### Tests for User Story 1
 
 - [ ] T019 [P] [US1] Feature test for income and expense creation, note
-  persistence, and field-level validation failures in
+  persistence, field-level validation failures, and idempotent replay of a
+  create request (including concurrent/retried requests with one balance effect) in
   `../zunera-backend/tests/Feature/Transactions/RecordTransactionsTest.php`.
 - [ ] T020 [P] [US1] Unit test for amount bounds, future-dated pending default,
   and rejection of explicit `effective` on a future date in
@@ -130,11 +137,11 @@ feedback while unauthenticated access is denied.
 - [ ] T021 [US1] Implement `TransactionService::create` with owner-scoped
   account and category resolution, active-association checks, type/category
   match, future-date pending rule, rejection of explicit `effective` on future
-  dates, `has_financial_movements` and `has_financial_transactions` flags, and
-  balance reconciliation in
+  dates, `has_financial_movements` and `has_financial_transactions` flags,
+  persisted idempotency replay/conflict behavior, and balance reconciliation in
   `../zunera-backend/app/Services/Transactions/TransactionService.php`.
 - [ ] T022 [US1] Implement `StoreTransactionRequest` validation rules, DTO
-  conversion, and privacy-safe 404 mapping for foreign accounts or categories
+  conversion, `Idempotency-Key` validation, and privacy-safe 404 mapping for foreign accounts or categories
   in `../zunera-backend/app/Http/Requests/Transactions/StoreTransactionRequest.php`.
 - [ ] T023 [US1] Wire `TransactionController::store` with the created-resource
   response in
@@ -146,7 +153,8 @@ feedback while unauthenticated access is denied.
 #### Frontend (after Backend)
 
 - [ ] T025 [P] [US1] Implement `createTransaction`, `listTransactions`, and
-  `getTransaction` calls in
+  `getTransaction` calls, generating one idempotency key per logical mutation
+  and retaining it only for an exact retry, in
   `../zunera-frontend/src/services/transactionService.js`.
 - [ ] T026 [US1] Implement setup-style `transactionStore` with list state,
   active transaction, and create action in
@@ -200,17 +208,13 @@ balance after each step.
 - [ ] T034 [P] [US2] Feature test balance effects for creation and status
   transitions, including the account summary endpoint, in
   `../zunera-backend/tests/Feature/Transactions/BalanceConsistencyTest.php`.
-- [ ] T035 [US2] Feature test balance effects for type change, account move,
-  removal, and restore, reusing the update and lifecycle endpoints delivered in
-  User Story 4 (cross-story dependency: T056, T057, T058).
-
 ### Implementation for User Story 2
 
 #### Backend (complete first)
 
-- [ ] T036 [US2] Complete reconciler integration for every mutation path
-  (create, update, status change, type change, account move, removal, restore)
-  with locked account rows and exactly-once effects in
+- [ ] T036 [US2] Integrate reconciliation for create and status changes, and
+  establish the locked-account, exactly-once interface consumed by the later
+  update, account-move, removal, and restore paths in
   `../zunera-backend/app/Services/Transactions/TransactionService.php`.
 - [ ] T037 [US2] Verify account list, show, and summary responses reflect
   reconciled balances without changing the financial-account contract in
@@ -309,54 +313,60 @@ restore.
   transactions is not blocked and changes no state or balance, in
   `../zunera-backend/tests/Feature/Transactions/ArchivedAssociationTransactionsTest.php`.
 - [ ] T053 [P] [US4] Feature test for each editable field, type/category
-  mismatch, foreign-resource 404, removed-edit conflict, and future-date edit
-  semantics in
+  mismatch, foreign-resource 404, removed-edit conflict, future-date edit
+  semantics, and the typed `effective_future_date` response notice in
   `../zunera-backend/tests/Feature/Transactions/UpdateTransactionsTest.php`.
 - [ ] T054 [P] [US4] Feature test for removal, removed view, restore, repeated
-  lifecycle conflicts, and state rules on restore in
+  lifecycle conflicts, idempotent retry/reused-key conflicts, and state rules on restore in
   `../zunera-backend/tests/Feature/Transactions/RemoveAndRestoreTransactionsTest.php`.
+
+- [ ] T055 [US2] Feature test balance effects for type change, account move,
+  removal, and restore, reusing the update and lifecycle endpoints delivered in
+  User Story 4 (cross-story verification after T057, T058, and T059).
 
 ### Implementation for User Story 4
 
 #### Backend (complete first)
 
-- [ ] T055 [US4] Implement `UpdateTransactionRequest` rules including the
+- [ ] T056 [US4] Implement `UpdateTransactionRequest` rules including the
   keep-archived-association allowance, rejection of newly selected archived
-  resources, and DTO conversion in
+  resources, `Idempotency-Key` validation, and DTO conversion in
   `../zunera-backend/app/Http/Requests/Transactions/UpdateTransactionRequest.php`.
-- [ ] T056 [US4] Implement `TransactionService::update` with change detection,
+- [ ] T057 [US4] Implement `TransactionService::update` with change detection,
   both-account reconciliation, archived-association rules, date/status edit
-  rules, and removed-state rejection in
+  rules, removed-state rejection, idempotency replay/conflict behavior, and
+  `effective_future_date` response metadata in
   `../zunera-backend/app/Services/Transactions/TransactionService.php`.
-- [ ] T057 [US4] Implement `TransactionService::remove` and `restore` with state
-  conflicts, the removed view scope, and exactly-once reconciliation in
+- [ ] T058 [US4] Implement `TransactionService::remove` and `restore` with state
+  conflicts, idempotency replay/conflict behavior, the removed view scope, and
+  exactly-once reconciliation in
   `../zunera-backend/app/Services/Transactions/TransactionService.php`.
-- [ ] T058 [US4] Wire `TransactionController::update`, `remove`, and `restore`
+- [ ] T059 [US4] Wire `TransactionController::update`, `remove`, and `restore`
   with typed conflict responses in
   `../zunera-backend/app/Http/Controllers/Api/V1/TransactionController.php`,
   then run the focused update and lifecycle tests.
 
 #### Frontend (after Backend)
 
-- [ ] T059 [US4] Extend
+- [ ] T060 [US4] Extend
   `../zunera-frontend/src/components/transactions/TransactionFormDialog.vue`
   for editing, archived read-only associations, the future-date notice, and the
-  same duplicate-submit protection used when recording.
-- [ ] T060 [US4] Add `updateTransaction`, `removeTransaction`, and
-  `restoreTransaction` to
+  typed response notice plus same duplicate-submit protection used when recording.
+- [ ] T061 [US4] Add `updateTransaction`, `removeTransaction`, and
+  `restoreTransaction` with per-action idempotency-key generation/retry to
   `../zunera-frontend/src/services/transactionService.js` and matching store
   actions in
   `../zunera-frontend/src/stores/transactions/transactionStore.js`.
-- [ ] T061 [US4] Build the removed-transactions view with Restore actions,
+- [ ] T062 [US4] Build the removed-transactions view with Restore actions,
   route, navigation entry, success and rejection feedback, and i18n keys in
   `../zunera-frontend/src/views/transactions/RemovedTransactionsView.vue`,
   `../zunera-frontend/src/router/index.js`, and
   `../zunera-frontend/src/i18n/`.
-- [ ] T062 [P] [US4] Add unit tests for update, remove, restore, and removed-view
-  behavior in
+- [ ] T063 [P] [US4] Add unit tests for update, remove, restore, typed date notice,
+  idempotency-key reuse, and removed-view behavior in
   `../zunera-frontend/src/components/transactions/__tests__/` and
   `../zunera-frontend/src/views/__tests__/`.
-- [ ] T063 [US4] Extend `../zunera-frontend/e2e/transactions.spec.js` with edit,
+- [ ] T064 [US4] Extend `../zunera-frontend/e2e/transactions.spec.js` with edit,
   remove, restore, removed-view, and archived-association journeys.
 
 **Checkpoint**: Correcting and removing transactions works with balances intact.
@@ -374,11 +384,12 @@ matching transactions are listed with an accurate matching count.
 
 ### Tests for User Story 5
 
-- [ ] T064 [P] [US5] Feature test for each filter, inclusive date ranges,
-  archived account and category filters, status, combined filters, and the
+- [ ] T065 [P] [US5] Feature test for each filter, ISO and Brazilian date input,
+  inclusive date ranges, archived account and category filters, foreign account
+  and category privacy-safe 404s, status, combined filters, and the
   removed view in
   `../zunera-backend/tests/Feature/Transactions/FilterTransactionsTest.php`.
-- [ ] T065 [P] [US5] Feature test for description and note search, case and
+- [ ] T066 [P] [US5] Feature test for description and note search, case and
   accent insensitivity, search combined with filters, and no-match results in
   `../zunera-backend/tests/Feature/Transactions/SearchTransactionsTest.php`.
 
@@ -386,30 +397,31 @@ matching transactions are listed with an accurate matching count.
 
 #### Backend (complete first)
 
-- [ ] T066 [US5] Implement filter and search parsing into `TransactionFilterData`
+- [ ] T067 [US5] Implement filter and search parsing into `TransactionFilterData`
   in
   `../zunera-backend/app/Http/Requests/Transactions/ListTransactionsRequest.php`
   and `../zunera-backend/app/Data/Transactions/TransactionFilterData.php`.
-- [ ] T067 [US5] Implement filter, normalized `search_text`, and removed-view
-  query building with owner scoping and stable ordering in
+- [ ] T068 [US5] Implement filter, normalized `search_text`, and removed-view
+  query building with owner-scoped account/category filter resolution that maps
+  foreign or unavailable IDs to 404, and stable ordering in
   `../zunera-backend/app/Services/Transactions/TransactionService.php`, then
   run the focused filter and search tests.
 
 #### Frontend (after Backend)
 
-- [ ] T068 [US5] Build the filter bar with date range, type, account, category,
+- [ ] T069 [US5] Build the filter bar with date range, type, account, category,
   status, and text search controls in
   `../zunera-frontend/src/components/transactions/TransactionFilterBar.vue`.
-- [ ] T069 [US5] Keep filters in transaction store state and in the route query
+- [ ] T070 [US5] Keep filters in transaction store state and in the route query
   string, show active criteria with i18n labels, provide a clear action, and
   render the no-match empty state in
   `../zunera-frontend/src/stores/transactions/transactionStore.js` and
   `../zunera-frontend/src/views/transactions/TransactionsListView.vue`.
-- [ ] T070 [P] [US5] Add unit tests for filter state, query-string sync, and
+- [ ] T071 [P] [US5] Add unit tests for filter state, query-string sync, and
   clearing filters in
   `../zunera-frontend/src/stores/transactions/__tests__/` and
   `../zunera-frontend/src/components/transactions/__tests__/`.
-- [ ] T071 [US5] Extend `../zunera-frontend/e2e/transactions.spec.js` with
+- [ ] T072 [US5] Extend `../zunera-frontend/e2e/transactions.spec.js` with
   combined filter, search, and clear-criteria journeys.
 
 **Checkpoint**: All five stories work independently and together.
@@ -420,23 +432,23 @@ matching transactions are listed with an accurate matching count.
 
 **Purpose**: Verification and consistency work spanning all stories.
 
-- [ ] T072 [P] Lint the contract with
+- [ ] T073 [P] Lint the contract with
   `npx @redocly/cli lint specs/004-transaction-management/contracts/transactions-api.yaml`
   and resolve any response-shape drift.
-- [ ] T073 [P] Update
+- [ ] T074 [P] Update
   `specs/004-transaction-management/{research.md,data-model.md,quickstart.md}`
   if implementation reveals a decision or field change.
-- [ ] T074 [P] Run `php artisan test --compact` and
+- [ ] T075 [P] Run `php artisan test --compact` and
   `vendor/bin/pint --format agent` in `../zunera-backend`.
-- [ ] T075 [P] Run `npm run test:unit -- --run` and `npm run build` in
+- [ ] T076 [P] Run `npm run test:unit -- --run` and `npm run build` in
   `../zunera-frontend`.
-- [ ] T076 Run `CI=1 npm run test:e2e -- e2e/transactions.spec.js` in
+- [ ] T077 Run `CI=1 npm run test:e2e -- e2e/transactions.spec.js` in
   `../zunera-frontend` and confirm scenario isolation.
-- [ ] T077 Verify Light, Dark, and System themes, narrow supported viewports,
+- [ ] T078 Verify Light, Dark, and System themes, narrow supported viewports,
   200% zoom, keyboard-only operation, dialog and drawer focus restoration, and
   income/expense distinction without color in
   `../zunera-frontend/src/views/transactions/`.
-- [ ] T078 Run the manual acceptance smoke test in
+- [ ] T079 Run the manual acceptance smoke test in
   `specs/004-transaction-management/quickstart.md`, then mark the
   implementation-verification checkbox with evidence.
 
@@ -456,7 +468,7 @@ matching transactions are listed with an accurate matching count.
 - **US1 (P1)**: After Phase 2; no story dependencies. Includes the minimal
   list needed to see a recorded transaction.
 - **US2 (P1)**: After Phase 2 for unit and create-path balance coverage; only
-  T035 needs the US4 update, remove, and restore endpoints (T056-T058), so it is
+  T055 needs the US4 update, remove, and restore endpoints (T057-T059), so it is
   the single cross-story task in this plan.
 - **US3 (P2)**: After Phase 2; replaces US1's minimal list presentation with
   full history, details, progressive loading, and scale verification.
@@ -476,7 +488,7 @@ matching transactions are listed with an accurate matching count.
 - T002 and T003 are independent folder setup.
 - T004-T008, T011-T013, and T018 touch different files and can run in parallel.
 - Test tasks T019/T020 (US1), T033/T034 (US2), T042/T043/T044 (US3),
-  T052/T053/T054 (US4), and T064/T065 (US5) can each run in parallel.
+  T052/T053/T054 (US4), and T065/T066 (US5) can each run in parallel.
 - Frontend unit-test tasks marked [P] run alongside component work on other
   files.
 
@@ -508,8 +520,9 @@ Task: "Add service, store, and formatter unit tests in ../zunera-frontend/src/se
 
 1. Phase 1 + Phase 2 → foundation ready.
 2. US1 backend → frontend → validate → demo.
-3. US2 backend → frontend → validate balances.
-4. US3, then US4, then US5 in priority order, validating each checkpoint.
+3. US2 create/status balance work → frontend → validate its available paths.
+4. US3, then US4; run T055 after US4 backend completes to validate every
+   balance mutation path. Finish with US5 and validate each checkpoint.
 5. Phase 8 verification before completion.
 
 ---

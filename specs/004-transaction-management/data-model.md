@@ -22,6 +22,27 @@ financial accounts.
 | `removed_at` | timestamp, nullable | Set when the owner removes the transaction; cleared when restored |
 | `created_at` / `updated_at` | timestamps | Standard |
 
+## Transaction Mutation Request
+
+An owner-scoped persisted idempotency record for one create, update, remove, or
+restore action. It prevents a transport retry from creating a second transaction
+or applying a second balance effect, while still allowing intentionally
+identical transactions submitted with different keys.
+
+| Field | Type | Rules |
+|-------|------|-------|
+| `user_id` | integer, foreign key to `users` | Required; scopes a key to its authenticated owner |
+| `idempotency_key` | string(255) | Required from the `Idempotency-Key` request header; unique with `user_id` |
+| `operation` | enum/string | `create`, `update`, `remove`, or `restore`; included in request fingerprint |
+| `request_hash` | string(64) | Stable hash of operation, route target, and normalized request payload |
+| `transaction_id` | integer, nullable foreign key | Target or result transaction, when available |
+| `response_status` / `response_body` | integer / JSON | Persisted completed response replayed for the same key and fingerprint |
+| `created_at` / `updated_at` | timestamps | Standard |
+
+The transaction mutation and its idempotency record are committed together. A
+repeat with the same key and fingerprint replays the original response; a key
+reused with a different fingerprint returns `409 idempotency_key_reused`.
+
 ### Derived Behavior
 
 - **Counts toward balance**: `status = effective` and `removed_at is null`.
@@ -134,6 +155,9 @@ Rules:
 
 - Reconciliation runs inside one database transaction with the account row
   locked, so concurrent writes cannot interleave.
+- A mutation's idempotency record is acquired in that same database transaction
+  before its balance effect is applied. Concurrent repeats wait for or replay
+  the completed record and therefore never apply a second effect.
 - Reconciliation runs after every action that can change a transaction's
   effect: create, update of any effect-relevant field, status change, removal,
   and restoration.
@@ -180,3 +204,6 @@ same-day entries stay in creation order.
   unavailable actions with a reason.
 - `matching_count`: `meta.total` from the paginated history response, shown with
   the active filters.
+- `meta.notice`: optional API notice. `effective_future_date` tells the form
+  that an effective transaction was moved into the future and still affects the
+  balance; it presents the supplied option to set the status to `pending`.

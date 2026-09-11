@@ -491,6 +491,12 @@ combine criteria, and find an entry by text from its description.
   Pending transactions MUST stay pending and remain visible, understandable, and
   editable while keeping that archived association. This feature MUST NOT add
   new blocking rules to the account or category archive behavior.
+- **FR-049**: Every create, update, remove, and restore request MUST carry an
+  action-specific idempotency key. Retrying the same request with that key MUST
+  replay its original result without a second balance effect; reusing the key
+  for a different request MUST be rejected. This MUST NOT prevent a user from
+  intentionally recording two identical-looking transactions with different
+  keys.
 
 ### Security and Quality Requirements *(mandatory)*
 
