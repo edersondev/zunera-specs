@@ -7,11 +7,11 @@
 
 ## Summary
 
-Deliver email/password registration, sign-in, sign-out, recovery, and secure
+Deliver full-name/email/password registration, sign-in, sign-out, recovery, and secure
 reset for Brazilian Zunera users. Backend establishes a versioned, cookie-based
 Sanctum session contract, validation, throttling, expiry, queued notifications,
-and tests. Frontend consumes that contract through a Composition API service
-and Pinia session store, with Element Plus forms using `label-position="top"`
+and tests. Frontend consumes that contract through a Composition API service,
+Vue I18n PT-BR/English catalogs, and Pinia session store, with Element Plus forms using `label-position="top"`
 and the Zunera Design Foundation.
 
 ## Technical Context
@@ -28,12 +28,16 @@ and the Zunera Design Foundation.
 
 ## Delivery Scope and Order
 
-1. **Backend** — Add nullable `users.name` migration, Form Requests, DTOs,
+1. **Backend** — Require and persist a trimmed `users.name` for new registrations
+   while retaining legacy nullable-name compatibility; set request locale before
+   validation and exception rendering.
    authentication/recovery services, thin API controllers, Resources,
    Sanctum/CORS middleware, session-expiry middleware, cache-backed throttles,
    queued notifications, versioned routes, API contract, and PHPUnit coverage.
    Reset invalidates every session; ordinary logout only invalidates the current.
-2. **Frontend** — Add Axios/CSRF client, auth service, setup-style Pinia session
+2. **Frontend** — Add Axios/CSRF client, auth service, setup-style Pinia session,
+   Vue I18n, a persisted language selector, outbound `Accept-Language`, and
+   full-name header display.
    store, route guards, auth layout/views/forms, recovery-link states, session
    expiry dialog, semantic theme/bootstrap, and Vitest/Playwright coverage.
    Passwords and reset secrets stay local to forms and are never persisted.

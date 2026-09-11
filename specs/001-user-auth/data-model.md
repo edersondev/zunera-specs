@@ -3,7 +3,9 @@
 ## User
 
 - `id`: existing primary key.
-- `name`: nullable legacy display field; not collected or serialized by this feature.
+- `name`: required, trimmed full name for new registrations (2–255 characters).
+  It remains nullable only for pre-existing accounts and is serialized as `null` for
+  those accounts so clients can use the documented email fallback.
 - `email`: unique normalized (trimmed, lowercase) login identifier.
 - `password`: framework-hashed secret; never serialized or logged.
 - `email_verified_at`: remains nullable; this feature does not add email verification.
@@ -41,7 +43,7 @@
 ## Relationships and lifecycle
 
 - A user has many authenticated sessions and at most one active broker recovery token.
-- Registration creates a user and authenticates one session transactionally.
+- Registration creates a named user and authenticates one session transactionally.
 - Sign-out invalidates only the current session.
 - Successful password reset changes the hash, consumes the token, deletes all sessions for the user, and queues a security notification after commit.
 - Recovery notification attempts correlate to zero or more idempotent delivery
