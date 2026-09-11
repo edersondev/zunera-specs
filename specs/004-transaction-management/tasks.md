@@ -13,7 +13,7 @@ selectors.
 
 **Organization**: Backend tasks for each story complete before that story's
 frontend tasks. Stories are independently testable at their checkpoints, except
-the single cross-story balance test called out in T055.
+the single cross-story balance test called out in T059.
 
 **Branch coordination**: Before work, confirm `004-transaction-management` in
 `zunera-specs`, `../zunera-backend`, and `../zunera-frontend`.
@@ -23,7 +23,9 @@ the single cross-story balance test called out in T055.
 - **[P]**: Different files and no incomplete-task dependency.
 - **[Story]**: User story traceability label.
 - Every task includes its exact target path.
-- Task IDs follow execution order and are never reused.
+- Task IDs follow execution order and are never reused. T035 is intentionally
+  retired after its cross-story verification moved to T059; the gap preserves
+  stable task references.
 
 ## Phase 1: Setup (Shared Infrastructure)
 
@@ -320,31 +322,31 @@ restore.
   lifecycle conflicts, idempotent retry/reused-key conflicts, and state rules on restore in
   `../zunera-backend/tests/Feature/Transactions/RemoveAndRestoreTransactionsTest.php`.
 
-- [ ] T055 [US2] Feature test balance effects for type change, account move,
-  removal, and restore, reusing the update and lifecycle endpoints delivered in
-  User Story 4 (cross-story verification after T057, T058, and T059).
-
 ### Implementation for User Story 4
 
 #### Backend (complete first)
 
-- [ ] T056 [US4] Implement `UpdateTransactionRequest` rules including the
+- [ ] T055 [US4] Implement `UpdateTransactionRequest` rules including the
   keep-archived-association allowance, rejection of newly selected archived
   resources, `Idempotency-Key` validation, and DTO conversion in
   `../zunera-backend/app/Http/Requests/Transactions/UpdateTransactionRequest.php`.
-- [ ] T057 [US4] Implement `TransactionService::update` with change detection,
+- [ ] T056 [US4] Implement `TransactionService::update` with change detection,
   both-account reconciliation, archived-association rules, date/status edit
   rules, removed-state rejection, idempotency replay/conflict behavior, and
   `effective_future_date` response metadata in
   `../zunera-backend/app/Services/Transactions/TransactionService.php`.
-- [ ] T058 [US4] Implement `TransactionService::remove` and `restore` with state
+- [ ] T057 [US4] Implement `TransactionService::remove` and `restore` with state
   conflicts, idempotency replay/conflict behavior, the removed view scope, and
   exactly-once reconciliation in
   `../zunera-backend/app/Services/Transactions/TransactionService.php`.
-- [ ] T059 [US4] Wire `TransactionController::update`, `remove`, and `restore`
+- [ ] T058 [US4] Wire `TransactionController::update`, `remove`, and `restore`
   with typed conflict responses in
   `../zunera-backend/app/Http/Controllers/Api/V1/TransactionController.php`,
   then run the focused update and lifecycle tests.
+
+- [ ] T059 [US2] Feature test balance effects for type change, account move,
+  removal, and restore after the update and lifecycle endpoints are wired in
+  T056, T057, and T058.
 
 #### Frontend (after Backend)
 
@@ -468,7 +470,7 @@ matching transactions are listed with an accurate matching count.
 - **US1 (P1)**: After Phase 2; no story dependencies. Includes the minimal
   list needed to see a recorded transaction.
 - **US2 (P1)**: After Phase 2 for unit and create-path balance coverage; only
-  T055 needs the US4 update, remove, and restore endpoints (T057-T059), so it is
+  T059 needs the US4 update, remove, and restore endpoints (T056-T058), so it is
   the single cross-story task in this plan.
 - **US3 (P2)**: After Phase 2; replaces US1's minimal list presentation with
   full history, details, progressive loading, and scale verification.
@@ -521,7 +523,7 @@ Task: "Add service, store, and formatter unit tests in ../zunera-frontend/src/se
 1. Phase 1 + Phase 2 → foundation ready.
 2. US1 backend → frontend → validate → demo.
 3. US2 create/status balance work → frontend → validate its available paths.
-4. US3, then US4; run T055 after US4 backend completes to validate every
+4. US3, then US4; run T059 after US4 backend completes to validate every
    balance mutation path. Finish with US5 and validate each checkpoint.
 5. Phase 8 verification before completion.
 
