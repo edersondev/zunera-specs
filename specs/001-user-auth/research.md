@@ -12,10 +12,10 @@
 - **Rationale**: NIST SP 800-63B recommends at least 15 characters for single-factor passwords and long-password support; the spec requires rejecting common or compromised choices.
 - **Alternatives considered**: Arbitrary upper/lower/number composition was rejected because it harms usability without satisfying the stated requirement. Failing open was rejected because it would accept a password without completing the required safety check. A new password-scanning package was rejected to avoid an unapproved dependency.
 
-### Email-only registration
-- **Decision**: Make the existing `users.name` column nullable in a backend migration; registration accepts only email, password, and confirmation. Do not synthesize a display name from the email address.
-- **Rationale**: The user need and LGPD minimization explicitly require only authentication data. The starter schema's required name is an implementation mismatch, not a user requirement.
-- **Alternatives considered**: Asking for a name expands the flow; deriving one from email leaks or guesses personal data.
+### Full-name registration and language
+- **Decision**: Registration requires a trimmed full name (2–255 characters). Authenticated responses always expose `id`, `name`, and `email`; legacy nameless accounts retain a nullable `name` and use email only as client display fallback. UI preference remains browser-local and defaults to PT-BR; the API accepts only `pt-BR` and `en` via `Accept-Language`, safely defaulting to PT-BR.
+- **Rationale**: A name gives the application a usable account identity without adding profile editing scope. Browser-local language preference changes UI and API feedback immediately without synchronizing personal preference across devices.
+- **Alternatives considered**: Deriving a name from email was rejected because it guesses personal data. Account-stored locale was rejected because it expands account/profile scope.
 
 ### Recovery privacy and delivery
 - **Decision**: Return one neutral recovery response for every well-formed request, queue the notification after commit, cap sends at three per normalized address per hour, and use the framework's 60-minute, newest-token-only broker behavior. Reset sends a separate security notification and invalidates all sessions.

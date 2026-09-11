@@ -1,10 +1,19 @@
 # Quickstart: Authentication Feature
 
+## Full name and locale update
+
+- Registration requires a trimmed `name` between 2 and 255 characters.
+- Register, login, and session responses include `data.user.id`, `name`, and `email`.
+  Only pre-existing accounts can return `name: null`; clients fall back to email.
+- Send `Accept-Language: pt-BR` or `Accept-Language: en` for localized API feedback.
+  Missing and unsupported values safely use PT-BR.
+- Frontend defaults to PT-BR and keeps account-menu language selection in local storage.
+
 ## Backend-first setup
 
 1. In `../zunera-backend`, check out branch `001-user-auth` and install the already-declared dependencies.
 2. Configure the database, DB session/cache/queue, production transactional email gateway, canonical delivery-event URL, HMAC-SHA256 secret, ±300-second replay window, `FRONTEND_URL`, credentialed CORS origins, and Sanctum stateful domains through environment variables.
-3. Run migrations. The feature migration makes `users.name` nullable; no seed account is required.
+3. Run migrations. Existing nullable `users.name` accounts remain compatible; new registrations require a name.
 4. Start the queue worker and mail service. Recovery and security notifications are queued after transaction commit.
 5. Run focused PHPUnit tests, then the full suite and Pint.
 6. Complete all backend stories, the OpenAPI check, the 100-action latency check,
@@ -40,6 +49,16 @@ npm run test:e2e
 ```
 
 ## Implementation evidence
+
+Full-name and bilingual update, recorded 2026-09-11:
+
+- Frontend unit suite passed: 58 tests in 31 files.
+- Frontend production build passed.
+- Backend Pint and PHP syntax checks passed.
+- Focused backend feature tests could not start in this checkout because the local
+  PHP runtime has no `pdo_sqlite` driver; all ten database tests stop during
+  `RefreshDatabase` setup before assertions. Run them in a PHP image with
+  SQLite enabled or against the project test database.
 
 Recorded 2026-08-30:
 

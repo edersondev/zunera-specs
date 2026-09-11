@@ -33,8 +33,8 @@ securely with clear feedback that follows the Zunera Design Foundation."
 
 ### User Story 1 - Create an Account (Priority: P1)
 
-As a new user, I want to create a Zunera account with my email address and a
-password so that I can securely access my personal financial workspace.
+As a new user, I want to create a Zunera account with my full name, email
+address, and password so that I can securely access my personal financial workspace.
 
 **Why this priority**: Account creation is the entry point for every new user
 and is required before any authenticated Zunera experience can be used.
@@ -45,8 +45,8 @@ on any other authentication journey.
 
 **Acceptance Scenarios**:
 
-1. **Given** a visitor uses an email address that is not associated with an
-   account, **When** they submit that email with matching passwords that satisfy
+1. **Given** a visitor uses a full name and an email address that are not associated with an
+   account, **When** they submit those values with matching passwords that satisfy
    the displayed password requirements, **Then** one account is created, the
    user sees confirmation, and they enter the authenticated experience.
 2. **Given** one or more account fields are missing or invalid, **When** the
@@ -183,7 +183,12 @@ new password while the old password and used recovery instruction no longer work
 ### Functional Requirements
 
 - **FR-001**: The system MUST allow a visitor to create one account using a
-  unique, valid email address and a password entered twice for confirmation.
+  required trimmed full name of 2–255 characters, a unique valid email address,
+  and a password entered twice for confirmation.
+- **FR-026**: The system MUST default all UI and API feedback to PT-BR, offer
+  an immediate browser-local switch to English, preserve that selection across
+  refreshes, and display authenticated full names with email fallback only for
+  pre-existing nameless accounts.
 - **FR-002**: The system MUST show password requirements before submission and
   require a password of at least 15 characters, support a maximum permitted
   length of at least 64 characters, allow spaces and printable characters, avoid

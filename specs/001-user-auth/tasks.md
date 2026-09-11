@@ -258,6 +258,13 @@ Frontend tests after T053: T054/T055/T056 | T064/T065/T066/T067 | T075/T076
 
 - No new Composer or npm packages are required.
 - Every Vue form uses `<ElForm label-position="top">` and `<ElFormItem>`.
-- Auth JSON exposes user `id` and `email`, never `name`.
+- Auth JSON exposes user `id`, `name`, and `email`; only legacy accounts can return a null name.
 - Passwords, recovery tokens, cookies, session IDs, and raw emails never enter logs or persistent frontend storage.
 - Commit after each task or coherent task group; avoid unrelated refactors.
+
+## Full-name and bilingual addendum
+
+- [ ] T089 Require/persist trimmed registration name and serialize it in every authenticated session response.
+- [ ] T090 Add PT-BR/en request locale, translated validation/authentication/application feedback, and backend feature tests.
+- [ ] T091 Reconcile API contract, specification, data model, research, plan, and quickstart.
+- [ ] T092 Bootstrap persisted Vue I18n, language selector, locale headers, localized UI/formatting, and frontend tests.
