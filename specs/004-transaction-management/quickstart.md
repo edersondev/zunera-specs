@@ -127,3 +127,36 @@ CI=1 npm run test:e2e -- e2e/transactions.spec.js
   route listing, focused and full backend tests, Pint, Redocly contract lint,
   frontend unit tests, production build, and isolated Playwright transaction
   journeys.
+
+## Implementation notes
+
+- Frontend mutations resolve to `{ transaction, meta }` so the store can surface
+  the typed `meta.notice` from update and create responses without re-parsing the
+  transport envelope.
+- After every transaction mutation the store refreshes the list and the
+  financial-account store, then reports the per-account balance delta
+  (`lastBalanceImpact`) as visible success feedback. Archived accounts are not
+  part of the active account collection, so their feedback relies on the
+  refreshed list rather than that delta.
+- Clearing the transaction filters resets every criterion, not only `view` and
+  `per_page`, because the store merges the reset payload over the current
+  filters.
+- Archived account and category associations remain selectable while they are
+  the transaction's current association and are labelled `(arquivada)` in the
+  form, history, and detail views.
+
+## Implementation verification evidence
+
+- Backend focused suite: 32 tests, 314 assertions passing
+  (`php artisan test --compact tests/Feature/Transactions tests/Unit/Transactions`).
+- Backend full suite: 110 passing, 0 failing. Three stale auth assertions that
+  relied on an implicit PT-BR locale now request `Accept-Language: pt-BR`
+  explicitly, and `SetRequestLocale` was corrected so a missing or unsupported
+  header really falls back to PT-BR as FR-026 and the auth quickstart require.
+- Backend style: `vendor/bin/pint --test --format agent` passes.
+- Frontend unit suite: 42 files, 98 tests passing; `npm run build` succeeds.
+- Frontend e2e: 5 transaction journeys pass on Chromium, Firefox, and WebKit
+  (15/15) with `CI=1 npm run test:e2e -- e2e/transactions.spec.js`. WebKit needed
+  the host Playwright dependencies (`libavif16`, `libwoff1`, `xvfb`).
+- Still outstanding: the manual acceptance smoke test below and the
+  theme/narrow-viewport/200%-zoom verification.
