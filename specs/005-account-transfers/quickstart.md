@@ -80,3 +80,44 @@
     npm run test:unit -- --run
     npm run build
     CI=1 npm run test:e2e -- e2e/transfers.spec.js
+
+## Verification evidence (2026-09-13)
+
+Backend commands ran inside the project PHP 8.3 container (`docker exec
+zunera-backend-app-1`), because the host PHP lacks the SQLite driver that
+`phpunit.xml` selects. The container has no `git`, so Pint ran on the feature
+paths instead of `--dirty`; a dry run over `app tests routes` reported only
+feature files, and those are now clean.
+
+| Check | Command | Result |
+|---|---|---|
+| Backend feature/unit | `php artisan test --compact` | 160 passed, 1,006 assertions |
+| Backend focused | `php artisan test --compact tests/Feature/Transfers tests/Unit/Transfers tests/Feature/FinancialHistory` | 49 passed, 382 assertions |
+| Backend style | `vendor/bin/pint --format agent app/Services/FinancialHistory tests/Feature/FinancialHistory tests/Feature/Transfers tests/Unit/Transfers` | Fixed, then clean |
+| Contracts | `npx @redocly/cli@latest lint contracts/transfers-api.yaml contracts/financial-history-api.yaml` | Both descriptions valid |
+| Frontend unit | `npx vitest run` | 52 files, 159 tests passed |
+| Frontend build | `npm run build` | Built successfully |
+| Isolated journeys | `CI=1 npx playwright test e2e/transfers.spec.js` | 18 passed (chromium, firefox, webkit) |
+
+Seeded 5,000-transfer first-batch evidence: `php artisan test --compact
+tests/Feature/Transfers/TransferHistoryScaleTest.php` measured **13.0 ms** for the
+first 50-item batch (newest first, exact total, progressive reachability, stable
+same-date ordering) against the documented two-second budget of 2,000 ms.
+
+## Final implementation notes
+
+- `TransferStateException` carries both the conflict status and the
+  `effective_future_date` 422 mapping, so pending-while-future and future-restore
+  rules return the code the contract documents without a second exception type.
+- `TransferBalanceReconciler` returns the proposed balances it validated, keyed in
+  ascending account order, which is also the order it locks the accounts in.
+- `GET /financial-history` adds an `income_centavos`/`expense_centavos`/
+  `financial_result_centavos` totals block to its `meta`. The contracts allow extra
+  metadata, and this is the reporting surface the existing history screen uses to
+  prove transfers never enter income or expense totals.
+- The frontend keeps `TransferRowActions.vue` separate from the view, matching the
+  existing transactions slice and avoiding element-plus dropdown recursion inside
+  a table cell.
+- The transaction store normalizes mixed-history entries: income/expense entries
+  regain `type`/`transaction_date`, and transfer entries keep their discriminator
+  plus both account sides without being refetched as transactions.

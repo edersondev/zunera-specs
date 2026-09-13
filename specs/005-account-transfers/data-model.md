@@ -36,6 +36,11 @@ income, expense, or transfer. Transfer entry includes source/destination account
 summaries, no category, and non-color label such as Transfer: Source →
 Destination. It does not contribute to income/expense aggregates.
 
+The projection is served by `GET /financial-history` and also publishes
+`meta.totals` (`income_centavos`, `expense_centavos`,
+`financial_result_centavos`) computed from effective, non-removed income and
+expense transactions only.
+
 ## Aggregate Boundaries
 
 FinancialHistoryService totals classify only income and expense entries; transfer

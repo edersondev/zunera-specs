@@ -166,3 +166,17 @@ and Axios remains in transfer service.
 - Database collation only: rejected because accent behavior differs by engine.
 - Client-side history pagination: rejected because it downloads too much.
 - API calls in components: rejected by constitution.
+
+## Implementation reconciliation (2026-09-13)
+
+- Mixed-history reads are served by one paginated union of `transactions` and
+  `transfers` keyed by movement date and identifier, so 5,000+ movements keep one
+  ordering and one total without loading either side twice.
+- The mixed projection publishes report totals in `meta.totals`. They are derived
+  only from effective, non-removed income/expense transactions, which is the
+  invariant `TransferReportingExclusionTest` asserts.
+- Effective-future-date responses are typed 422 `effective_future_date` on create,
+  update, and restore; state conflicts stay 409 with the codes the transfer
+  contract enumerates.
+- Frontend mutation retries reuse one idempotency key per logical action signature
+  and drop it after success, so a refresh or retry replays instead of duplicating.
