@@ -123,10 +123,10 @@ CI=1 npm run test:e2e -- e2e/transactions.spec.js
 - [x] Research records the centavos, materialized-balance, status, removal,
   ownership, archived-association, pagination, search, and history-flag
   decisions with rejected alternatives.
-- [ ] Implementation verification pending: branch confirmation, migrations,
+- [x] Implementation verification complete: branch confirmation, migrations,
   route listing, focused and full backend tests, Pint, Redocly contract lint,
-  frontend unit tests, production build, and isolated Playwright transaction
-  journeys.
+  frontend unit tests, production build, isolated Playwright transaction
+  journeys, manual acceptance smoke test, and visual/accessibility review.
 
 ## Implementation notes
 
@@ -158,5 +158,5 @@ CI=1 npm run test:e2e -- e2e/transactions.spec.js
 - Frontend e2e: 5 transaction journeys pass on Chromium, Firefox, and WebKit
   (15/15) with `CI=1 npm run test:e2e -- e2e/transactions.spec.js`. WebKit needed
   the host Playwright dependencies (`libavif16`, `libwoff1`, `xvfb`).
-- Still outstanding: the manual acceptance smoke test below and the
-  theme/narrow-viewport/200%-zoom verification.
+- Manual acceptance smoke test and Light, Dark, System, narrow-viewport,
+  200%-zoom, keyboard, and focus-restoration verification completed.

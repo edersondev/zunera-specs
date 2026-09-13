@@ -446,11 +446,11 @@ matching transactions are listed with an accurate matching count.
   `../zunera-frontend`.
 - [X] T077 Run `CI=1 npm run test:e2e -- e2e/transactions.spec.js` in
   `../zunera-frontend` and confirm scenario isolation.
-- [ ] T078 Verify Light, Dark, and System themes, narrow supported viewports,
+- [X] T078 Verify Light, Dark, and System themes, narrow supported viewports,
   200% zoom, keyboard-only operation, dialog and drawer focus restoration, and
   income/expense distinction without color in
   `../zunera-frontend/src/views/transactions/`.
-- [ ] T079 Run the manual acceptance smoke test in
+- [X] T079 Run the manual acceptance smoke test in
   `specs/004-transaction-management/quickstart.md`, then mark the
   implementation-verification checkbox with evidence.
 
