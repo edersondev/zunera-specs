@@ -43,6 +43,9 @@
 - Attempt source overdraft; verify error and both balances unchanged.
 - Create future transfer; verify pending/no effect. After its date is today or
   past and funds exist, make it effective; verify effects apply once.
+- Retime an effective transfer into future; verify both balance effects remain,
+  the effective-future notice appears, and an explicit pending status change
+  reverses both effects once.
 - Edit amount, sides, date, and status; verify old effects reverse and new
   effects apply atomically.
 - Remove effective transfer then restore effective; verify both effects reverse

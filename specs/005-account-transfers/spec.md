@@ -27,10 +27,11 @@
 - Transfers use established financial lifecycle: `pending` for planned or
   not-yet-effective movement and `effective` for an occurred movement. Only an
   effective transfer changes balances.
-- A past- or current-dated transfer defaults to effective. A future-dated
-  transfer defaults to pending, cannot be marked effective while its date remains
-  future, and does not affect current balances. Once its date is today or past,
-  the user may explicitly mark it effective.
+- A new or restored past- or current-dated transfer defaults to effective. A new
+  or restored future-dated transfer defaults to pending, cannot be marked
+  effective while its date remains future, and does not affect current balances.
+  An already-effective transfer redated into future remains effective with a
+  clear notice until the user explicitly marks it pending.
 - Removal is recoverable lifecycle action, not permanent deletion. A removed
   transfer is excluded from current balances and normal history, remains
   available to its owner in a Removed view, and can be restored.
@@ -259,11 +260,14 @@ net-worth values after transfer.
   Pending, non-removed transfer and every removed transfer MUST not affect
   current or available balances. A pending transfer MUST NOT reserve source
   funds; funds are checked only when it becomes effective.
-- **FR-013**: Transfer dated today or past MUST default to effective.
-  Future-dated transfer MUST default to pending, remain pending while its date is
-  future, and stay out of current balances. A user MAY explicitly mark it
-  effective only when its date is today or past. Changing status MUST apply or
-  reverse both transfer sides exactly once.
+- **FR-013**: A new or restored transfer dated today or past MUST default to
+  effective. A new or restored future-dated transfer MUST default to pending,
+  remain pending while its date is future, and stay out of current balances. A
+  user MAY explicitly mark such pending transfer effective only when its date is
+  today or past. An already-effective transfer whose date is changed into future
+  MUST remain effective, return clear notice, and become pending only by explicit
+  status change. Changing status MUST apply or reverse both transfer sides exactly
+  once.
 - **FR-014**: When transfer becomes effective, source balance MUST decrease by
   amount and destination balance MUST increase by same amount. When it ceases to
   be effective, both effects MUST be reversed.
@@ -400,11 +404,12 @@ net-worth values after transfer.
   Accounts. Existing transfer history stays accessible after archival; only new
   or changed associations require active accounts.
 - Transfer dates use established supported range of 1900-01-01 through
-  2100-12-31. Future date is valid but defaults to pending.
+  2100-12-31. New or restored future date is valid but defaults to pending.
 - Transfers use exactly two financial statuses, pending and effective, matching
   Transactions feature. Only effective non-removed transfers change current
-  balances; a still-future transfer cannot become effective until its date is
-  today or past.
+  balances; pending future transfer cannot become effective until its date is
+  today or past, while an already-effective transfer redated future remains
+  effective with notice until explicitly made pending.
 - Remove, Removed, and Restore are user-facing lifecycle terms, matching
   Transactions feature. Permanent deletion is excluded to preserve financial
   history and permit recovery from accidental removal.

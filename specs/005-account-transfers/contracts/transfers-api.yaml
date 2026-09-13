@@ -255,7 +255,9 @@ components:
         source_financial_account_id: { type: integer, minimum: 1 }
         destination_financial_account_id: { type: integer, minimum: 1 }
         amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
-        transfer_date: { $ref: '#/components/schemas/TransferDateInput' }
+        transfer_date:
+          allOf: [{ $ref: '#/components/schemas/TransferDateInput' }]
+          description: An already-effective transfer retimed future stays effective and returns an effective_future_date notice; new or restored future transfers remain pending.
         status: { $ref: '#/components/schemas/TransferStatus' }
         description: { type: [string, 'null'], maxLength: 200 }
         notes: { type: [string, 'null'], maxLength: 1000 }

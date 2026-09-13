@@ -140,7 +140,7 @@ side; remove and restore; verify source/destination balances every time.
 
 ### Tests for User Story 3
 
-- [ ] T052 [P] [US3] Add update tests for side/amount/date/status/text edits, archived-side retain-versus-replace rules, foreign 404, removed-edit conflict, future-date notice, and proposed-balance overdraft validation in ../zunera-backend/tests/Feature/Transfers/UpdateTransfersTest.php.
+- [ ] T052 [P] [US3] Add update tests for side/amount/date/status/text edits, archived-side retain-versus-replace rules, foreign 404, removed-edit conflict, effective-transfer retimed-future notice with retained effect, and proposed-balance overdraft validation in ../zunera-backend/tests/Feature/Transfers/UpdateTransfersTest.php.
 - [ ] T053 [P] [US3] Add remove/restore tests for both-side reversal, removed view, repeated lifecycle conflicts, future restore state, funds recheck, idempotent replay, and changed-key conflict in ../zunera-backend/tests/Feature/Transfers/RemoveAndRestoreTransfersTest.php.
 - [ ] T054 [P] [US3] Add full mutation balance consistency tests for multi-account moves, pending/effective changes, removal/restoration, and account summary refresh in ../zunera-backend/tests/Feature/Transfers/TransferBalanceConsistencyTest.php.
 
