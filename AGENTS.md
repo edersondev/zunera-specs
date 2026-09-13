@@ -1,6 +1,6 @@
 <!-- SPECKIT START -->
 For additional context about technologies, project structure, shell commands,
-and implementation order, read [specs/004-transaction-management/plan.md](specs/004-transaction-management/plan.md).
+and implementation order, read [specs/005-account-transfers/plan.md](specs/005-account-transfers/plan.md).
 <!-- SPECKIT END -->
 
 ## Zunera Workspace Layout

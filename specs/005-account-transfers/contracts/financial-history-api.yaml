@@ -1,0 +1,149 @@
+openapi: 3.1.0
+info:
+  title: Zunera Financial History Extension
+  version: 1.0.0
+  license: { name: Proprietary, identifier: LicenseRef-Proprietary }
+  description: >-
+    Provides the mixed read projection used by existing financial-history screens.
+    It is separate from the transaction-only /transactions resource so each route
+    has one unambiguous contract owner.
+servers:
+  - url: /api/v1
+paths:
+  /financial-history:
+    get:
+      summary: List owned income, expense, and transfer history entries
+      operationId: listFinancialHistory
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: movement_kind
+          in: query
+          schema: { type: string, enum: [all, income, expense, transfer], default: all }
+          description: Transfer is a separate movement kind, never income/expense.
+        - name: from
+          in: query
+          schema: { type: string }
+        - name: to
+          in: query
+          schema: { type: string }
+        - name: financial_account_id
+          in: query
+          schema: { type: integer, minimum: 1 }
+          description: Matches income/expense account or either transfer side.
+        - name: status
+          in: query
+          schema: { type: string, enum: [pending, effective] }
+        - name: q
+          in: query
+          schema: { type: string, maxLength: 200 }
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: per_page
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 50, default: 50 }
+      responses:
+        '200':
+          description: Paginated mixed financial history, newest first
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FinancialHistoryCollectionResponse' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+components:
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: zunera_session }
+  schemas:
+    AccountSummary:
+      type: object
+      required: [id, name, status]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        status: { type: string, enum: [active, archived] }
+    TransferHistoryEntry:
+      type: object
+      required:
+        - movement_kind
+        - id
+        - amount_centavos
+        - currency_code
+        - movement_date
+        - status
+        - source_financial_account
+        - destination_financial_account
+      properties:
+        movement_kind: { type: string, const: transfer }
+        id: { type: integer }
+        amount_centavos: { type: integer, minimum: 1 }
+        currency_code: { type: string, const: BRL }
+        movement_date: { type: string, format: date }
+        status: { type: string, enum: [pending, effective] }
+        description: { type: [string, 'null'] }
+        source_financial_account: { $ref: '#/components/schemas/AccountSummary' }
+        destination_financial_account: { $ref: '#/components/schemas/AccountSummary' }
+        category: { type: 'null', description: Transfers never have category. }
+    TransactionHistoryEntry:
+      type: object
+      required:
+        - movement_kind
+        - id
+        - amount_centavos
+        - currency_code
+        - movement_date
+        - status
+        - financial_account
+        - category
+      properties:
+        movement_kind: { type: string, enum: [income, expense] }
+        id: { type: integer }
+        amount_centavos: { type: integer, minimum: 1 }
+        currency_code: { type: string, const: BRL }
+        movement_date: { type: string, format: date }
+        status: { type: string, enum: [pending, effective] }
+        description: { type: string }
+        financial_account: { $ref: '#/components/schemas/AccountSummary' }
+        category: { type: object }
+    FinancialHistoryEntry:
+      oneOf:
+        - { $ref: '#/components/schemas/TransactionHistoryEntry' }
+        - { $ref: '#/components/schemas/TransferHistoryEntry' }
+      discriminator:
+        propertyName: movement_kind
+        mapping:
+          income: '#/components/schemas/TransactionHistoryEntry'
+          expense: '#/components/schemas/TransactionHistoryEntry'
+          transfer: '#/components/schemas/TransferHistoryEntry'
+    FinancialHistoryCollectionResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/FinancialHistoryEntry' }
+        meta:
+          type: object
+          required: [current_page, last_page, per_page, total]
+          properties:
+            current_page: { type: integer, minimum: 1 }
+            last_page: { type: integer, minimum: 1 }
+            per_page: { type: integer, minimum: 1, maximum: 50 }
+            total: { type: integer, minimum: 0 }
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+        code: { type: string }
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+  responses:
+    Error:
+      description: Operational, privacy, or validation error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
