@@ -140,17 +140,17 @@ side; remove and restore; verify source/destination balances every time.
 
 ### Tests for User Story 3
 
-- [ ] T052 [P] [US3] Add update tests for side/amount/date/status/text edits, archived-side retain-versus-replace rules, foreign 404, removed-edit conflict, effective-transfer retimed-future notice with retained effect, and proposed-balance overdraft validation in ../zunera-backend/tests/Feature/Transfers/UpdateTransfersTest.php.
-- [ ] T053 [P] [US3] Add remove/restore tests for both-side reversal, removed view, repeated lifecycle conflicts, future restore state, funds recheck, idempotent replay, and changed-key conflict in ../zunera-backend/tests/Feature/Transfers/RemoveAndRestoreTransfersTest.php.
+- [ ] T052 [P] [US3] Add update tests for side/amount/date/status/text edits, archived-side retain-versus-replace rules, foreign 404, removed-edit conflict, effective-transfer retimed-future notice with retained effect, pending-future explicit-effective 422 effective_future_date rejection, and proposed-balance overdraft validation in ../zunera-backend/tests/Feature/Transfers/UpdateTransfersTest.php.
+- [ ] T053 [P] [US3] Add remove/restore tests for both-side reversal, removed view, repeated lifecycle conflicts, future restore default, explicit future-effective restore 422 effective_future_date rejection, funds recheck, idempotent replay, and changed-key conflict in ../zunera-backend/tests/Feature/Transfers/RemoveAndRestoreTransfersTest.php.
 - [ ] T054 [P] [US3] Add full mutation balance consistency tests for multi-account moves, pending/effective changes, removal/restoration, and account summary refresh in ../zunera-backend/tests/Feature/Transfers/TransferBalanceConsistencyTest.php.
 
 ### Implementation for User Story 3
 
 #### Backend
 
-- [ ] T055 [US3] Implement update and lifecycle validation, archived current-side retention, replacement-side rejection, idempotency header, and DTO conversion in ../zunera-backend/app/Http/Requests/Transfers/UpdateTransferRequest.php and ../zunera-backend/app/Http/Requests/Transfers/LifecycleTransferRequest.php.
+- [ ] T055 [US3] Implement update and lifecycle validation, archived current-side retention, replacement-side rejection, pending-future explicit-effective 422 mapping, idempotency header, and DTO conversion in ../zunera-backend/app/Http/Requests/Transfers/UpdateTransferRequest.php and ../zunera-backend/app/Http/Requests/Transfers/LifecycleTransferRequest.php.
 - [ ] T056 [US3] Implement TransferService update with old/new effects, all affected account locks, change detection, proposed balances, status/date notice, and idempotency replay in ../zunera-backend/app/Services/Transfers/TransferService.php.
-- [ ] T057 [US3] Implement TransferService remove/restore with immutable removed state, funds recheck, state conflicts, and exactly-once two-side reconciliation in ../zunera-backend/app/Services/Transfers/TransferService.php.
+- [ ] T057 [US3] Implement TransferService remove/restore with immutable removed state, future-effective restore rejection, funds recheck, state conflicts, and exactly-once two-side reconciliation in ../zunera-backend/app/Services/Transfers/TransferService.php.
 - [ ] T058 [US3] Wire update/remove/restore typed responses and resource metadata in ../zunera-backend/app/Http/Controllers/Api/V1/TransferController.php.
 - [ ] T059 [US3] Run focused update/lifecycle/balance tests and Pint in ../zunera-backend/tests/{Feature,Unit}/Transfers and ../zunera-backend.
 
