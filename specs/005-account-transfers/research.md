@@ -77,10 +77,11 @@ restored.
 ## Decision: Future transfers default to pending without silent status edits
 
 **Rationale**: Past/current creation defaults to effective; future creation and
-restoration default to pending and reject explicit effective request. Later
-explicit effective update revalidates source funds. Moving already-effective
-transfer date into future preserves its effect and returns notice rather than
-silently changing financial state.
+restoration default to pending and reject an effective request while the date
+remains future. After the date is today or past, an explicit effective update
+revalidates source funds. Moving already-effective transfer date into future
+preserves its effect and returns notice rather than silently changing financial
+state.
 
 **Alternatives considered**:
 

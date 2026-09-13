@@ -19,7 +19,7 @@
 7. Verify FinancialHistoryService excludes transfers from income, expense, and
    financial-result totals; verify FinancialAccountService applies both account
    effects while the combined owned-account net-worth total stays unchanged.
-7. Add unit, feature, contract, and concurrency coverage before frontend begins.
+8. Add unit, feature, contract, and concurrency coverage before frontend begins.
 
 ## Frontend after backend gate
 
@@ -41,8 +41,8 @@
 - Create R$ 1.000,00 effective transfer from R$ 5.000,00 to R$ 2.000,00;
   verify R$ 4.000,00/R$ 3.000,00 and unchanged combined balance.
 - Attempt source overdraft; verify error and both balances unchanged.
-- Create future transfer; verify pending/no effect. Make effective after funds
-  exist; verify effects apply once.
+- Create future transfer; verify pending/no effect. After its date is today or
+  past and funds exist, make it effective; verify effects apply once.
 - Edit amount, sides, date, and status; verify old effects reverse and new
   effects apply atomically.
 - Remove effective transfer then restore effective; verify both effects reverse
