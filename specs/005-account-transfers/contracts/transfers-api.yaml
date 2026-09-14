@@ -1,0 +1,366 @@
+openapi: 3.1.0
+info:
+  title: Zunera Transfers API
+  version: 1.0.0
+  license: { name: Proprietary, identifier: LicenseRef-Proprietary }
+servers:
+  - url: /api/v1
+paths:
+  /transfers:
+    get:
+      summary: List signed-in user transfers, newest first
+      operationId: listTransfers
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/FromDate' }
+        - { $ref: '#/components/parameters/ToDate' }
+        - { $ref: '#/components/parameters/SourceAccountFilter' }
+        - { $ref: '#/components/parameters/DestinationAccountFilter' }
+        - { $ref: '#/components/parameters/StatusFilter' }
+        - { $ref: '#/components/parameters/SearchQuery' }
+        - { $ref: '#/components/parameters/ViewFilter' }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+      responses:
+        '200':
+          description: Paginated owned transfer collection with matching count
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransferCollectionResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    post:
+      summary: Create transfer between owned active accounts
+      operationId: createTransfer
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateTransferRequest' }
+      responses:
+        '201':
+          description: Transfer recorded
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransferResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/StateConflictError' }
+        '422':
+          description: Invalid request, including `effective_future_date` when a new transfer is explicitly marked effective with a future date.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /transfers/{transfer_id}:
+    get:
+      summary: Read one owned transfer
+      operationId: getTransfer
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/TransferId' }
+      responses:
+        '200':
+          description: Transfer details
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransferResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    patch:
+      summary: Correct owned active transfer
+      operationId: updateTransfer
+      description: Removed transfer must be restored before it can be changed.
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/TransferId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateTransferRequest' }
+      responses:
+        '200':
+          description: Transfer and both affected balances restated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransferResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/StateConflictError' }
+        '422':
+          description: Invalid request, including `effective_future_date` when a pending transfer remains future-dated and is explicitly marked effective.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /transfers/{transfer_id}/remove:
+    post:
+      summary: Remove owned transfer without deleting it
+      operationId: removeTransfer
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/TransferId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200':
+          description: Transfer removed and effective balance effects reversed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransferResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/StateConflictError' }
+  /transfers/{transfer_id}/restore:
+    post:
+      summary: Restore owned removed transfer
+      operationId: restoreTransfer
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/TransferId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RestoreTransferRequest' }
+      responses:
+        '200':
+          description: Transfer restored under date, status, and funds rules
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TransferResponse' }
+        '401': { $ref: '#/components/responses/GenericError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/StateConflictError' }
+        '422':
+          description: Invalid request, including `effective_future_date` when a future-dated transfer is explicitly restored as effective.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+components:
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: zunera_session }
+  parameters:
+    TransferId:
+      name: transfer_id
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+    FromDate:
+      name: from
+      in: query
+      schema: { $ref: '#/components/schemas/TransferDateInput' }
+    ToDate:
+      name: to
+      in: query
+      schema: { $ref: '#/components/schemas/TransferDateInput' }
+    SourceAccountFilter:
+      name: source_financial_account_id
+      in: query
+      schema: { type: integer, minimum: 1 }
+      description: Owned active or archived account; foreign or missing is 404.
+    DestinationAccountFilter:
+      name: destination_financial_account_id
+      in: query
+      schema: { type: integer, minimum: 1 }
+      description: Owned active or archived account; foreign or missing is 404.
+    StatusFilter:
+      name: status
+      in: query
+      schema: { $ref: '#/components/schemas/TransferStatus' }
+    SearchQuery:
+      name: q
+      in: query
+      schema: { type: string, maxLength: 200 }
+    ViewFilter:
+      name: view
+      in: query
+      schema: { type: string, enum: [active, removed], default: active }
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    PerPage:
+      name: per_page
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 50, default: 50 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, minLength: 1, maxLength: 255 }
+      description: Replays exact mutation; changed reuse returns typed 409.
+  schemas:
+    TransferStatus:
+      type: string
+      enum: [pending, effective]
+    TransferDateInput:
+      type: string
+      description: Valid ISO YYYY-MM-DD or Brazilian DD/MM/YYYY date.
+      oneOf:
+        - { pattern: '^\d{4}-\d{2}-\d{2}$' }
+        - { pattern: '^\d{2}/\d{2}/\d{4}$' }
+    AccountSummary:
+      type: object
+      additionalProperties: false
+      required: [id, name, status]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        status: { type: string, enum: [active, archived] }
+        color: { type: [string, 'null'] }
+        icon: { type: [string, 'null'] }
+    Transfer:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - source_financial_account
+        - destination_financial_account
+        - amount_centavos
+        - currency_code
+        - transfer_date
+        - status
+        - removed_at
+        - created_at
+        - updated_at
+      properties:
+        id: { type: integer }
+        source_financial_account: { $ref: '#/components/schemas/AccountSummary' }
+        destination_financial_account: { $ref: '#/components/schemas/AccountSummary' }
+        amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
+        currency_code: { type: string, enum: [BRL] }
+        transfer_date: { type: string, format: date }
+        status: { $ref: '#/components/schemas/TransferStatus' }
+        description: { type: [string, 'null'], maxLength: 200 }
+        notes: { type: [string, 'null'], maxLength: 1000 }
+        removed_at: { type: [string, 'null'], format: date-time }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    CreateTransferRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - source_financial_account_id
+        - destination_financial_account_id
+        - amount_centavos
+        - transfer_date
+      properties:
+        source_financial_account_id: { type: integer, minimum: 1 }
+        destination_financial_account_id: { type: integer, minimum: 1 }
+        amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
+        transfer_date: { $ref: '#/components/schemas/TransferDateInput' }
+        status:
+          allOf: [{ $ref: '#/components/schemas/TransferStatus' }]
+          description: Defaults effective, or pending for future date; explicit future effective is rejected with 422 effective_future_date.
+        description: { type: [string, 'null'], maxLength: 200 }
+        notes: { type: [string, 'null'], maxLength: 1000 }
+    UpdateTransferRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        source_financial_account_id: { type: integer, minimum: 1 }
+        destination_financial_account_id: { type: integer, minimum: 1 }
+        amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
+        transfer_date:
+          allOf: [{ $ref: '#/components/schemas/TransferDateInput' }]
+          description: An already-effective transfer retimed future stays effective and returns an effective_future_date notice; new or restored future transfers remain pending.
+        status:
+          allOf: [{ $ref: '#/components/schemas/TransferStatus' }]
+          description: Explicit effective status is rejected with 422 effective_future_date while a pending transfer's date remains future.
+        description: { type: [string, 'null'], maxLength: 200 }
+        notes: { type: [string, 'null'], maxLength: 1000 }
+    RestoreTransferRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          allOf: [{ $ref: '#/components/schemas/TransferStatus' }]
+          description: Defaults effective for current/past date or pending for future date; explicit future effective is rejected with 422 effective_future_date.
+    TransferResponse:
+      type: object
+      required: [data]
+      properties:
+        data: { $ref: '#/components/schemas/Transfer' }
+        meta:
+          type: object
+          properties:
+            notice:
+              type: object
+              required: [code, message]
+              properties:
+                code: { type: string, enum: [effective_future_date] }
+                message: { type: string }
+    TransferCollectionResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Transfer' }
+        meta:
+          type: object
+          required: [current_page, last_page, per_page, total]
+          properties:
+            current_page: { type: integer, minimum: 1 }
+            last_page: { type: integer, minimum: 1 }
+            per_page: { type: integer, minimum: 1, maximum: 50 }
+            total: { type: integer, minimum: 0 }
+        links:
+          type: object
+          properties:
+            first: { type: [string, 'null'] }
+            last: { type: [string, 'null'] }
+            prev: { type: [string, 'null'] }
+            next: { type: [string, 'null'] }
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+        code: { type: string }
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+    StateConflict:
+      allOf:
+        - { $ref: '#/components/schemas/Error' }
+        - type: object
+          required: [code]
+          properties:
+            code:
+              type: string
+              enum:
+                - transfer_already_removed
+                - transfer_already_active
+                - transfer_edit_requires_restore
+                - insufficient_source_balance
+                - idempotency_key_reused
+  responses:
+    GenericError:
+      description: Generic operational error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFoundError:
+      description: Missing or inaccessible resource
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ValidationError:
+      description: Invalid request
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    StateConflictError:
+      description: Current state prevents mutation
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/StateConflict' }
