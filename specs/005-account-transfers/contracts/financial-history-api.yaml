@@ -116,7 +116,14 @@ components:
         status: { type: string, enum: [pending, effective] }
         description: { type: string }
         financial_account: { $ref: '#/components/schemas/AccountSummary' }
-        category: { type: object }
+        category:
+          type: object
+          required: [id, name, classification, status]
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            classification: { type: string, enum: [income, expense] }
+            status: { type: string, enum: [active, archived] }
     FinancialHistoryEntry:
       oneOf:
         - { $ref: '#/components/schemas/TransactionHistoryEntry' }
