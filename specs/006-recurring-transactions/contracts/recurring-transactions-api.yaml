@@ -139,6 +139,7 @@ components:
     State: { type: string, enum: [active, paused, ended] }
     DateInput:
       type: string
+      description: Calendar date accepted as ISO `YYYY-MM-DD` or Brazilian `DD/MM/YYYY`; the server validates calendar correctness and the 1900-01-01 through 2100-12-31 range.
       oneOf: [{ pattern: '^\d{4}-\d{2}-\d{2}$' }, { pattern: '^\d{2}/\d{2}/\d{4}$' }]
     AccountSummary:
       type: object
