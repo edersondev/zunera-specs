@@ -97,9 +97,9 @@ owner can identify source from rule/history/detail.
 
 ### Frontend — after T027
 
-- [ ] T028 [P] [US2] Add recurrence-source formatter and source label/link UI to transaction detail/history rows in `../zunera-frontend/src/utils/recurring-transactions/recurringTransactionFormatters.js`, `../zunera-frontend/src/components/transactions/TransactionDetailDrawer.vue`, and `../zunera-frontend/src/views/transactions/TransactionsListView.vue`
+- [X] T028 [P] [US2] Add recurrence-source formatter and source label/link UI to transaction detail/history rows in `../zunera-frontend/src/utils/recurring-transactions/recurringTransactionFormatters.js`, `../zunera-frontend/src/components/transactions/TransactionDetailDrawer.vue`, and `../zunera-frontend/src/views/transactions/TransactionsListView.vue`
 - [X] T029 [P] [US2] Implement paginated occurrence transport/state in `../zunera-frontend/src/services/recurringTransactionService.js` and `../zunera-frontend/src/stores/recurring-transactions/recurringTransactionStore.js`; implement recurrence detail drawer that consumes this state, labels removed occurrences without color-only meaning, and navigates to ordinary transaction details in `../zunera-frontend/src/components/recurring-transactions/RecurringTransactionDetailDrawer.vue`
-- [ ] T030 [P] [US2] Add source-label/detail, removed-occurrence label, and pending/no-balance frontend unit tests in `../zunera-frontend/src/{components,utils}/**/__tests__/`
+- [X] T030 [P] [US2] Add source-label/detail, removed-occurrence label, and pending/no-balance frontend unit tests in `../zunera-frontend/src/{components,utils}/**/__tests__/`
 - [ ] T031 [US2] Extend `../zunera-frontend/e2e/recurring-transactions.spec.js` with due, catch-up, source-origin, and pending-confirmation journey
 
 **Checkpoint**: US2 works independently: recurrence and ordinary transaction
@@ -129,7 +129,7 @@ resume does not backfill; archive pauses; end is terminal and preserved history.
 - [X] T038 [P] [US3] Add update/pause/resume/end service and Pinia mutation actions with durable refresh/error states in `../zunera-frontend/src/services/recurringTransactionService.js` and `../zunera-frontend/src/stores/recurring-transactions/recurringTransactionStore.js`
 - [X] T039 [P] [US3] Implement lifecycle confirmation dialog and row actions with archived-association repair explanation in `../zunera-frontend/src/components/recurring-transactions/{RecurringTransactionLifecycleDialog,RecurringTransactionRowActions}.vue`
 - [X] T040 [US3] Wire edit/detail/lifecycle actions and active/paused/ended feedback into `../zunera-frontend/src/views/recurring-transactions/RecurringTransactionsListView.vue`
-- [ ] T041 [P] [US3] Add lifecycle store/component unit tests in `../zunera-frontend/src/{stores,components}/recurring-transactions/__tests__/`
+- [X] T041 [P] [US3] Add lifecycle store/component unit tests in `../zunera-frontend/src/{stores,components}/recurring-transactions/__tests__/`
 - [ ] T042 [US3] Extend `../zunera-frontend/e2e/recurring-transactions.spec.js` with edit, pause, resume, archive repair, and end journeys
 
 **Checkpoint**: US3 works independently: future rule changes and lifecycle
@@ -153,8 +153,8 @@ unchanged, and clearly see difference between one occurrence versus rule edit.
 
 ### Frontend — after T045
 
-- [ ] T046 [P] [US4] Add explicit occurrence-versus-rule editing guidance and source-aware detail actions in `../zunera-frontend/src/components/{transactions,recurring-transactions}/`
-- [ ] T047 [P] [US4] Add source-aware transaction detail/action unit tests in `../zunera-frontend/src/components/transactions/__tests__/TransactionDetailDrawer.spec.js`
+- [X] T046 [P] [US4] Add explicit occurrence-versus-rule editing guidance and source-aware detail actions in `../zunera-frontend/src/components/{transactions,recurring-transactions}/`
+- [X] T047 [P] [US4] Add source-aware transaction detail/action unit tests in `../zunera-frontend/src/components/transactions/__tests__/TransactionDetailDrawer.spec.js`
 - [ ] T048 [US4] Extend `../zunera-frontend/e2e/recurring-transactions.spec.js` with one-occurrence correction regression journey
 
 **Checkpoint**: US4 works independently: exceptional occurrence correction does
