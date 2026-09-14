@@ -20,6 +20,10 @@ paths:
           in: query
           schema: { type: string, enum: [all, income, expense, transfer], default: all }
           description: Transfer is a separate movement kind, never income/expense.
+        - name: type
+          in: query
+          schema: { type: string, enum: [income, expense] }
+          description: Legacy transaction-history alias for movement_kind.
         - name: from
           in: query
           schema: { type: string }
@@ -30,12 +34,20 @@ paths:
           in: query
           schema: { type: integer, minimum: 1 }
           description: Matches income/expense account or either transfer side.
+        - name: category_id
+          in: query
+          schema: { type: integer, minimum: 1 }
+          description: Matches income or expense category; transfers are excluded.
         - name: status
           in: query
           schema: { type: string, enum: [pending, effective] }
         - name: q
           in: query
           schema: { type: string, maxLength: 200 }
+        - name: view
+          in: query
+          schema: { type: string, enum: [active, removed], default: active }
+          description: Removed view contains removed income and expense transactions only.
         - name: page
           in: query
           schema: { type: integer, minimum: 1, default: 1 }
