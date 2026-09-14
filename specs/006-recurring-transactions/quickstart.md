@@ -42,6 +42,28 @@
 6. Verify themes, 320px/200% zoom, keyboard dialog/drawer focus, no-color-only
    source/state cues, filters/no-match, and critical journeys.
 
+## Planned translation keys and design-copy inventory
+
+New namespace `recurringTransactions` with `pt-BR` and `en` entries in
+`src/i18n/messages.js`, plus `app.recurringTransactions` and
+`app.removedRecurringTransactions` for navigation.
+
+| Group | Keys | Purpose |
+|---|---|---|
+| list | `title`, `description`, `new`, `empty`, `noMatch`, `count`, `loadMore`, `retry`, `back` | Route header, empty and error states, pagination |
+| filters | `filter`, `clear`, `activeCriteria`, `criteria.{type,financial_account_id,category_id,frequency,state}` | Combined filter bar, criteria chips, clear action |
+| form | `newDialog`, `editDialog`, `descriptionField`, `amount`, `notes`, `account`, `category`, `frequency`, `startDate`, `endDate`, `save`, `saveChanges`, `create` | Create and edit dialog copy, reusing `common.save`/`common.cancel` |
+| validation | `descriptionRequired`, `descriptionLength`, `amountRequired`, `amountRange`, `accountRequired`, `categoryRequired`, `categoryMismatch`, `frequencyRequired`, `startDateRequired`, `dateRange`, `dateRequired` | Field-level feedback mirroring backend messages |
+| state | `active`, `paused`, `ended`, `pausedByUser`, `pausedByArchive`, `archivedTag`, `nextExpected`, `noNextExpected` | Non-color status and next-date labels |
+| lifecycle | `pause`, `pauseTitle`, `pauseConfirmation`, `resume`, `resumeTitle`, `resumeConfirmation`, `end`, `endTitle`, `endConfirmation`, `pausedSuccess`, `resumedSuccess`, `endedSuccess`, `repairAssociation` | Lifecycle dialogs and durable confirmations |
+| occurrences | `occurrences`, `occurrencesDescription`, `scheduledDate`, `occurrenceStatus`, `removedOccurrence`, `openOccurrence`, `occurrenceCount`, `emptyOccurrences` | Rule detail occurrence list and source navigation |
+| source | `sourceRule`, `sourceRuleLabel`, `generatedBy`, `scheduledFor`, `viewRule`, `oneOccurrenceScope`, `ruleScope` | History/detail source cue and occurrence-versus-rule editing guidance |
+| frequencies | `frequencies.{weekly,monthly,yearly}` | Frequency labels and filter options |
+
+Design-foundation dependencies: semantic tokens only (no raw colors), Element
+Plus dialog/drawer/form controls, focus return after dialog and drawer close,
+320px and 200% zoom layout, and text plus icon for every state and source cue.
+
 ## Manual acceptance smoke test
 
 - Create weekly salary and monthly 31st expense; verify expected date and

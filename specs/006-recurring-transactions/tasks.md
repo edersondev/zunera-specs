@@ -23,9 +23,9 @@ before frontend begins.
 
 **Purpose**: Confirm coordinated worktree and contract baseline.
 
-- [ ] T001 Verify `006-recurring-transactions` branch and clean intended scope in `/home/ederson/workspace/zunera/zunera-specs`, `../zunera-backend`, and `../zunera-frontend`
-- [ ] T002 [P] Validate and preserve recurrence plus integrated transaction/history contracts with Redocly in `specs/006-recurring-transactions/contracts/recurring-transactions-api.yaml`, `specs/004-transaction-management/contracts/transactions-api.yaml`, and `specs/005-account-transfers/contracts/financial-history-api.yaml`
-- [ ] T003 [P] Record planned recurrence translation keys and design-copy inventory in `specs/006-recurring-transactions/quickstart.md`
+- [X] T001 Verify `006-recurring-transactions` branch and clean intended scope in `/home/ederson/workspace/zunera/zunera-specs`, `../zunera-backend`, and `../zunera-frontend`
+- [X] T002 [P] Validate and preserve recurrence plus integrated transaction/history contracts with Redocly in `specs/006-recurring-transactions/contracts/recurring-transactions-api.yaml`, `specs/004-transaction-management/contracts/transactions-api.yaml`, and `specs/005-account-transfers/contracts/financial-history-api.yaml`
+- [X] T003 [P] Record planned recurrence translation keys and design-copy inventory in `specs/006-recurring-transactions/quickstart.md`
 
 ---
 
@@ -33,12 +33,12 @@ before frontend begins.
 
 **Purpose**: Shared persistence and transaction-source prerequisites. Blocks all stories.
 
-- [ ] T004 Create recurrence, recurrence-mutation-request, and transaction source-link migrations, including the recurrence `schedule_cursor` watermark column and its scheduling index, in `../zunera-backend/database/migrations/`
-- [ ] T005 [P] Add recurrence enums, model, relationships, casts, scopes, and factory in `../zunera-backend/app/Enums/RecurringTransactions/`, `../zunera-backend/app/Models/RecurringTransaction.php`, and `../zunera-backend/database/factories/RecurringTransactionFactory.php`
-- [ ] T006 [P] Extend transaction model, response data/resource, and financial-history resource with nullable `recurrence_source` in `../zunera-backend/app/Models/Transaction.php`, `../zunera-backend/app/Data/Transactions/TransactionResponseData.php`, `../zunera-backend/app/Http/Resources/Transactions/TransactionResource.php`, and `../zunera-backend/app/Http/Resources/FinancialHistory/FinancialHistoryResource.php`
-- [ ] T007 [P] Add calendar, text-normalization, date-range, and recurrence idempotency services with unit tests in `../zunera-backend/app/Services/RecurringTransactions/` and `../zunera-backend/tests/Unit/RecurringTransactions/`
-- [ ] T008 Add recurrence DTOs/filter data, Form Requests, API Resource, state exception, controller shell, and protected route registration in `../zunera-backend/app/Data/RecurringTransactions/`, `../zunera-backend/app/Exceptions/RecurringTransactions/`, `../zunera-backend/app/Http/{Requests,Resources}/RecurringTransactions/`, `../zunera-backend/app/Http/Controllers/Api/V1/RecurringTransactionController.php`, and `../zunera-backend/routes/api.php`
-- [ ] T009 Add source-link regression tests for ordinary transaction detail/history compatibility in `../zunera-backend/tests/Feature/Transactions/RecurringTransactionSourceTest.php` and `../zunera-backend/tests/Feature/FinancialHistory/RecurringTransactionHistoryTest.php`
+- [X] T004 Create recurrence, recurrence-mutation-request, and transaction source-link migrations, including the recurrence `schedule_cursor` watermark column and its scheduling index, in `../zunera-backend/database/migrations/`
+- [X] T005 [P] Add recurrence enums, model, relationships, casts, scopes, and factory in `../zunera-backend/app/Enums/RecurringTransactions/`, `../zunera-backend/app/Models/RecurringTransaction.php`, and `../zunera-backend/database/factories/RecurringTransactionFactory.php`
+- [X] T006 [P] Extend transaction model, response data/resource, and financial-history resource with nullable `recurrence_source` in `../zunera-backend/app/Models/Transaction.php`, `../zunera-backend/app/Data/Transactions/TransactionResponseData.php`, `../zunera-backend/app/Http/Resources/Transactions/TransactionResource.php`, and `../zunera-backend/app/Http/Resources/FinancialHistory/FinancialHistoryResource.php`
+- [X] T007 [P] Add calendar, text-normalization, date-range, and recurrence idempotency services with unit tests in `../zunera-backend/app/Services/RecurringTransactions/` and `../zunera-backend/tests/Unit/RecurringTransactions/`
+- [X] T008 Add recurrence DTOs/filter data, Form Requests, API Resource, state exception, controller shell, and protected route registration in `../zunera-backend/app/Data/RecurringTransactions/`, `../zunera-backend/app/Exceptions/RecurringTransactions/`, `../zunera-backend/app/Http/{Requests,Resources}/RecurringTransactions/`, `../zunera-backend/app/Http/Controllers/Api/V1/RecurringTransactionController.php`, and `../zunera-backend/routes/api.php`
+- [X] T009 Add source-link regression tests for ordinary transaction detail/history compatibility in `../zunera-backend/tests/Feature/Transactions/RecurringTransactionSourceTest.php` and `../zunera-backend/tests/Feature/FinancialHistory/RecurringTransactionHistoryTest.php`
 
 **Checkpoint**: Migration, source link, protected controller boundary, shared
 calendar, and idempotency foundation exist. No user story starts before T004–T009.
@@ -56,11 +56,11 @@ mismatched association cannot create it.
 
 ### Backend
 
-- [ ] T010 [P] [US1] Write contract/feature tests for `GET` and `POST /recurring-transactions` in `../zunera-backend/tests/Feature/RecurringTransactions/CreateAndListRecurringTransactionsTest.php`
-- [ ] T011 [P] [US1] Write validation/ownership/type-category/amount/date tests in `../zunera-backend/tests/Feature/RecurringTransactions/RecurringTransactionValidationTest.php`
-- [ ] T012 [US1] Implement owned account/category resolution, create/list/filter, next-expected-date projection, and idempotent replay in `../zunera-backend/app/Services/RecurringTransactions/RecurringTransactionService.php`
-- [ ] T013 [US1] Implement store/list request rules, controller responses, resource summaries, and create/list routes in `../zunera-backend/app/Http/{Requests,Controllers,Resources}/RecurringTransactions/` and `../zunera-backend/routes/api.php`
-- [ ] T014 [US1] Run focused recurrence create/list/validation tests and contract lint from `../zunera-backend/tests/Feature/RecurringTransactions/` and `specs/006-recurring-transactions/contracts/recurring-transactions-api.yaml`
+- [X] T010 [P] [US1] Write contract/feature tests for `GET` and `POST /recurring-transactions` in `../zunera-backend/tests/Feature/RecurringTransactions/CreateAndListRecurringTransactionsTest.php`
+- [X] T011 [P] [US1] Write validation/ownership/type-category/amount/date tests in `../zunera-backend/tests/Feature/RecurringTransactions/RecurringTransactionValidationTest.php`
+- [X] T012 [US1] Implement owned account/category resolution, create/list/filter, next-expected-date projection, and idempotent replay in `../zunera-backend/app/Services/RecurringTransactions/RecurringTransactionService.php`
+- [X] T013 [US1] Implement store/list request rules, controller responses, resource summaries, and create/list routes in `../zunera-backend/app/Http/{Requests,Controllers,Resources}/RecurringTransactions/` and `../zunera-backend/routes/api.php`
+- [X] T014 [US1] Run focused recurrence create/list/validation tests and contract lint from `../zunera-backend/tests/Feature/RecurringTransactions/` and `specs/006-recurring-transactions/contracts/recurring-transactions-api.yaml`
 
 ### Frontend — after T014
 
@@ -88,12 +88,12 @@ owner can identify source from rule/history/detail.
 
 ### Backend
 
-- [ ] T022 [P] [US2] Write unit tests for weekly/monthly/yearly dates, short months, leap years, creation anchor, paused skip, catch-up, and end-date behavior in `../zunera-backend/tests/Unit/RecurringTransactions/RecurringScheduleCalculatorTest.php`
-- [ ] T023 [P] [US2] Write feature/concurrency tests for pending occurrence creation, duplicate rule/date prevention, retries, balance-zero effect, owner-scoped paginated occurrence listing, and removed-occurrence inclusion with removal timestamp in `../zunera-backend/tests/Feature/RecurringTransactions/ProcessRecurringOccurrencesTest.php`
-- [ ] T024 [US2] Implement schedule calculator and locked occurrence processor that creates pending source-linked transactions, advances the schedule cursor, never evaluates paused or pre-eligibility dates, and auto-ends expired rules in `../zunera-backend/app/Services/RecurringTransactions/{RecurringScheduleCalculator,RecurringOccurrenceService}.php`
-- [ ] T025 [US2] Register due-processing command and application scheduler entry in `../zunera-backend/app/Console/Commands/ProcessRecurringTransactions.php` and `../zunera-backend/routes/console.php`
-- [ ] T026 [US2] Implement owner-scoped paginated generated-occurrence listing that includes removed occurrences with their removal timestamp, and confirm T006 source serialization still returns `recurrence_source` for generated occurrences in `../zunera-backend/app/Services/RecurringTransactions/RecurringTransactionService.php`, `../zunera-backend/app/Http/Controllers/Api/V1/RecurringTransactionController.php`, `../zunera-backend/app/Http/Resources/RecurringTransactions/GeneratedOccurrenceResource.php`, and `../zunera-backend/routes/api.php`
-- [ ] T027 [US2] Run due-processing, transaction-history, and financial-history regression suites in `../zunera-backend/tests/{Unit,Feature}/`
+- [X] T022 [P] [US2] Write unit tests for weekly/monthly/yearly dates, short months, leap years, creation anchor, paused skip, catch-up, and end-date behavior in `../zunera-backend/tests/Unit/RecurringTransactions/RecurringScheduleCalculatorTest.php`
+- [X] T023 [P] [US2] Write feature/concurrency tests for pending occurrence creation, duplicate rule/date prevention, retries, balance-zero effect, owner-scoped paginated occurrence listing, and removed-occurrence inclusion with removal timestamp in `../zunera-backend/tests/Feature/RecurringTransactions/ProcessRecurringOccurrencesTest.php`
+- [X] T024 [US2] Implement schedule calculator and locked occurrence processor that creates pending source-linked transactions, advances the schedule cursor, never evaluates paused or pre-eligibility dates, and auto-ends expired rules in `../zunera-backend/app/Services/RecurringTransactions/{RecurringScheduleCalculator,RecurringOccurrenceService}.php`
+- [X] T025 [US2] Register due-processing command and application scheduler entry in `../zunera-backend/app/Console/Commands/ProcessRecurringTransactions.php` and `../zunera-backend/routes/console.php`
+- [X] T026 [US2] Implement owner-scoped paginated generated-occurrence listing that includes removed occurrences with their removal timestamp, and confirm T006 source serialization still returns `recurrence_source` for generated occurrences in `../zunera-backend/app/Services/RecurringTransactions/RecurringTransactionService.php`, `../zunera-backend/app/Http/Controllers/Api/V1/RecurringTransactionController.php`, `../zunera-backend/app/Http/Resources/RecurringTransactions/GeneratedOccurrenceResource.php`, and `../zunera-backend/routes/api.php`
+- [X] T027 [US2] Run due-processing, transaction-history, and financial-history regression suites in `../zunera-backend/tests/{Unit,Feature}/`
 
 ### Frontend — after T027
 
@@ -117,12 +117,12 @@ resume does not backfill; archive pauses; end is terminal and preserved history.
 
 ### Backend
 
-- [ ] T032 [P] [US3] Write update/pause/resume/end contract, state-conflict, start/end date edit re-anchor, no next-expected-date while paused, cursor-on-resume no-backfill, and terminal-state tests in `../zunera-backend/tests/Feature/RecurringTransactions/ManageRecurringTransactionsTest.php`
-- [ ] T033 [P] [US3] Write archive-trigger and historical-snapshot tests in `../zunera-backend/tests/Feature/RecurringTransactions/ArchivedAssociationRecurringTransactionsTest.php`
-- [ ] T034 [US3] Implement update scope, start/end date re-anchor rules, lifecycle state machine, association-repair restriction, idempotent actions, terminal-state rejection, and schedule-cursor advance on resume in `../zunera-backend/app/Services/RecurringTransactions/RecurringTransactionService.php`
-- [ ] T035 [US3] Invoke automatic recurrence pause from account/category archive services in `../zunera-backend/app/Services/{FinancialAccounts,Categories}/` and retain archived summaries in recurrence resources
-- [ ] T036 [US3] Implement patch/pause/resume/end requests, controller methods, and routes in `../zunera-backend/app/Http/{Requests,Controllers}/RecurringTransactions/` and `../zunera-backend/routes/api.php`
-- [ ] T037 [US3] Run lifecycle/archive/history regression suites and recurrence contract lint in `../zunera-backend/tests/Feature/RecurringTransactions/` and `specs/006-recurring-transactions/contracts/recurring-transactions-api.yaml`
+- [X] T032 [P] [US3] Write update/pause/resume/end contract, state-conflict, start/end date edit re-anchor, no next-expected-date while paused, cursor-on-resume no-backfill, and terminal-state tests in `../zunera-backend/tests/Feature/RecurringTransactions/ManageRecurringTransactionsTest.php`
+- [X] T033 [P] [US3] Write archive-trigger and historical-snapshot tests in `../zunera-backend/tests/Feature/RecurringTransactions/ArchivedAssociationRecurringTransactionsTest.php`
+- [X] T034 [US3] Implement update scope, start/end date re-anchor rules, lifecycle state machine, association-repair restriction, idempotent actions, terminal-state rejection, and schedule-cursor advance on resume in `../zunera-backend/app/Services/RecurringTransactions/RecurringTransactionService.php`
+- [X] T035 [US3] Invoke automatic recurrence pause from account/category archive services in `../zunera-backend/app/Services/{FinancialAccounts,Categories}/` and retain archived summaries in recurrence resources
+- [X] T036 [US3] Implement patch/pause/resume/end requests, controller methods, and routes in `../zunera-backend/app/Http/{Requests,Controllers}/RecurringTransactions/` and `../zunera-backend/routes/api.php`
+- [X] T037 [US3] Run lifecycle/archive/history regression suites and recurrence contract lint in `../zunera-backend/tests/Feature/RecurringTransactions/` and `specs/006-recurring-transactions/contracts/recurring-transactions-api.yaml`
 
 ### Frontend — after T037
 
@@ -147,9 +147,9 @@ unchanged, and clearly see difference between one occurrence versus rule edit.
 
 ### Backend
 
-- [ ] T043 [P] [US4] Add generated-occurrence update/remove/restore isolation tests in `../zunera-backend/tests/Feature/RecurringTransactions/IndividualOccurrenceCorrectionTest.php`
-- [ ] T044 [US4] Enforce source-link immutability during ordinary transaction update/remove/restore and preserve recurrence rule/sibling snapshots in `../zunera-backend/app/Services/Transactions/TransactionService.php` and `../zunera-backend/app/Models/Transaction.php`
-- [ ] T045 [US4] Run transaction and individual-occurrence regression tests in `../zunera-backend/tests/{Feature/Transactions,Feature/RecurringTransactions}/`
+- [X] T043 [P] [US4] Add generated-occurrence update/remove/restore isolation tests in `../zunera-backend/tests/Feature/RecurringTransactions/IndividualOccurrenceCorrectionTest.php`
+- [X] T044 [US4] Enforce source-link immutability during ordinary transaction update/remove/restore and preserve recurrence rule/sibling snapshots in `../zunera-backend/app/Services/Transactions/TransactionService.php` and `../zunera-backend/app/Models/Transaction.php`
+- [X] T045 [US4] Run transaction and individual-occurrence regression tests in `../zunera-backend/tests/{Feature/Transactions,Feature/RecurringTransactions}/`
 
 ### Frontend — after T045
 
@@ -172,9 +172,9 @@ state and clear criteria work across active, paused, and ended records.
 
 ### Backend
 
-- [ ] T049 [P] [US5] Add combined filter, owner-scope, pagination, ordering, and seeded 5,000-rule scale tests that assert the first 50 matching rules return in under 2 seconds in `../zunera-backend/tests/Feature/RecurringTransactions/FilterRecurringTransactionsTest.php` and `../zunera-backend/tests/Feature/RecurringTransactions/RecurringTransactionScaleTest.php`
-- [ ] T050 [US5] Complete filter validation, AND query behavior, next-date ordering with null next-expected-date semantics for paused and ended rules, count metadata, and archived association filter resolution in `../zunera-backend/app/Services/RecurringTransactions/RecurringTransactionService.php` and `../zunera-backend/app/Http/Requests/RecurringTransactions/ListRecurringTransactionsRequest.php`
-- [ ] T051 [US5] Run filter/scale tests and confirmed list-contract validation in `../zunera-backend/tests/Feature/RecurringTransactions/` and `specs/006-recurring-transactions/contracts/recurring-transactions-api.yaml`
+- [X] T049 [P] [US5] Add combined filter, owner-scope, pagination, ordering, and seeded 5,000-rule scale tests that assert the first 50 matching rules return in under 2 seconds in `../zunera-backend/tests/Feature/RecurringTransactions/FilterRecurringTransactionsTest.php` and `../zunera-backend/tests/Feature/RecurringTransactions/RecurringTransactionScaleTest.php`
+- [X] T050 [US5] Complete filter validation, AND query behavior, next-date ordering with null next-expected-date semantics for paused and ended rules, count metadata, and archived association filter resolution in `../zunera-backend/app/Services/RecurringTransactions/RecurringTransactionService.php` and `../zunera-backend/app/Http/Requests/RecurringTransactions/ListRecurringTransactionsRequest.php`
+- [X] T051 [US5] Run filter/scale tests and confirmed list-contract validation in `../zunera-backend/tests/Feature/RecurringTransactions/` and `specs/006-recurring-transactions/contracts/recurring-transactions-api.yaml`
 
 ### Frontend — after T051
 
@@ -192,10 +192,10 @@ matching recurrence rules without cross-user disclosure.
 **Purpose**: Complete accessibility, privacy, contract, performance, and full
 feature verification after all stories.
 
-- [ ] T055 [P] Add cross-user, idempotency-key reuse, invalid-state, and privacy-safe response regression coverage in `../zunera-backend/tests/Feature/RecurringTransactions/`
+- [X] T055 [P] Add cross-user, idempotency-key reuse, invalid-state, and privacy-safe response regression coverage in `../zunera-backend/tests/Feature/RecurringTransactions/`
 - [ ] T056 [P] Add keyboard, focus return, 320px, 200% zoom, light/dark/system, and non-color source/state coverage in `../zunera-frontend/e2e/recurring-transactions.spec.js`
-- [ ] T057 Run backend migrations, full tests, route check, and Pint in `../zunera-backend/`
-- [ ] T058 Run Redocly lint for `specs/006-recurring-transactions/contracts/recurring-transactions-api.yaml`, `specs/004-transaction-management/contracts/transactions-api.yaml`, and `specs/005-account-transfers/contracts/financial-history-api.yaml`
+- [X] T057 Run backend migrations, full tests, route check, and Pint in `../zunera-backend/`
+- [X] T058 Run Redocly lint for `specs/006-recurring-transactions/contracts/recurring-transactions-api.yaml`, `specs/004-transaction-management/contracts/transactions-api.yaml`, and `specs/005-account-transfers/contracts/financial-history-api.yaml`
 - [ ] T059 Run frontend unit suite, production build, and isolated Playwright feature suite in `../zunera-frontend/`
 - [ ] T060 Update implementation evidence in `specs/006-recurring-transactions/quickstart.md`
 
