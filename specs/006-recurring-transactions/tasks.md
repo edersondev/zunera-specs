@@ -126,7 +126,7 @@ resume does not backfill; archive pauses; end is terminal and preserved history.
 
 ### Frontend — after T037
 
-- [ ] T038 [P] [US3] Add update/pause/resume/end service and Pinia mutation actions with durable refresh/error states in `../zunera-frontend/src/{services,stores}/recurring-transactions/`
+- [ ] T038 [P] [US3] Add update/pause/resume/end service and Pinia mutation actions with durable refresh/error states in `../zunera-frontend/src/services/recurringTransactionService.js` and `../zunera-frontend/src/stores/recurring-transactions/recurringTransactionStore.js`
 - [ ] T039 [P] [US3] Implement lifecycle confirmation dialog and row actions with archived-association repair explanation in `../zunera-frontend/src/components/recurring-transactions/{RecurringTransactionLifecycleDialog,RecurringTransactionRowActions}.vue`
 - [ ] T040 [US3] Wire edit/detail/lifecycle actions and active/paused/ended feedback into `../zunera-frontend/src/views/recurring-transactions/RecurringTransactionsListView.vue`
 - [ ] T041 [P] [US3] Add lifecycle store/component unit tests in `../zunera-frontend/src/{stores,components}/recurring-transactions/__tests__/`
