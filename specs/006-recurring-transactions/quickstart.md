@@ -64,6 +64,30 @@ Design-foundation dependencies: semantic tokens only (no raw colors), Element
 Plus dialog/drawer/form controls, focus return after dialog and drawer close,
 320px and 200% zoom layout, and text plus icon for every state and source cue.
 
+## Implementation evidence
+
+Backend (`../zunera-backend`, commit 7195d82):
+
+| Check | Command | Result |
+|---|---|---|
+| Migrations + full suite | `docker compose -f docker/docker-compose.yml -f docker/docker-compose.test.yml exec app php artisan test --compact` | 207 passed, 1,400 assertions |
+| Recurrence suites only | `php artisan test tests/Feature/RecurringTransactions tests/Unit/RecurringTransactions` | 43 passed |
+| Routes | `php artisan route:list --path=recurring` | 8 recurrence routes registered |
+| Style | `vendor/bin/pint --format agent` on recurrence paths | Fixed, then clean |
+
+Frontend (`../zunera-frontend`):
+
+| Check | Command | Result |
+|---|---|---|
+| Unit suite | `npm run test:unit -- --run` | 59 files, 184 tests passed |
+| Production build | `npm run build` | Built, recurrence chunk emitted |
+
+Outstanding before this feature is finished: transaction-detail and history
+source labels (T028/T030), lifecycle and empty-state component tests (T041/T053),
+occurrence-versus-rule guidance in transaction components (T046/T047), the
+Playwright journeys (T021/T031/T042/T048/T054/T056), and the isolated
+Playwright run in T059.
+
 ## Manual acceptance smoke test
 
 - Create weekly salary and monthly 31st expense; verify expected date and
