@@ -37,5 +37,5 @@
   next expected occurrence exists only while a rule is active with a future
   eligible date; an archived association automatically pauses its rule; and a
   rule automatically ends after its inclusive end date passes.
-- All checklist items pass after clarification. Specification is ready for
-  `/speckit-plan`.
+- All checklist items pass after clarification and the review follow-up.
+  Specification stays aligned with `plan.md` and `tasks.md`.

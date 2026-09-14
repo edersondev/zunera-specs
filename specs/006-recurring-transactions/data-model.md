@@ -17,7 +17,7 @@
 | state | enum | `active`, `paused`, `ended`. |
 | paused_reason | nullable enum | `user` or `association_archived`. |
 | eligibility_starts_on | date | Later of start and creation business date. |
-| schedule_cursor | date | Newest schedule date already evaluated or intentionally skipped. Advanced by the due processor for active rules; set to the resume business date when a paused rule resumes, so paused dates are never evaluated. |
+| schedule_cursor | date | Newest schedule date already evaluated or intentionally skipped. Seeded to the eligibility start when the rule is created, advanced by the due processor for active rules, and set to the resume business date when a paused rule resumes, so paused dates are never evaluated. |
 | ended_at / timestamps | timestamps | Terminal and audit context. |
 
 Indexes: owner/state/scheduling; owner/account; owner/category. List ordering is

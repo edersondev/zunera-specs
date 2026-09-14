@@ -21,7 +21,7 @@ paths:
         - { $ref: '#/components/parameters/PerPage' }
       responses:
         '200':
-          description: Paginated owned recurrence collection, with matching count.
+          description: Paginated owned recurrence collection ordered by next expected occurrence ascending, then rules without one, with matching count.
           content: { application/json: { schema: { $ref: '#/components/schemas/RecurringTransactionCollection' } } }
         '401': { $ref: '#/components/responses/Error' }
         '404': { $ref: '#/components/responses/Error' }
