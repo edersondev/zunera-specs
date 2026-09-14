@@ -4,7 +4,7 @@
 **Backend Branch**: `005-account-transfers` (`../zunera-backend`)  
 **Frontend Branch**: `005-account-transfers` (`../zunera-frontend`)  
 **Created**: 2026-09-13  
-**Status**: Ready for implementation  
+**Status**: Implemented  
 **Input**: User description: "Create the Transfers feature for Zunera."
 
 ## Clarifications
