@@ -173,7 +173,10 @@ components:
         paused_reason: { type: [string, 'null'], enum: [user, association_archived, null] }
         financial_account: { $ref: '#/components/schemas/AccountSummary' }
         category: { $ref: '#/components/schemas/CategorySummary' }
-        next_expected_occurrence: { type: [string, 'null'], format: date }
+        next_expected_occurrence:
+          type: [string, 'null']
+          format: date
+          description: Present only for an active rule with a future eligible date under its start, end, and calendar rules; paused and ended rules return null.
         generated_occurrence_count: { type: integer, minimum: 0 }
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }

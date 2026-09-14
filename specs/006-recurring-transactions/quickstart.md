@@ -8,11 +8,13 @@
    requests/resources/controller, owner-scoped service, and routes.
 4. Implement calendar service using America/Sao_Paulo business date, creation
    eligibility anchor, weekly/monthly/yearly adjustment, inclusive end date,
-   active/paused/ended transitions, and next expected date.
+   active/paused/ended transitions, schedule cursor, and next expected date.
 5. Implement due processor: lock eligible active rules, create each missing
    eligible occurrence pending in one transaction, and enforce source-rule/date
-   uniqueness. It must catch up active downtime dates but never paused or
-   pre-creation dates; mark expired rules ended.
+   uniqueness. It must catch up active downtime dates from the rule's schedule
+   cursor but never paused or pre-creation dates, advance the cursor after each
+   run, and set the cursor to the resume business date when a paused rule
+   resumes. Mark expired rules ended.
 6. Extend Transaction and FinancialHistory resources with nullable source link;
    provide the owner-scoped, paginated rule-occurrence collection that links to
    existing transaction detail; preserve transaction lifecycle/balance services.
@@ -48,9 +50,11 @@
   dates twice/concurrently; verify exactly one pending occurrence per date.
 - Let processor resume after downtime; verify every eligible active missed date
   is pending and balance unchanged. Mark one effective; verify one balance effect.
-- Pause/resume; verify paused dates never backfill. Archive association; verify
-  automatic pause, repair requirement, unchanged history. End manually and by
-  passed end date; verify no future occurrence.
+- Pause/resume across at least two due dates; verify paused dates never
+  backfill, paused rule shows no next expected occurrence, and resume resumes at
+  the next future date. Archive association; verify automatic pause, repair
+  requirement, unchanged history. End manually and by passed end date; verify no
+  future occurrence.
 - Edit rule amount then one occurrence; verify future ungenerated dates adopt
   rule value while prior/generated snapshots stay unchanged.
 - Attempt cross-user access, inactive association, type/category mismatch,

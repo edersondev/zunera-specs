@@ -31,9 +31,11 @@
 
 ## Notes
 
-- Clarification session 2026-09-14 resolved three lifecycle decisions: missed
-  eligible dates catch up as pending occurrences; an archived association
-  automatically pauses its rule; and a rule automatically ends after its
-  inclusive end date passes.
+- Clarification session 2026-09-14 resolved five lifecycle decisions: missed
+  eligible dates catch up as pending occurrences from the rule's schedule
+  cursor; dates that pass while a rule is paused stay skipped after resume; a
+  next expected occurrence exists only while a rule is active with a future
+  eligible date; an archived association automatically pauses its rule; and a
+  rule automatically ends after its inclusive end date passes.
 - All checklist items pass after clarification. Specification is ready for
   `/speckit-plan`.

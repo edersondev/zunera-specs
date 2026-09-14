@@ -28,7 +28,8 @@ rules and source-linked existing transactions
 **Performance Goals**: Idempotent due processing; first 50 matching rules from
 5,000 user rules in under 2 seconds in seeded validation.  
 **Constraints**: No packages; BRL exact centavos; protected API; idempotent user
-mutations; America/Sao_Paulo business date; no rule balance effect.  
+mutations; America/Sao_Paulo business date; persisted schedule cursor separates
+downtime catch-up from paused dates; no rule balance effect.  
 **Scale/Scope**: At least 5,000 rules/user; income/expense only; no transfer,
 installment, import, reminder, external billing.
 

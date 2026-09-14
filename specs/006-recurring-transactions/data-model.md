@@ -17,10 +17,16 @@
 | state | enum | `active`, `paused`, `ended`. |
 | paused_reason | nullable enum | `user` or `association_archived`. |
 | eligibility_starts_on | date | Later of start and creation business date. |
+| schedule_cursor | date | Newest schedule date already evaluated or intentionally skipped. Advanced by the due processor for active rules; set to the resume business date when a paused rule resumes, so paused dates are never evaluated. |
 | ended_at / timestamps | timestamps | Terminal and audit context. |
 
 Indexes: owner/state/scheduling; owner/account; owner/category. List ordering is
-next eligible schedule date then identifier, with stable pages of at most 50.
+rules with a next expected occurrence first in ascending date order, then rules
+without one by identifier, with stable pages of at most 50.
+
+`next_expected_occurrence` is present only for an active rule whose start, end,
+and calendar rules still allow a future schedule date. Paused and ended rules
+report no next expected occurrence until the owner resumes them.
 
 ## Generated Transaction Extension
 
@@ -48,15 +54,17 @@ and completed status/body. Exact retry replays; altered reuse is conflict.
 
 | From | Event | To | Effect |
 |---|---|---|---|
-| active | Owner pauses | paused | Skip future dates; reason `user`. |
-| active | Account/category archives | paused | Skip future dates; reason `association_archived`. |
-| paused | Repair and resume | active | Future dates only; paused dates remain skipped. |
+| active | Owner pauses | paused | Skip future dates; reason `user`; cursor stays. |
+| active | Account/category archives | paused | Skip future dates; reason `association_archived`; cursor stays. |
+| paused | Repair and resume | active | Future dates only; cursor set to resume business date so paused dates remain skipped. |
 | active/paused | Owner ends or end date passes | ended | Terminal; history retained. |
 
-For active rules processor evaluates dates from `eligibility_starts_on` through
-current Brazil business date and inclusive end. Each missing date creates pending
-source transaction. It then ends rules whose end date has passed. Restored
-association stays paused until owner resumes.
+For active rules processor evaluates dates from `schedule_cursor` through current
+Brazil business date and inclusive end, never earlier than
+`eligibility_starts_on`. Each missing date creates one pending source
+transaction, then the cursor advances to the business date already evaluated.
+It then ends rules whose end date has passed. Restored association stays paused
+until owner resumes, and resume never backfills the paused window.
 
 ## Relationships and Historical Rules
 

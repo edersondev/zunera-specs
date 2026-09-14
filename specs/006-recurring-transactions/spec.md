@@ -18,6 +18,12 @@ Zunera."
   Automatically pause the recurrence.
 - Q: What happens after a recurrence's inclusive end date passes? → A:
   Automatically mark the recurrence ended.
+- Q: How are eligible dates that passed while a rule was paused treated when it
+  resumes? → A: Skip them permanently; the processor's schedule cursor advances
+  to the resume business date so paused dates are never evaluated again.
+- Q: Which next expected occurrence is shown for paused, ended, or
+  end-date-exhausted rules? → A: None; a next expected occurrence exists only
+  while a rule is active and a future eligible date remains.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -155,8 +161,9 @@ filters and identify the next expected occurrence of every matching rule.
 ### Edge Cases
 
 - User has no active account or matching active category.
-- Start date is today, future, or past. A past start never auto-creates
-  historical transactions; elapsed dates are skipped.
+- Start date is today, future, or past. Eligibility begins on the later of the
+  start date and the rule's creation date, so a past start never auto-creates
+  historical transactions and elapsed dates are skipped.
 - Monthly 29th, 30th, or 31st uses the month’s final calendar day if its ordinal
   date is absent, then returns to its ordinal day when available. Yearly 29
   February uses 28 February in non-leap years and 29 February in leap years.
@@ -165,6 +172,8 @@ filters and identify the next expected occurrence of every matching rule.
   ended automatically.
 - Rule is paused, resumed, or ended repeatedly; user tries to resume or edit an
   ended rule.
+- Rule is paused. No next expected occurrence is shown, nothing is generated
+  while paused, and dates that pass during the pause stay skipped after resume.
 - Associated account or category is later archived. Rule and history remain;
   rule automatically pauses and new occurrences stop until owner provides
   eligible active association and resumes it.
@@ -172,6 +181,9 @@ filters and identify the next expected occurrence of every matching rule.
   pending/effective state under ordinary transaction rules.
 - Rule is edited on a due date, processing retries after partial completion, or
   processing overlaps for same rule/date.
+- Rule start date is changed earlier or later, or end date is extended, cleared,
+  or shortened. Only ungenerated future dates change; generated occurrences keep
+  their snapshots and never become eligible again.
 - Processing resumes after downtime. Every eligible due date missed while the
   rule remained active is created once as a pending occurrence, never as an
   automatic balance effect.
@@ -223,6 +235,9 @@ filters and identify the next expected occurrence of every matching rule.
 - **FR-012**: Future start creates no earlier occurrence. Current-date start is
   eligible that day. Past start creates no automatic history; elapsed scheduled
   dates are skipped and next unelapsed scheduled date is first eligible date.
+  Schedule eligibility begins on the later of the start date and the business
+  date the rule was created, so dates before that eligibility start are never
+  evaluated or created.
 - **FR-013**: Weekly schedule uses start-date weekday. Monthly schedule uses
   start-date ordinal, or final day when missing. Yearly schedule uses start
   month/day, with 28 February for 29 February in non-leap years.
@@ -235,8 +250,10 @@ filters and identify the next expected occurrence of every matching rule.
   create exactly one pending generated transaction for that date. It MUST remain
   pending, with no balance effect, until its owner marks it effective through
   ordinary transaction management. When processing resumes after downtime, it
-  MUST create one pending occurrence for every eligible missed due date. The
-  system MUST NOT create occurrences before their due dates or automatically
+  MUST create one pending occurrence for every eligible missed due date from the
+  rule’s schedule cursor through the current business date. Dates that passed
+  while the rule was paused are not missed due dates and MUST NOT be created.
+  The system MUST NOT create occurrences before their due dates or automatically
   make a generated occurrence effective.
 - **FR-016**: Generated occurrence MUST be ordinary transaction governed by
   established transaction type, status, balance, removal, restoration,
@@ -254,20 +271,27 @@ filters and identify the next expected occurrence of every matching rule.
   enters ended state after its inclusive end date passes.
 - **FR-020**: Owner MUST be able to pause active rule and resume paused rule if
   dates/associations remain eligible. Dates missed while paused are skipped;
-  resuming MUST NOT auto-create or financially effect them.
+  resuming MUST NOT auto-create or financially effect them, and the processor
+  MUST advance its schedule cursor to the resume business date so paused dates
+  are never evaluated again.
 - **FR-021**: Owner MUST be able to end active or paused rule permanently. Ended
   rule cannot resume or edit; viewing retained detail/history stays allowed;
   unavailable lifecycle action MUST receive clear state feedback.
 - **FR-022**: Valid active-rule edit applies only to scheduled dates not already
   represented by generated transaction. Past/generated occurrences preserve
-  snapshot, status, and financial effect.
+  snapshot, status, and financial effect. Editing the start date re-anchors the
+  schedule, including the weekday used by weekly rules, from the rule’s
+  eligibility start onward; editing the end date may extend, shorten, or clear
+  it. No edit may make a generated date eligible again or revive an ended rule.
 - **FR-023**: User MUST correct generated occurrence through ordinary transaction
   management without changing source rule or other occurrences. Rule editing and
   one-occurrence editing MUST be clearly distinguished.
 - **FR-024**: List MUST support combined filters: classification, account,
   category, frequency, lifecycle state. Each entry MUST show description, amount,
   classification, frequency, account, category, state, and next expected date
-  when one remains.
+  when one remains. A next expected occurrence exists only while the rule is
+  active and a future eligible date remains within its start, end, and calendar
+  rules; paused and ended rules MUST show none.
 - **FR-025**: Rule/occurrence history MUST remain understandable if rule is
   edited, paused, ended, or associated account/category later archives. No rule
   action may silently rewrite historical transaction.
