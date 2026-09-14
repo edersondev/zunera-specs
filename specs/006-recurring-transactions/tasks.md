@@ -243,4 +243,5 @@ Setup → Foundational → US1 → US2 → US3 → US4 → US5 → Polish
 ### Format Validation
 
 All 60 tasks use checkbox, sequential task ID, optional `[P]`, required story
-label only in story phases, and exact target path.
+label only in story phases, and an exact target path — or the repository root
+for command-only verification tasks such as T057 and T059.

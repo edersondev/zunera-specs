@@ -56,7 +56,7 @@ and completed status/body. Exact retry replays; altered reuse is conflict.
 |---|---|---|---|
 | active | Owner pauses | paused | Skip future dates; reason `user`; cursor stays. |
 | active | Account/category archives | paused | Skip future dates; reason `association_archived`; cursor stays. |
-| paused | Repair and resume | active | Future dates only; cursor set to resume business date so paused dates remain skipped. |
+| paused | Repair and resume | active | Future dates only; cursor set to resume business date so paused dates remain skipped; paused reason cleared. |
 | active/paused | Owner ends or end date passes | ended | Terminal; history retained. |
 
 For active rules processor evaluates dates from `schedule_cursor` through current

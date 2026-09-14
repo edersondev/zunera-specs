@@ -104,7 +104,6 @@ paths:
         '401': { $ref: '#/components/responses/Error' }
         '404': { $ref: '#/components/responses/Error' }
         '409': { $ref: '#/components/responses/Conflict' }
-        '422': { $ref: '#/components/responses/ValidationError' }
   /recurring-transactions/{recurring_transaction_id}/end:
     post:
       summary: Permanently end owned active or paused rule
@@ -226,8 +225,22 @@ components:
         links: { type: object }
     Error: { type: object, required: [message], properties: { message: { type: string }, code: { type: string } } }
     ValidationError: { type: object, required: [message, errors], properties: { message: { type: string }, errors: { type: object, additionalProperties: { type: array, items: { type: string } } } } }
-    Conflict: { type: object, required: [message, code], properties: { message: { type: string }, code: { type: string, enum: [idempotency_key_reused, recurrence_not_active, recurrence_not_paused, recurrence_ended, recurrence_association_unavailable] } } }
+    Conflict:
+      type: object
+      required: [message, code]
+      properties:
+        message: { type: string }
+        code:
+          type: string
+          enum: [idempotency_key_reused, recurrence_not_active, recurrence_not_paused, recurrence_ended, recurrence_association_unavailable]
+          description: >-
+            `idempotency_key_reused` when a key replays a different request.
+            `recurrence_not_active` when the action requires an active rule.
+            `recurrence_not_paused` when the action requires a paused rule.
+            `recurrence_ended` when the rule already ended.
+            `recurrence_association_unavailable` when resume or repair runs
+            without an eligible active association or future eligible date.
   responses:
     Error: { description: Authentication or privacy-safe not-found error, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
-    ValidationError: { description: "Invalid input, association, schedule, or state prerequisite.", content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } } }
-    Conflict: { description: Lifecycle or idempotency conflict, content: { application/json: { schema: { $ref: '#/components/schemas/Conflict' } } } }
+    ValidationError: { description: "Invalid request payload, association, or schedule input.", content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } } }
+    Conflict: { description: "Lifecycle or idempotency conflict: action invalid for the rule's current state, association unavailable, or Idempotency-Key reuse.", content: { application/json: { schema: { $ref: '#/components/schemas/Conflict' } } } }
