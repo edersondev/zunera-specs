@@ -77,7 +77,7 @@ paths:
         - { $ref: '#/components/parameters/PerPage' }
       responses:
         '200':
-          description: Paginated generated transaction occurrences, newest scheduled date first.
+          description: Paginated generated transaction occurrences, newest scheduled date first, including occurrences removed under ordinary transaction rules.
           content: { application/json: { schema: { $ref: '#/components/schemas/GeneratedOccurrenceCollection' } } }
         '401': { $ref: '#/components/responses/Error' }
         '404': { $ref: '#/components/responses/Error' }
@@ -156,6 +156,7 @@ components:
         id: { type: integer, minimum: 1, description: Existing ordinary transaction identifier. }
         scheduled_date: { type: string, format: date }
         status: { type: string, enum: [pending, effective] }
+        removed_at: { type: [string, 'null'], format: date-time, description: Set when the owner removed the occurrence and cleared when restored; a removed occurrence keeps no balance effect. }
     RecurringTransaction:
       type: object
       required: [id, type, amount_centavos, currency_code, description, frequency, start_date, state, financial_account, category, next_expected_occurrence, created_at, updated_at]

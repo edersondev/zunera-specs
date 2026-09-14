@@ -262,7 +262,9 @@ filters and identify the next expected occurrence of every matching rule.
   account, category, description, note, and scheduled financial date.
 - **FR-017**: Generated occurrence MUST visibly identify its originating rule
   without color-only meaning. User MUST recognize source from history and
-  details and open occurrence from source rule.
+  details and open occurrence from source rule. An occurrence removed under
+  ordinary transaction rules MUST stay identifiable from its rule as removed, so
+  a skipped schedule date remains explainable.
 - **FR-018**: System MUST prevent more than one generated transaction for same
   rule and scheduled date, including retries, concurrent processing, or repeated
   requests; separate rules and intentional ordinary transactions remain allowed.

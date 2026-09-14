@@ -35,14 +35,19 @@ Existing `Transaction` gains nullable `recurring_transaction_id` and
 occurrence and null for ordinary entry. Unique non-null pair
 `(recurring_transaction_id, recurrence_scheduled_date)` guarantees one
 occurrence per rule/date; removed occurrence retains pair and is never
-regenerated. Existing fields are immutable source snapshot; generated status
-begins pending and balance effect stays zero until ordinary transaction action
-makes it effective.
+regenerated. Values captured at generation are preserved against later rule
+edits, while the owner may still change the occurrence through ordinary
+transaction management; generated status begins pending and balance effect stays
+zero until that action makes it effective.
 
 Rule detail exposes only the generated-occurrence count. Generated ordinary
 transactions are listed through an owner-scoped paginated occurrence collection
 (at most 50 per page), so a long-running rule never returns an unbounded detail
-payload and each summary can open its existing transaction.
+payload and each summary can open its existing transaction. The collection
+includes removed occurrences with their removal timestamp, and
+`generated_occurrence_count` counts every generated occurrence including removed
+ones, so removal is visible as the reason a schedule date produced no lasting
+movement instead of looking like a skipped date.
 
 ## Recurrence Mutation Request
 
