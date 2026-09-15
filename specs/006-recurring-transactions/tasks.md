@@ -70,7 +70,7 @@ mismatched association cannot create it.
 - [X] T018 [P] [US1] Implement filter bar and scan-friendly list with state/type/next-date non-color labels in `../zunera-frontend/src/components/recurring-transactions/RecurringTransactionFilterBar.vue` and `../zunera-frontend/src/components/recurring-transactions/RecurringTransactionList.vue`
 - [X] T019 [US1] Compose list/create route, authenticated route entry, navigation item, and localized labels in `../zunera-frontend/src/views/recurring-transactions/RecurringTransactionsListView.vue`, `../zunera-frontend/src/router/index.js`, `../zunera-frontend/src/layouts/AppShell.vue`, and `../zunera-frontend/src/i18n/messages.js`
 - [X] T020 [P] [US1] Add service/store/form/list unit tests in `../zunera-frontend/src/{services,stores,components}/**/__tests__/`
-- [ ] T021 [US1] Add isolated create/list validation Playwright journey in `../zunera-frontend/e2e/recurring-transactions.spec.js`
+- [X] T021 [US1] Add isolated create/list validation Playwright journey in `../zunera-frontend/e2e/recurring-transactions.spec.js`
 
 **Checkpoint**: US1 works independently: valid rules create/list; invalid or
 foreign data is safe; rule itself has no balance effect.
@@ -100,7 +100,7 @@ owner can identify source from rule/history/detail.
 - [X] T028 [P] [US2] Add recurrence-source formatter and source label/link UI to transaction detail/history rows in `../zunera-frontend/src/utils/recurring-transactions/recurringTransactionFormatters.js`, `../zunera-frontend/src/components/transactions/TransactionDetailDrawer.vue`, and `../zunera-frontend/src/views/transactions/TransactionsListView.vue`
 - [X] T029 [P] [US2] Implement paginated occurrence transport/state in `../zunera-frontend/src/services/recurringTransactionService.js` and `../zunera-frontend/src/stores/recurring-transactions/recurringTransactionStore.js`; implement recurrence detail drawer that consumes this state, labels removed occurrences without color-only meaning, and navigates to ordinary transaction details in `../zunera-frontend/src/components/recurring-transactions/RecurringTransactionDetailDrawer.vue`
 - [X] T030 [P] [US2] Add source-label/detail, removed-occurrence label, and pending/no-balance frontend unit tests in `../zunera-frontend/src/{components,utils}/**/__tests__/`
-- [ ] T031 [US2] Extend `../zunera-frontend/e2e/recurring-transactions.spec.js` with due, catch-up, source-origin, and pending-confirmation journey
+- [X] T031 [US2] Extend `../zunera-frontend/e2e/recurring-transactions.spec.js` with due, catch-up, source-origin, and pending-confirmation journey
 
 **Checkpoint**: US2 works independently: recurrence and ordinary transaction
 history remain one explainable system with no duplicate or automatic balance effect.
@@ -130,7 +130,7 @@ resume does not backfill; archive pauses; end is terminal and preserved history.
 - [X] T039 [P] [US3] Implement lifecycle confirmation dialog and row actions with archived-association repair explanation in `../zunera-frontend/src/components/recurring-transactions/{RecurringTransactionLifecycleDialog,RecurringTransactionRowActions}.vue`
 - [X] T040 [US3] Wire edit/detail/lifecycle actions and active/paused/ended feedback into `../zunera-frontend/src/views/recurring-transactions/RecurringTransactionsListView.vue`
 - [X] T041 [P] [US3] Add lifecycle store/component unit tests in `../zunera-frontend/src/{stores,components}/recurring-transactions/__tests__/`
-- [ ] T042 [US3] Extend `../zunera-frontend/e2e/recurring-transactions.spec.js` with edit, pause, resume, archive repair, and end journeys
+- [X] T042 [US3] Extend `../zunera-frontend/e2e/recurring-transactions.spec.js` with edit, pause, resume, archive repair, and end journeys
 
 **Checkpoint**: US3 works independently: future rule changes and lifecycle
 actions preserve historical occurrence snapshots and never backfill paused dates.
@@ -155,7 +155,7 @@ unchanged, and clearly see difference between one occurrence versus rule edit.
 
 - [X] T046 [P] [US4] Add explicit occurrence-versus-rule editing guidance and source-aware detail actions in `../zunera-frontend/src/components/{transactions,recurring-transactions}/`
 - [X] T047 [P] [US4] Add source-aware transaction detail/action unit tests in `../zunera-frontend/src/components/transactions/__tests__/TransactionDetailDrawer.spec.js`
-- [ ] T048 [US4] Extend `../zunera-frontend/e2e/recurring-transactions.spec.js` with one-occurrence correction regression journey
+- [X] T048 [US4] Extend `../zunera-frontend/e2e/recurring-transactions.spec.js` with one-occurrence correction regression journey
 
 **Checkpoint**: US4 works independently: exceptional occurrence correction does
 not mutate recurrence rule or later transactions.
@@ -179,8 +179,8 @@ state and clear criteria work across active, paused, and ended records.
 ### Frontend — after T051
 
 - [X] T052 [US5] Add route-query persistence, combined criteria labels, pagination/load-more, loading/error/no-match states, and clear action in `../zunera-frontend/src/views/recurring-transactions/RecurringTransactionsListView.vue` and `../zunera-frontend/src/stores/recurring-transactions/recurringTransactionStore.js`
-- [ ] T053 [P] [US5] Add filter/list/store empty-state and responsive-column unit tests in `../zunera-frontend/src/{components,stores,views}/recurring-transactions/__tests__/`
-- [ ] T054 [US5] Extend `../zunera-frontend/e2e/recurring-transactions.spec.js` with combined filters, no-match, active criteria, and next-date discovery journey
+- [X] T053 [P] [US5] Add filter/list/store empty-state and responsive-column unit tests in `../zunera-frontend/src/{components,stores,views}/recurring-transactions/__tests__/`
+- [X] T054 [US5] Extend `../zunera-frontend/e2e/recurring-transactions.spec.js` with combined filters, no-match, active criteria, and next-date discovery journey
 
 **Checkpoint**: US5 works independently: user rapidly locates and interprets
 matching recurrence rules without cross-user disclosure.
@@ -193,11 +193,11 @@ matching recurrence rules without cross-user disclosure.
 feature verification after all stories.
 
 - [X] T055 [P] Add cross-user, idempotency-key reuse, invalid-state, and privacy-safe response regression coverage in `../zunera-backend/tests/Feature/RecurringTransactions/`
-- [ ] T056 [P] Add keyboard, focus return, 320px, 200% zoom, light/dark/system, and non-color source/state coverage in `../zunera-frontend/e2e/recurring-transactions.spec.js`
+- [X] T056 [P] Add keyboard, focus return, 320px, 200% zoom, light/dark/system, and non-color source/state coverage in `../zunera-frontend/e2e/recurring-transactions.spec.js`
 - [X] T057 Run backend migrations, full tests, route check, and Pint in `../zunera-backend/`
 - [X] T058 Run Redocly lint for `specs/006-recurring-transactions/contracts/recurring-transactions-api.yaml`, `specs/004-transaction-management/contracts/transactions-api.yaml`, and `specs/005-account-transfers/contracts/financial-history-api.yaml`
-- [ ] T059 Run frontend unit suite, production build, and isolated Playwright feature suite in `../zunera-frontend/`
-- [ ] T060 Update implementation evidence in `specs/006-recurring-transactions/quickstart.md`
+- [X] T059 Run frontend unit suite, production build, and isolated Playwright feature suite in `../zunera-frontend/`
+- [X] T060 Update implementation evidence in `specs/006-recurring-transactions/quickstart.md`
 
 ## Dependencies and Execution Order
 

@@ -79,14 +79,13 @@ Frontend (`../zunera-frontend`):
 
 | Check | Command | Result |
 |---|---|---|
-| Unit suite | `npm run test:unit -- --run` | 59 files, 184 tests passed |
+| Unit suite | `npm run test:unit -- --run` | 63 files, 198 tests passed |
 | Production build | `npm run build` | Built, recurrence chunk emitted |
+| Isolated feature journeys | `CI=1 npm run test:e2e -- e2e/recurring-transactions.spec.js --project=chromium --retries=0` | 11 passed |
 
-Outstanding before this feature is finished: transaction-detail and history
-source labels (T028/T030), lifecycle and empty-state component tests (T041/T053),
-occurrence-versus-rule guidance in transaction components (T046/T047), the
-Playwright journeys (T021/T031/T042/T048/T054/T056), and the isolated
-Playwright run in T059.
+Complete: recurrence source labels, lifecycle and filter/list/store coverage,
+occurrence-versus-rule guidance, keyboard/focus/theme/responsive checks, and all
+isolated Playwright journeys are verified.
 
 ## Manual acceptance smoke test
 
