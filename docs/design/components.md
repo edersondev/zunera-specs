@@ -80,6 +80,11 @@ stable name. Validate server-side error responses through feature service and ma
 them to `ElForm` fields. Submit control enters loading state once; prevent repeat
 submission. On success, show durable updated content plus optional toast.
 
+When a dialog containing a form closes, it MUST clear client-side validation and
+server field errors before the next open. Reopening the dialog starts with a
+clean validation state; previously entered values may be restored only when an
+explicit edit flow requires them.
+
 Do not use placeholder text as label. Do not disable submit merely to hide an
 error; explain incomplete or unavailable actions.
 
