@@ -36,6 +36,11 @@ income, expense, or transfer. Transfer entry includes source/destination account
 summaries, no category, and non-color label such as Transfer: Source →
 Destination. It does not contribute to income/expense aggregates.
 
+Income and expense entries also expose optional `recurrence_source` (originating
+recurring rule identifier plus scheduled date), added by the Recurring
+Transactions feature. Transfers never carry a recurrence source, and this
+additive nullable field does not change existing history behavior.
+
 The projection is served by `GET /financial-history` and also publishes
 `meta.totals` (`income_centavos`, `expense_centavos`,
 `financial_result_centavos`) computed from effective, non-removed income and
