@@ -35,6 +35,14 @@ script and kebab-case when bound in templates.
 | No data | `el-empty` | Explain state and offer next action |
 | Paginated list | `el-pagination` | Preserve filter, sort, and route state |
 
+## Button Conventions
+
+Every user-visible **Cancel** action in a dialog or drawer MUST use the same
+treatment: a close icon, the `danger` button variant, and a visible text label.
+When the related save, confirmation, or lifecycle operation is in progress, the
+Cancel button MUST be disabled. This convention also applies when Cancel only
+closes a detail drawer and does not start a mutation.
+
 ## Composition Components
 
 | Component | Responsibility | Contract |
