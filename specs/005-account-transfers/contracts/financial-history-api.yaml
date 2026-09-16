@@ -12,7 +12,7 @@ servers:
 paths:
   /financial-history:
     get:
-      summary: List owned income, expense, and transfer history entries
+      summary: List owned income, expense, transfer, and optionally recurring history entries
       operationId: listFinancialHistory
       security: [{ cookieAuth: [] }]
       parameters:
@@ -20,6 +20,12 @@ paths:
           in: query
           schema: { type: string, enum: [all, income, expense, transfer], default: all }
           description: Transfer is a separate movement kind, never income/expense.
+        - name: include
+          in: query
+          schema: { type: string, enum: [recurring] }
+          description: >-
+            When include=recurring, mixes owned recurring rules into the same
+            global date-descending pagination. Without it, response remains unchanged.
         - name: type
           in: query
           schema: { type: string, enum: [income, expense] }
@@ -135,16 +141,56 @@ components:
       properties:
         id: { type: integer, minimum: 1, description: Owning recurring transaction identifier. }
         scheduled_date: { type: string, format: date, description: Rule date that generated this transaction. }
+    RecurringHistoryEntry:
+      type: object
+      required:
+        - movement_kind
+        - id
+        - type
+        - amount_centavos
+        - currency_code
+        - description
+        - frequency
+        - state
+        - financial_account
+        - category
+        - next_expected_occurrence
+      properties:
+        movement_kind: { type: string, const: recurring }
+        id: { type: integer, minimum: 1 }
+        type: { type: string, enum: [income, expense] }
+        amount_centavos: { type: integer, minimum: 1 }
+        currency_code: { type: string, const: BRL }
+        description: { type: string }
+        notes: { type: [string, 'null'] }
+        frequency: { type: string, enum: [weekly, monthly, yearly] }
+        state: { type: string, enum: [active, paused, ended] }
+        movement_date:
+          type: [string, 'null']
+          format: date
+          description: Next expected occurrence; null for paused or ended rules.
+        next_expected_occurrence: { type: [string, 'null'], format: date }
+        financial_account: { $ref: '#/components/schemas/AccountSummary' }
+        category:
+          type: object
+          required: [id, name, classification, status]
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            classification: { type: string, enum: [income, expense] }
+            status: { type: string, enum: [active, archived] }
     FinancialHistoryEntry:
       oneOf:
         - { $ref: '#/components/schemas/TransactionHistoryEntry' }
         - { $ref: '#/components/schemas/TransferHistoryEntry' }
+        - { $ref: '#/components/schemas/RecurringHistoryEntry' }
       discriminator:
         propertyName: movement_kind
         mapping:
           income: '#/components/schemas/TransactionHistoryEntry'
           expense: '#/components/schemas/TransactionHistoryEntry'
           transfer: '#/components/schemas/TransferHistoryEntry'
+          recurring: '#/components/schemas/RecurringHistoryEntry'
     FinancialHistoryCollectionResponse:
       type: object
       required: [data, meta]
