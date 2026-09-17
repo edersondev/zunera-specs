@@ -1,0 +1,262 @@
+openapi: 3.1.0
+info:
+  title: Zunera Recurring Transactions API
+  version: 1.0.0
+  license: { name: Proprietary, identifier: LicenseRef-Proprietary }
+servers:
+  - url: /api/v1
+paths:
+  /recurring-transactions:
+    get:
+      summary: List signed-in user's recurring transactions
+      operationId: listRecurringTransactions
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Type' }
+        - { $ref: '#/components/parameters/AccountId' }
+        - { $ref: '#/components/parameters/CategoryId' }
+        - { $ref: '#/components/parameters/Frequency' }
+        - { $ref: '#/components/parameters/State' }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+      responses:
+        '200':
+          description: Paginated owned recurrence collection ordered by next expected occurrence ascending, then rules without one, with matching count.
+          content: { application/json: { schema: { $ref: '#/components/schemas/RecurringTransactionCollection' } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    post:
+      summary: Create owned recurring income or expense rule
+      operationId: createRecurringTransaction
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CreateRecurringTransaction' } } }
+      responses:
+        '201': { description: Rule created, content: { application/json: { schema: { $ref: '#/components/schemas/RecurringTransactionResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /recurring-transactions/{recurring_transaction_id}:
+    get:
+      summary: Read owned recurring transaction
+      operationId: getRecurringTransaction
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/RecurringTransactionId' }]
+      responses:
+        '200': { description: Owned rule detail, content: { application/json: { schema: { $ref: '#/components/schemas/RecurringTransactionResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+    patch:
+      summary: Update owned active rule, or repair archived association while paused
+      operationId: updateRecurringTransaction
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/RecurringTransactionId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/UpdateRecurringTransaction' } } }
+      responses:
+        '200': { description: Future ungenerated dates updated, content: { application/json: { schema: { $ref: '#/components/schemas/RecurringTransactionResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /recurring-transactions/{recurring_transaction_id}/occurrences:
+    get:
+      summary: List generated ordinary transaction occurrences for an owned rule
+      operationId: listRecurringTransactionOccurrences
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/RecurringTransactionId' }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+      responses:
+        '200':
+          description: Paginated generated transaction occurrences, newest scheduled date first, including occurrences removed under ordinary transaction rules.
+          content: { application/json: { schema: { $ref: '#/components/schemas/GeneratedOccurrenceCollection' } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /recurring-transactions/{recurring_transaction_id}/pause:
+    post:
+      summary: Pause owned active rule
+      operationId: pauseRecurringTransaction
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/RecurringTransactionId' }, { $ref: '#/components/parameters/IdempotencyKey' }]
+      responses:
+        '200': { description: Rule paused, content: { application/json: { schema: { $ref: '#/components/schemas/RecurringTransactionResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /recurring-transactions/{recurring_transaction_id}/resume:
+    post:
+      summary: Resume owned paused rule with eligible active associations
+      operationId: resumeRecurringTransaction
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/RecurringTransactionId' }, { $ref: '#/components/parameters/IdempotencyKey' }]
+      responses:
+        '200': { description: Rule resumed for future schedule dates, content: { application/json: { schema: { $ref: '#/components/schemas/RecurringTransactionResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /recurring-transactions/{recurring_transaction_id}/end:
+    post:
+      summary: Permanently end owned active or paused rule
+      operationId: endRecurringTransaction
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/RecurringTransactionId' }, { $ref: '#/components/parameters/IdempotencyKey' }]
+      responses:
+        '200': { description: Rule ended; history unchanged, content: { application/json: { schema: { $ref: '#/components/schemas/RecurringTransactionResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+components:
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: zunera_session }
+  parameters:
+    RecurringTransactionId: { name: recurring_transaction_id, in: path, required: true, schema: { type: integer, minimum: 1 } }
+    Type: { name: type, in: query, schema: { $ref: '#/components/schemas/TransactionType' } }
+    AccountId: { name: financial_account_id, in: query, schema: { type: integer, minimum: 1 }, description: Owned active or archived account; foreign/missing is privacy-safe 404. }
+    CategoryId: { name: category_id, in: query, schema: { type: integer, minimum: 1 }, description: Available active or archived category; unavailable/missing is privacy-safe 404. }
+    Frequency: { name: frequency, in: query, schema: { $ref: '#/components/schemas/Frequency' } }
+    State: { name: state, in: query, schema: { $ref: '#/components/schemas/State' } }
+    Page: { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+    PerPage: { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 50 } }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, minLength: 1, maxLength: 255 }
+      description: Exact retry replays prior result; changed reuse returns 409 idempotency_key_reused.
+  schemas:
+    TransactionType: { type: string, enum: [income, expense] }
+    Frequency: { type: string, enum: [weekly, monthly, yearly] }
+    State: { type: string, enum: [active, paused, ended] }
+    DateInput:
+      type: string
+      description: Calendar date accepted as ISO `YYYY-MM-DD` or Brazilian `DD/MM/YYYY`; the server validates calendar correctness and the 1900-01-01 through 2100-12-31 range.
+      oneOf: [{ pattern: '^\d{4}-\d{2}-\d{2}$' }, { pattern: '^\d{2}/\d{2}/\d{4}$' }]
+    AccountSummary:
+      type: object
+      required: [id, name, status]
+      properties: { id: { type: integer }, name: { type: string }, status: { type: string, enum: [active, archived] } }
+    CategorySummary:
+      type: object
+      required: [id, name, classification, status]
+      properties: { id: { type: integer }, name: { type: string }, classification: { $ref: '#/components/schemas/TransactionType' }, status: { type: string, enum: [active, archived] } }
+    GeneratedOccurrenceSummary:
+      type: object
+      required: [id, scheduled_date, status]
+      properties:
+        id: { type: integer, minimum: 1, description: Existing ordinary transaction identifier. }
+        scheduled_date: { type: string, format: date }
+        status: { type: string, enum: [pending, effective] }
+        removed_at: { type: [string, 'null'], format: date-time, description: Set when the owner removed the occurrence and cleared when restored; a removed occurrence keeps no balance effect. }
+    RecurringTransaction:
+      type: object
+      required: [id, type, amount_centavos, currency_code, description, frequency, start_date, state, financial_account, category, next_expected_occurrence, created_at, updated_at]
+      properties:
+        id: { type: integer }
+        type: { $ref: '#/components/schemas/TransactionType' }
+        amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
+        currency_code: { type: string, enum: [BRL] }
+        description: { type: string, minLength: 1, maxLength: 200 }
+        notes: { type: [string, 'null'], maxLength: 1000 }
+        frequency: { $ref: '#/components/schemas/Frequency' }
+        start_date: { type: string, format: date }
+        end_date: { type: [string, 'null'], format: date }
+        state: { $ref: '#/components/schemas/State' }
+        paused_reason: { type: [string, 'null'], enum: [user, association_archived, null] }
+        financial_account: { $ref: '#/components/schemas/AccountSummary' }
+        category: { $ref: '#/components/schemas/CategorySummary' }
+        next_expected_occurrence:
+          type: [string, 'null']
+          format: date
+          description: Present only for an active rule with a future eligible date under its start, end, and calendar rules; paused and ended rules return null.
+        generated_occurrence_count: { type: integer, minimum: 0 }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    CreateRecurringTransaction:
+      type: object
+      additionalProperties: false
+      required: [financial_account_id, category_id, type, amount_centavos, description, frequency, start_date]
+      properties:
+        financial_account_id: { type: integer, minimum: 1 }
+        category_id: { type: integer, minimum: 1 }
+        type: { $ref: '#/components/schemas/TransactionType' }
+        amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
+        description: { type: string, minLength: 1, maxLength: 200 }
+        notes: { type: [string, 'null'], maxLength: 1000 }
+        frequency: { $ref: '#/components/schemas/Frequency' }
+        start_date: { $ref: '#/components/schemas/DateInput' }
+        end_date: { anyOf: [{ $ref: '#/components/schemas/DateInput' }, { type: 'null' }] }
+    UpdateRecurringTransaction:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        financial_account_id: { type: integer, minimum: 1 }
+        category_id: { type: integer, minimum: 1 }
+        type: { $ref: '#/components/schemas/TransactionType' }
+        amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
+        description: { type: string, minLength: 1, maxLength: 200 }
+        notes: { type: [string, 'null'], maxLength: 1000 }
+        frequency: { $ref: '#/components/schemas/Frequency' }
+        start_date: { $ref: '#/components/schemas/DateInput' }
+        end_date: { anyOf: [{ $ref: '#/components/schemas/DateInput' }, { type: 'null' }] }
+    RecurringTransactionResponse: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/RecurringTransaction' } } }
+    RecurringTransactionCollection:
+      type: object
+      required: [data, meta, links]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/RecurringTransaction' } }
+        meta: { $ref: '#/components/schemas/PaginationMeta' }
+        links: { $ref: '#/components/schemas/PaginationLinks' }
+    GeneratedOccurrenceCollection:
+      type: object
+      required: [data, meta, links]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/GeneratedOccurrenceSummary' } }
+        meta: { $ref: '#/components/schemas/PaginationMeta' }
+        links: { $ref: '#/components/schemas/PaginationLinks' }
+    PaginationMeta:
+      type: object
+      required: [current_page, last_page, per_page, total]
+      properties:
+        current_page: { type: integer, minimum: 1 }
+        last_page: { type: integer, minimum: 1 }
+        per_page: { type: integer, minimum: 1, maximum: 50 }
+        total: { type: integer, minimum: 0 }
+    PaginationLinks:
+      type: object
+      properties:
+        first: { type: [string, 'null'] }
+        last: { type: [string, 'null'] }
+        prev: { type: [string, 'null'] }
+        next: { type: [string, 'null'] }
+    Error: { type: object, required: [message], properties: { message: { type: string }, code: { type: string } } }
+    ValidationError: { type: object, required: [message, errors], properties: { message: { type: string }, errors: { type: object, additionalProperties: { type: array, items: { type: string } } } } }
+    Conflict:
+      type: object
+      required: [message, code]
+      properties:
+        message: { type: string }
+        code:
+          type: string
+          enum: [idempotency_key_reused, recurrence_not_active, recurrence_not_paused, recurrence_ended, recurrence_association_unavailable]
+          description: >-
+            `idempotency_key_reused` when a key replays a different request.
+            `recurrence_not_active` when the action requires an active rule.
+            `recurrence_not_paused` when the action requires a paused rule.
+            `recurrence_ended` when the rule already ended.
+            `recurrence_association_unavailable` when resume or repair runs
+            without an eligible active association or future eligible date.
+  responses:
+    Error: { description: Authentication or privacy-safe not-found error, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    ValidationError: { description: "Invalid request payload, association, or schedule input.", content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } } }
+    Conflict: { description: "Lifecycle or idempotency conflict: action invalid for the rule's current state, association unavailable, or Idempotency-Key reuse.", content: { application/json: { schema: { $ref: '#/components/schemas/Conflict' } } } }

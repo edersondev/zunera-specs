@@ -35,6 +35,14 @@ script and kebab-case when bound in templates.
 | No data | `el-empty` | Explain state and offer next action |
 | Paginated list | `el-pagination` | Preserve filter, sort, and route state |
 
+## Button Conventions
+
+Every user-visible **Cancel** action in a dialog or drawer MUST use the same
+treatment: a close icon, the `danger` button variant, and a visible text label.
+When the related save, confirmation, or lifecycle operation is in progress, the
+Cancel button MUST be disabled. This convention also applies when Cancel only
+closes a detail drawer and does not start a mutation.
+
 ## Composition Components
 
 | Component | Responsibility | Contract |
@@ -71,6 +79,13 @@ Each field has label, clear required or optional meaning, validation message, an
 stable name. Validate server-side error responses through feature service and map
 them to `ElForm` fields. Submit control enters loading state once; prevent repeat
 submission. On success, show durable updated content plus optional toast.
+
+When a dialog containing a form closes, it MUST clear client-side validation
+from the Element Plus `<ElDialog @closed>` event, after its closing transition
+finishes. Its parent view MUST clear server field errors when it changes the
+dialog visibility to closed. Reopening the dialog starts with a clean validation
+state; previously entered values may be restored only when an explicit edit flow
+requires them.
 
 Do not use placeholder text as label. Do not disable submit merely to hide an
 error; explain incomplete or unavailable actions.
