@@ -37,15 +37,17 @@ existing lifecycle allows it, but reporting uses stored transaction date.
 
 ## Upcoming activity
 
-**Decision**: In next 30 calendar days show active non-removed future pending
-transactions and every eligible future date of active recurrence. Suppress a rule
+**Decision**: In the inclusive next 30 calendar days (current business date through
+29 days later) show active non-removed current/future pending transactions and
+every eligible current/future date of active recurrence. Suppress a rule
 projection when generated pending transaction already represents same rule/date.
 
 **Rationale**: Rule itself never moves money; recurrence list supplies only one
 next date although weekly rules can have several within horizon.
 
 **Alternatives considered**: Rule-only/one-next-date list; treating planned as
-realized; putting past/current pending into expected instead of Recent Activity.
+realized; excluding current pending from the upcoming horizon despite its
+inclusive boundary.
 
 ## Historical integrity and accessible charts
 

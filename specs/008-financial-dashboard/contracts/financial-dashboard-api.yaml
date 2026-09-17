@@ -54,7 +54,7 @@ paths:
         '422': { $ref: '#/components/responses/Error' }
   /financial-dashboard/upcoming-activity:
     get:
-      summary: Read owned future expected activity in fixed next 30-calendar-day horizon
+      summary: Read owned expected activity from current business date through the following 29 days
       operationId: getFinancialDashboardUpcomingActivity
       security: [{ cookieAuth: [] }]
       responses:

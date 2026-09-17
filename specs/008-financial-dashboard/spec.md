@@ -18,8 +18,8 @@
   information; they never appear in current account overview.
 - Q: What upcoming activity horizon should initial dashboard use? → A: Next 30
   calendar days.
-- Q: Which existing data supplies upcoming activity? → A: Valid future pending
-  transactions and eligible future recurring occurrences.
+- Q: Which existing data supplies upcoming activity? → A: Valid pending
+  transactions and eligible recurring occurrences dated today or later.
 - Q: Should income distribution by category appear initially? → A: No; initial
   dashboard includes income total and evolution, but no income distribution.
 - Q: How should financial-evolution intervals adapt to reporting-period length?
@@ -137,13 +137,13 @@ expenses without mistaking them for money already received or spent.
 **Why this priority**: Expected activity is useful context but must never make
 the current position or realized results misleading.
 
-**Independent Test**: A user with valid future pending activity or eligible
+**Independent Test**: A user with valid current or future pending activity or eligible
 recurring activity can see its date, type, amount, and context clearly marked
 expected; a user without it sees an explanatory empty state.
 
 **Acceptance Scenarios**:
 
-1. **Given** a user has valid future pending transactions or eligible future
+1. **Given** a user has valid current or future pending transactions or eligible current or future
    recurring activity within the upcoming horizon, **When** they view the
    dashboard, **Then** it is marked expected and is excluded from current
    balance and all realized totals.
@@ -254,8 +254,9 @@ expected; a user without it sees an explanatory empty state.
   realized expenses, realized result, expense distribution, or realized evolution.
 - **FR-016**: Dashboard MUST show upcoming activity for next 30 calendar days,
   inclusive of current business date, and label that horizon clearly.
-- **FR-017**: Dashboard MUST surface valid owned future pending transactions and
-  eligible future recurring occurrences when their established source rules make
+- **FR-017**: Dashboard MUST surface valid owned pending transactions and
+  eligible recurring occurrences dated from the current business date onward when
+  their established source rules make
   them valid. A recurrence rule alone must not be represented as realized
   activity.
 - **FR-018**: Dashboard MUST provide section-specific loading, empty, and error

@@ -17,8 +17,10 @@
    category labels remain understandable.
 4. Verify custom/current/previous periods and daily/weekly/monthly buckets,
    including marked partial boundary interval.
-5. Verify future pending transaction plus all eligible recurrence dates within 30
-   days; generated occurrence appears once; past/current pending is Recent only.
+5. Verify current/future pending transactions plus eligible recurrence dates in
+   the inclusive 30-day horizon (today through 29 days later); generated
+   occurrence appears once. Current pending remains labelled Pending in Recent
+   Activity and Expected in the upcoming projection.
 6. Validate 10,000 owner movements within 2 seconds on initial/period reads.
 
 ## Frontend validation

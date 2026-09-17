@@ -138,8 +138,8 @@ after T044 and T045–T049.
 
 ## Phase 6: User Story 4 — Distinguish Expected Activity (Priority: P3)
 
-**Goal**: Show future pending transactions and eligible recurring dates in next
-30 days as Expected, with no realized or duplicate effect.
+**Goal**: Show current/future pending transactions and eligible recurring dates in
+the inclusive next 30 days as Expected, with no realized or duplicate effect.
 
 **Independent Test**: User sees dated expected movements; a generated pending
 occurrence appears once; expected values never enter current/realized sections.
