@@ -116,8 +116,8 @@ up to ten newest mixed records, then reaches Financial History for older activit
 
 ### Backend — complete first
 
-- [ ] T039 [P] [US3] Write active-only account allocation, zero-total, and archived-account cases in `../zunera-backend/tests/Feature/FinancialDashboard/DashboardAccountsTest.php`
-- [ ] T040 [P] [US3] Write up-to-ten newest (fewer than ten, exactly ten, more than ten) income/expense/transfer/pending/recurrence, no-limit-parameter, and removed-record exclusion cases in `../zunera-backend/tests/Feature/FinancialDashboard/DashboardRecentActivityTest.php`
+- [ ] T039 [P] [US3] Write active-only account allocation, signed/over-100 allocation, zero-total unavailable-allocation, and archived-account cases in `../zunera-backend/tests/Feature/FinancialDashboard/DashboardAccountsTest.php`
+- [ ] T040 [P] [US3] Write up-to-ten newest (fewer than ten, exactly ten, more than ten) income/expense/transfer/pending/recurrence, discriminated category/account shapes, no-limit-parameter, and removed-record exclusion cases in `../zunera-backend/tests/Feature/FinancialDashboard/DashboardRecentActivityTest.php`
 - [ ] T041 [P] [US3] Implement active account overview/allocation projection in `../zunera-backend/app/Services/FinancialDashboard/DashboardAccountsService.php`
 - [ ] T042 [P] [US3] Implement up-to-ten newest-first mixed activity projection without caller-controlled limit in `../zunera-backend/app/Services/FinancialDashboard/DashboardRecentActivityService.php`
 - [ ] T043 [US3] Add accounts/recent routes, controller actions, and normalized resources in `../zunera-backend/app/Http/Controllers/Api/V1/FinancialDashboardController.php` and `../zunera-backend/app/Http/Resources/FinancialDashboard/`
@@ -126,8 +126,8 @@ up to ten newest mixed records, then reaches Financial History for older activit
 ### Frontend — after T044
 
 - [ ] T045 [P] [US3] Build active account balance/allocation card and no-account CTA in `../zunera-frontend/src/components/dashboard/AccountsOverviewCard.vue`
-- [ ] T046 [P] [US3] Build mixed activity card with transfer/Pending/recurrence labels and full-history link in `../zunera-frontend/src/components/dashboard/RecentActivityCard.vue`
-- [ ] T047 [P] [US3] Add accounts/activity empty, label, limit, and navigation tests in `../zunera-frontend/src/components/dashboard/__tests__/AccountsOverviewCard.spec.js` and `../zunera-frontend/src/components/dashboard/__tests__/RecentActivityCard.spec.js`
+- [ ] T046 [P] [US3] Build active-account allocation card that handles unavailable/signed shares, plus mixed activity card with transfer/Pending/recurrence labels and full-history link in `../zunera-frontend/src/components/dashboard/AccountsOverviewCard.vue` and `../zunera-frontend/src/components/dashboard/RecentActivityCard.vue`
+- [ ] T047 [P] [US3] Add accounts/activity empty, unavailable/signed allocation, discriminated category/account shape, label, limit, and navigation tests in `../zunera-frontend/src/components/dashboard/__tests__/AccountsOverviewCard.spec.js` and `../zunera-frontend/src/components/dashboard/__tests__/RecentActivityCard.spec.js`
 - [ ] T048 [US3] Wire accounts/recent slices and retry states into `../zunera-frontend/src/views/dashboard/FinancialDashboardView.vue`
 - [ ] T049 [US3] Add active-account, archived exclusion, ten-item, transfer, pending, recurrence-source, and history-link E2E cases in `../zunera-frontend/e2e/financial-dashboard.spec.js`
 

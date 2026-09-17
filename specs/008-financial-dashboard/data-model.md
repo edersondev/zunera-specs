@@ -36,10 +36,10 @@ newly recorded future-dated transaction stays pending under Transactions rules.
 | Projection | Fields / relationship |
 |---|---|
 | `DashboardSummary` | current active total, period income, expense, result, currency, selected period |
-| `AccountOverviewItem` | active account identity/type/status, balance, allocation share |
+| `AccountOverviewItem` | active account identity/type/status, balance, and signed allocation share: `account balance ÷ combined active balance × 100` when the combined total is non-zero; otherwise allocation is unavailable |
 | `ExpenseDistributionItem` | category snapshot/id/status, total, share, descending rank |
 | `EvolutionInterval` | inclusive start/end, partial marker, label, income/expense/result |
-| `RecentActivityItem` | up to ten newest movement kind/id/status/date/amount/description/account(s)/category/recurrence source items; full history remains linked |
+| `RecentActivityItem` | up to ten newest movement kind/id/status/date/amount/description/transaction account or transfer source and destination/category/recurrence source items; full history remains linked |
 | `UpcomingActivityItem` | source kind, expected date, income/expense type, amount, account, category, description |
 
 ## State and correction effects

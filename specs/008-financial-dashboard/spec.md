@@ -234,7 +234,11 @@ expected; a user without it sees an explanatory empty state.
   with account identity, type, current balance, and balance allocation. It MUST
   exclude archived accounts by default while retaining valid archived-account
   activity in historical period sections. It MUST NOT offer archived accounts in
-  current account overview.
+  current account overview. An account allocation percentage is the signed
+  account balance divided by the combined active balance when that total is
+  non-zero; it MAY be negative or greater than 100%. When the combined active
+  balance is zero, allocation percentage MUST be unavailable rather than an
+  invented value.
 - **FR-013**: Dashboard MUST provide recent owned financial activity, including
   income, expenses, transfers, and past/current pending transactions, with
   description, amount, movement type, date, account, and applicable category.

@@ -138,7 +138,9 @@ components:
                 properties:
                   account: { $ref: '#/components/schemas/Account' }
                   current_balance: { $ref: '#/components/schemas/Money' }
-                  allocation_percent: { type: number, minimum: 0, maximum: 100 }
+                  allocation_percent:
+                    type: [number, 'null']
+                    description: Signed account balance divided by combined active balance times 100. May be negative or exceed 100 when active accounts have opposing balances; null when combined active balance is zero.
     ExpenseDistributionResponse:
       type: object
       required: [data]
@@ -192,18 +194,40 @@ components:
           description: Newest eligible activity first; fewer items when the user has fewer eligible records.
           items: { $ref: '#/components/schemas/ActivityItem' }
     ActivityItem:
+      oneOf:
+        - $ref: '#/components/schemas/TransactionActivityItem'
+        - $ref: '#/components/schemas/TransferActivityItem'
+    TransactionActivityItem:
       type: object
-      required: [movement_kind, id, status, movement_date, amount, accounts]
+      required: [movement_kind, id, status, movement_date, amount, description, account, category, recurrence_source]
       properties:
-        movement_kind: { type: string, enum: [income, expense, transfer] }
+        movement_kind: { type: string, enum: [income, expense] }
+        id: { type: integer, minimum: 1 }
+        status: { type: string, enum: [pending, effective] }
+        movement_date: { type: string, format: date }
+        amount: { $ref: '#/components/schemas/Money' }
+        description: { type: string }
+        account: { $ref: '#/components/schemas/Account' }
+        category: { $ref: '#/components/schemas/Category' }
+        recurrence_source:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            scheduled_date: { type: string, format: date }
+    TransferActivityItem:
+      type: object
+      required: [movement_kind, id, status, movement_date, amount, description, source_account, destination_account, category, recurrence_source]
+      properties:
+        movement_kind: { type: string, const: transfer }
         id: { type: integer, minimum: 1 }
         status: { type: string, enum: [pending, effective] }
         movement_date: { type: string, format: date }
         amount: { $ref: '#/components/schemas/Money' }
         description: { type: [string, 'null'] }
-        accounts: { type: array, minItems: 1, maxItems: 2, items: { $ref: '#/components/schemas/Account' } }
-        category: { anyOf: [{ $ref: '#/components/schemas/Category' }, { type: 'null' }] }
-        recurrence_source: { type: [object, 'null'], properties: { id: { type: integer }, scheduled_date: { type: string, format: date } } }
+        source_account: { $ref: '#/components/schemas/Account' }
+        destination_account: { $ref: '#/components/schemas/Account' }
+        category: { type: 'null', description: Transfers never have category. }
+        recurrence_source: { type: 'null', description: Transfers never originate from recurrence. }
     UpcomingActivityResponse:
       type: object
       required: [data, meta]
