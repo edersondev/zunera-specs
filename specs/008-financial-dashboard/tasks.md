@@ -260,10 +260,9 @@ Implementation landed on branch `008-financial-dashboard` in `zunera-specs`,
 - Host-shell note: the local PHP CLI has no `pdo_sqlite`/`pdo_mysql`, so the
   backend suites must run through the container (as the quickstart docker
   setup already provides).
-- Full-suite Playwright run in CI mode reports 18 passed / 23 failed on
-  chromium: every dashboard test passes, and all 23 failures are pre-existing
-  specs unrelated to this feature. They fall into two groups — specs asserting
-  English copy while `src/i18n/locale.js` defaults to `pt-BR`, and older specs
-  whose selectors/copy no longer match the current screens. No failing spec
-  touches the dashboard route, its components, or any identifier renamed here
-  (the i18n change adds 26 lines and removes none), so they were left untouched.
+- The e2e suite was failing before this feature for two unrelated reasons: specs
+  that assert English copy while `src/i18n/locale.js` defaults to `pt-BR`, and
+  older specs whose selectors/copy no longer match the current screens. Both
+  were fixed in a follow-up change that pins the asserted locale per spec via
+  `e2e/support/locale.js` and refreshes the stale interactions. The complete
+  suite now passes 123/123 across chromium, firefox, and webkit.
