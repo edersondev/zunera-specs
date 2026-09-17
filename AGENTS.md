@@ -1,6 +1,6 @@
 <!-- SPECKIT START -->
 For additional context about technologies, project structure, shell commands,
-and implementation order, read [specs/006-recurring-transactions/plan.md](specs/006-recurring-transactions/plan.md).
+and implementation order, read [specs/008-financial-dashboard/plan.md](specs/008-financial-dashboard/plan.md).
 <!-- SPECKIT END -->
 
 ## Zunera Workspace Layout
