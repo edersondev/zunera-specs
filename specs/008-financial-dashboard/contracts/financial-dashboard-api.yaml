@@ -1,0 +1,265 @@
+openapi: 3.1.0
+info:
+  title: Zunera Financial Dashboard API
+  version: 1.0.0
+  license: { name: Proprietary, identifier: LicenseRef-Proprietary }
+servers: [{ url: /api/v1 }]
+paths:
+  /financial-dashboard/summary:
+    get:
+      summary: Read owned current balance and realized period summary
+      operationId: getFinancialDashboardSummary
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/PeriodPreset' }, { $ref: '#/components/parameters/From' }, { $ref: '#/components/parameters/To' }]
+      responses:
+        '200': { description: Derived summary, content: { application/json: { schema: { $ref: '#/components/schemas/SummaryResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /financial-dashboard/accounts:
+    get:
+      summary: Read owned active account balance allocation
+      operationId: getFinancialDashboardAccounts
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: Active account overview, content: { application/json: { schema: { $ref: '#/components/schemas/AccountsResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+  /financial-dashboard/expense-distribution:
+    get:
+      summary: Read owned realized expense distribution for reporting period
+      operationId: getFinancialDashboardExpenseDistribution
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/PeriodPreset' }, { $ref: '#/components/parameters/From' }, { $ref: '#/components/parameters/To' }]
+      responses:
+        '200': { description: Derived category distribution, content: { application/json: { schema: { $ref: '#/components/schemas/ExpenseDistributionResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /financial-dashboard/evolution:
+    get:
+      summary: Read owned realized financial evolution for reporting period
+      operationId: getFinancialDashboardEvolution
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/PeriodPreset' }, { $ref: '#/components/parameters/From' }, { $ref: '#/components/parameters/To' }]
+      responses:
+        '200': { description: Derived interval evolution, content: { application/json: { schema: { $ref: '#/components/schemas/EvolutionResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /financial-dashboard/recent-activity:
+    get:
+      summary: Read latest owned income expense transfer and past/current pending activity
+      operationId: getFinancialDashboardRecentActivity
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: "Up to ten newest eligible activity items, newest first.", content: { application/json: { schema: { $ref: '#/components/schemas/RecentActivityResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /financial-dashboard/upcoming-activity:
+    get:
+      summary: Read owned expected activity from current business date through the following 29 days
+      operationId: getFinancialDashboardUpcomingActivity
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: "Dated expected movements; no realized effect.", content: { application/json: { schema: { $ref: '#/components/schemas/UpcomingActivityResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+components:
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: zunera_session }
+  parameters:
+    PeriodPreset:
+      name: preset
+      in: query
+      schema: { type: string, enum: [current_month, previous_month, custom], default: current_month }
+    From:
+      name: from
+      in: query
+      schema: { type: string, format: date }
+      description: Required with `to` when preset is custom; inclusive lower boundary.
+    To:
+      name: to
+      in: query
+      schema: { type: string, format: date }
+      description: Required with `from` when preset is custom; inclusive upper boundary.
+  schemas:
+    Period:
+      type: object
+      required: [preset, from, to]
+      properties:
+        preset: { type: string, enum: [current_month, previous_month, custom] }
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+    Money:
+      type: object
+      required: [amount_centavos, currency_code]
+      properties:
+        amount_centavos: { type: integer }
+        currency_code: { type: string, const: BRL }
+    Account:
+      type: object
+      required: [id, name, type, status]
+      properties:
+        id: { type: integer, minimum: 1 }
+        name: { type: string }
+        type: { type: string }
+        status: { type: string, enum: [active, archived] }
+    Category:
+      type: object
+      required: [id, name, classification, status]
+      properties:
+        id: { type: integer, minimum: 1 }
+        name: { type: string }
+        classification: { type: string, enum: [income, expense] }
+        status: { type: string, enum: [active, archived] }
+    SummaryResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [period, current_total_balance, realized_income, realized_expenses, financial_result]
+          properties:
+            period: { $ref: '#/components/schemas/Period' }
+            current_total_balance: { $ref: '#/components/schemas/Money' }
+            realized_income: { $ref: '#/components/schemas/Money' }
+            realized_expenses: { $ref: '#/components/schemas/Money' }
+            financial_result: { $ref: '#/components/schemas/Money' }
+    AccountsResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [current_total_balance, accounts]
+          properties:
+            current_total_balance: { $ref: '#/components/schemas/Money' }
+            accounts:
+              type: array
+              items:
+                type: object
+                required: [account, current_balance, allocation_percent]
+                properties:
+                  account: { $ref: '#/components/schemas/Account' }
+                  current_balance: { $ref: '#/components/schemas/Money' }
+                  allocation_percent:
+                    type: [number, 'null']
+                    description: Signed account balance divided by combined active balance times 100. May be negative or exceed 100 when active accounts have opposing balances; null when combined active balance is zero.
+    ExpenseDistributionResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [period, total_expenses, categories]
+          properties:
+            period: { $ref: '#/components/schemas/Period' }
+            total_expenses: { $ref: '#/components/schemas/Money' }
+            categories:
+              type: array
+              items:
+                type: object
+                required: [category, total, share_percent, rank]
+                properties:
+                  category: { $ref: '#/components/schemas/Category' }
+                  total: { $ref: '#/components/schemas/Money' }
+                  share_percent: { type: number, minimum: 0, maximum: 100 }
+                  rank: { type: integer, minimum: 1 }
+    EvolutionResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [period, interval, intervals]
+          properties:
+            period: { $ref: '#/components/schemas/Period' }
+            interval: { type: string, enum: [daily, weekly, monthly] }
+            intervals:
+              type: array
+              items:
+                type: object
+                required: [from, to, label, is_partial, income, expenses, result]
+                properties:
+                  from: { type: string, format: date }
+                  to: { type: string, format: date }
+                  label: { type: string }
+                  is_partial: { type: boolean }
+                  income: { $ref: '#/components/schemas/Money' }
+                  expenses: { $ref: '#/components/schemas/Money' }
+                  result: { $ref: '#/components/schemas/Money' }
+    RecentActivityResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          maxItems: 10
+          description: Newest eligible activity first; fewer items when the user has fewer eligible records.
+          items: { $ref: '#/components/schemas/ActivityItem' }
+    ActivityItem:
+      oneOf:
+        - $ref: '#/components/schemas/TransactionActivityItem'
+        - $ref: '#/components/schemas/TransferActivityItem'
+    TransactionActivityItem:
+      type: object
+      required: [movement_kind, id, status, movement_date, amount, description, account, category, recurrence_source]
+      properties:
+        movement_kind: { type: string, enum: [income, expense] }
+        id: { type: integer, minimum: 1 }
+        status: { type: string, enum: [pending, effective] }
+        movement_date: { type: string, format: date }
+        amount: { $ref: '#/components/schemas/Money' }
+        description: { type: string }
+        account: { $ref: '#/components/schemas/Account' }
+        category: { $ref: '#/components/schemas/Category' }
+        recurrence_source:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            scheduled_date: { type: string, format: date }
+    TransferActivityItem:
+      type: object
+      required: [movement_kind, id, status, movement_date, amount, description, source_account, destination_account, category, recurrence_source]
+      properties:
+        movement_kind: { type: string, const: transfer }
+        id: { type: integer, minimum: 1 }
+        status: { type: string, enum: [pending, effective] }
+        movement_date: { type: string, format: date }
+        amount: { $ref: '#/components/schemas/Money' }
+        description: { type: [string, 'null'] }
+        source_account: { $ref: '#/components/schemas/Account' }
+        destination_account: { $ref: '#/components/schemas/Account' }
+        category: { type: 'null', description: Transfers never have category. }
+        recurrence_source: { type: 'null', description: Transfers never originate from recurrence. }
+    UpcomingActivityResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            required: [source_kind, expected_date, type, amount, account, category, description, state]
+            properties:
+              source_kind: { type: string, enum: [pending_transaction, recurring_occurrence] }
+              expected_date: { type: string, format: date }
+              type: { type: string, enum: [income, expense] }
+              amount: { $ref: '#/components/schemas/Money' }
+              account: { $ref: '#/components/schemas/Account' }
+              category: { $ref: '#/components/schemas/Category' }
+              description: { type: string }
+              state: { type: string, const: expected }
+        meta:
+          type: object
+          required: [from, to]
+          properties:
+            from: { type: string, format: date }
+            to: { type: string, format: date }
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+        code: { type: string }
+        errors: { type: object, additionalProperties: { type: array, items: { type: string } } }
+  responses:
+    Error:
+      description: Authentication or validation error
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
