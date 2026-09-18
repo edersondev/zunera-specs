@@ -117,6 +117,12 @@ components:
     CategoryIdentity:
       type: object
       required: [id, name, classification, origin, status]
+      description: |
+        Plan category identity. `name`, `classification`, `origin`, `color`, and
+        `icon` come from the immutable plan snapshot taken when the plan was
+        created or copied. `status` always reflects the live linked category, so
+        a category archived after planning reports `archived` without rewriting
+        the preserved identity.
       properties:
         id: { type: integer, minimum: 1 }
         name: { type: string }
@@ -139,7 +145,9 @@ components:
         available: { $ref: '#/components/schemas/Money' }
         utilization_percent: { type: number, minimum: 0 }
         status: { $ref: '#/components/schemas/BudgetStatus' }
-        excess: { $ref: '#/components/schemas/Money' }
+        excess:
+          description: Overspend magnitude `realized − planned` when positive, otherwise 0; always present so clients never infer excess from a negative `available`.
+          $ref: '#/components/schemas/Money'
         expected:
           description: Qualifying pending spending for this category in the selected current/future month; zero when none qualifies, null for an ended month.
           oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }]

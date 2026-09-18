@@ -40,6 +40,13 @@ restoration reenables mutation without replacing snapshot. Any plan association
 locks linked category classification as expense, even before a transaction;
 removing last plan does not unlock it.
 
+Response identity splits sources: `category.name`, `category.classification`,
+`category.origin`, `category.color`, and `category.icon` render the immutable
+plan snapshot, while `category.status` and `is_read_only` always read the live
+linked category. A renamed, archived, or restored category therefore changes
+only `status`/read-only behavior in historical budgets, never preserved
+identity.
+
 ## Existing authoritative sources
 
 | Source | Budget rule |
@@ -61,6 +68,7 @@ removing last plan does not unlock it.
 | `available` | planned − realized; may negative |
 | `utilization_percent` | realized ÷ planned × 100 |
 | `status` | within / approaching / reached / exceeded, 80/100 thresholds |
+| `excess` | Overspend magnitude `realized − planned` when positive, else R$ 0,00; never omitted |
 | `expected` | Qualifying pending sum; omitted/null past month |
 | `projected_spending` | realized + expected |
 | `projected_available` | planned − projected spending |

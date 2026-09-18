@@ -60,7 +60,7 @@ specs/009-monthly-budgets/
 ├── app/{Data,Enums,Exceptions,Http,Models,Services}/Budgets/
 ├── database/{factories,migrations}/
 ├── routes/api.php
-└── tests/{Feature,Performance,Support,Unit}/Budgets/
+└── tests/{Feature,Support,Unit}/Budgets/
 
 ../zunera-frontend/
 ├── src/components/budgets/
@@ -189,7 +189,9 @@ controls. Progress always includes percent, status, values, and excess text.
 - Integrity: effective/pending/removed/income/transfer/re-categorized/re-dated/
   restored/future-effective transactions; generated pending recurrence; no
   ungenerated recurrence; unbudgeted/total; next-read restatement.
-- Performance: 10,000 movements under 2 seconds; inspect query plan before index.
+- Performance: 10,000 movements under 2 seconds; inspect query plan before
+  index. Place the test in the registered `Feature` suite because
+  `phpunit.xml` declares no `Performance` suite.
 
 ### Frontend
 
