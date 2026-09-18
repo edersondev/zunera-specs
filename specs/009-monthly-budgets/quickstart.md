@@ -50,3 +50,30 @@ npm run build
 # contract
 npx @redocly/cli lint specs/009-monthly-budgets/contracts/budgets-api.yaml
 ```
+
+## Validation record
+
+| Check | Command | Result |
+|---|---|---|
+| Backend suite (all features) | `php artisan test` (app container) | 308 passed, 2197 assertions |
+| Budgets backend focus | `php artisan test --filter=Budgets` | 48 passed, 424 assertions |
+| Backend style | `vendor/bin/pint app/... tests/...` | no remaining style issues |
+| Frontend unit/component | `npx vitest run` | 87 files, 315 tests passed |
+| Budgets frontend focus | `npx vitest run src/**/budgets src/services/__tests__/budgetService.spec.js` | 9 files, 39 tests passed |
+| Budgets journeys | `CI=1 npx playwright test e2e/budgets.spec.js --retries=0` | 18 passed (chromium, firefox, webkit) |
+| Full journey suite | `CI=1 npx playwright test --retries=0` | 141 passed (chromium, firefox, webkit) |
+| Production build | `npm run build` | built, `BudgetsView` chunk emitted |
+| Contract | `redocly lint contracts/budgets-api.yaml` | valid |
+| Performance | `tests/Feature/Budgets/BudgetPerformanceTest.php` | 10,000 movements read in 0.51s; index-backed plan, no new index added |
+
+Notes:
+
+- `npm run lint` still fails on pre-existing findings outside this feature:
+  oxlint in `src/composables/useChartTheme.js`, `e2e/transfers.spec.js`, and
+  `e2e/recurring-transactions.spec.js`; eslint in
+  `src/views/categories/{ArchivedCategoriesView,CategoriesListView}.vue` and
+  `src/views/financial-accounts/FinancialAccountsListView.vue`. No budgets file
+  reports a finding in either linter.
+- Budget classification locking is stored as `categories.has_budget_plans`, set
+  by the first plan association and never cleared, so removing a plan cannot
+  unlock a reclassification.
