@@ -141,9 +141,9 @@ expected/projected fields; past month and recurrence definition alone do not.
 
 ### Backend (complete first)
 
-- [ ] T044 [P] [US4] Add expected/projected unit cases for pending current/future expenses, generated occurrences, no raw recurrence projection, past-month omission, and actual-value invariance in `../zunera-backend/tests/Unit/Budgets/BudgetCalculationServiceTest.php`.
-- [ ] T045 [P] [US4] Add expected/projected feature/resource and no-balance-effect tests in `../zunera-backend/tests/Feature/Budgets/BudgetProjectionTest.php`.
-- [ ] T046 [US4] Complete pending-only projected calculation and resource fields while preserving actual availability/utilization/status in `../zunera-backend/app/Services/Budgets/BudgetCalculationService.php` and `../zunera-backend/app/Http/Resources/Budgets/`.
+- [ ] T044 [P] [US4] Add expected/projected unit cases for pending current/future expenses, generated occurrences, no raw recurrence projection, budgeted-only summary aggregation, zero qualifying-pending summary, past/zero-plan omission, and actual-value invariance in `../zunera-backend/tests/Unit/Budgets/BudgetCalculationServiceTest.php`.
+- [ ] T045 [P] [US4] Add expected/projected feature/resource and no-balance-effect tests, including exclusion of unbudgeted pending expenses from the monthly projection, in `../zunera-backend/tests/Feature/Budgets/BudgetProjectionTest.php`.
+- [ ] T046 [US4] Complete pending-only category and budgeted-only summary projection calculation/resource fields while preserving actual availability/utilization/status in `../zunera-backend/app/Services/Budgets/BudgetCalculationService.php` and `../zunera-backend/app/Http/Resources/Budgets/`.
 - [ ] T047 [US4] Run US4 projection backend suites in `../zunera-backend/tests/Unit/Budgets/BudgetCalculationServiceTest.php` and `../zunera-backend/tests/Feature/Budgets/BudgetProjectionTest.php` before frontend projection work.
 
 ### Frontend (after T047)

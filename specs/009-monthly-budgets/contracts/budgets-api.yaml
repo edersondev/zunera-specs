@@ -140,10 +140,18 @@ components:
         utilization_percent: { type: number, minimum: 0 }
         status: { $ref: '#/components/schemas/BudgetStatus' }
         excess: { $ref: '#/components/schemas/Money' }
-        expected: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
-        projected_spending: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
-        projected_available: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
-        projected_status: { oneOf: [{ $ref: '#/components/schemas/BudgetStatus' }, { type: 'null' }] }
+        expected:
+          description: Qualifying pending spending for this category in the selected current/future month; zero when none qualifies, null for an ended month.
+          oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }]
+        projected_spending:
+          description: This plan's realized spending plus expected spending; null for an ended month.
+          oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }]
+        projected_available:
+          description: This plan's planned amount less projected spending; null for an ended month.
+          oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }]
+        projected_status:
+          description: This plan's projected status using standard thresholds; null for an ended month.
+          oneOf: [{ $ref: '#/components/schemas/BudgetStatus' }, { type: 'null' }]
         is_read_only: { type: boolean }
     BudgetSummary:
       type: object
@@ -156,10 +164,18 @@ components:
         overall_status: { $ref: '#/components/schemas/BudgetStatus' }
         unbudgeted_expenses: { $ref: '#/components/schemas/Money' }
         total_expenses: { $ref: '#/components/schemas/Money' }
-        expected: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
-        projected_spending: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
-        projected_available: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
-        projected_status: { oneOf: [{ $ref: '#/components/schemas/BudgetStatus' }, { type: 'null' }] }
+        expected:
+          description: Current/future sum of expected budgeted category-plan spending; zero when no qualifying pending expense exists, null for ended or zero-plan budget.
+          oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }]
+        projected_spending:
+          description: Budgeted realized spending plus summary expected spending; null for ended or zero-plan budget.
+          oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }]
+        projected_available:
+          description: Total planned less projected spending; null for ended or zero-plan budget.
+          oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }]
+        projected_status:
+          description: Projected budgeted-category status using standard thresholds; null for ended or zero-plan budget.
+          oneOf: [{ $ref: '#/components/schemas/BudgetStatus' }, { type: 'null' }]
     Budget:
       type: object
       required: [id, period, summary, plans]

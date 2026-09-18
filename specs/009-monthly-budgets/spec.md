@@ -4,7 +4,8 @@
 **Backend Branch**: `009-monthly-budgets` (`../zunera-backend`)  
 **Frontend Branch**: `009-monthly-budgets` (`../zunera-frontend`)  
 **Created**: 2026-09-18  
-**Status**: Ready for planning  
+**Status**: Ready for implementation
+
 **Input**: User description: "Create Budgets feature for Zunera: monthly,
 expense-category planning with planned, realized, available, expected, and
 projected spending."
@@ -284,16 +285,23 @@ available amount.
   presentation according to FR-014. Later category renames or visual-identity
   changes MUST NOT replace historical budget's preserved category identity.
 - **FR-020**: Expected spending, when present, MUST be separate from realized
-  spending and MUST NOT alter account balances, realized utilization, or actual
-  available amount. It MUST equal sum of owner's non-removed pending expense
-  transactions with matching category and transaction date in selected current
-  or future budget month. Expected and projected values MUST NOT be shown for a
-  budget month that has ended. A recurrence definition without a pending
-  transaction MUST NOT count as expected spending; a generated pending
-  recurrence transaction qualifies as a pending expense transaction.
+spending and MUST NOT alter account balances, realized utilization, or actual
+available amount. It MUST equal sum of owner's non-removed pending expense
+transactions with matching category and transaction date in selected current
+or future budget month. Expected and projected values MUST NOT be shown for a
+budget month that has ended. A recurrence definition without a pending
+transaction MUST NOT count as expected spending; a generated pending
+recurrence transaction qualifies as a pending expense transaction. Monthly
+expected spending MUST sum expected values of budgeted category plans only;
+pending expenses in unbudgeted categories remain outside this budget projection.
 - **FR-021**: Projected spending MUST equal realized plus expected spending, and
-  projected available MUST equal planned minus projected spending. Projected
-  fields and projected excess state MUST be visibly labelled as projections.
+projected available MUST equal planned minus projected spending. Projected
+fields and projected excess state MUST be visibly labelled as projections. For
+the monthly summary, projected spending, available, and status MUST use the
+same budgeted-category scope and thresholds as its actual values. Current or
+future summaries with category plans return zero expected spending when no
+qualifying pending expense exists; ended months and zero-plan budgets omit
+expected/projected summary values.
 - **FR-022**: Budget information MUST remain clear in empty, error, loading,
   Light, Dark, System-theme, responsive, keyboard-only, high-zoom, and
   assistive-technology use. Visual progress must have equivalent textual values

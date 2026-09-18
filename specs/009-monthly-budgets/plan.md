@@ -120,7 +120,10 @@ month fetch/mutation state. Formatters only render supplied values.
   reached, >100 exceeded. Empty budget returns zero money totals and null/
   Not-applicable utilization/status/progress.
 - Summary derives planned, budgeted realized, available, overall utilization,
-  unbudgeted effective expense, and total effective expense. Persist none of
+  unbudgeted effective expense, and total effective expense. Its current/future
+  expected/projected values aggregate budgeted category plans only: expected is
+  zero when none qualify, projected status uses the same thresholds, and all
+  projection fields are null for ended or zero-plan budgets. Persist none of
   these. Add composite transaction index only if 10,000-movement measurement
   proves it needed.
 

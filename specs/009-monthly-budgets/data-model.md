@@ -80,6 +80,10 @@ removing last plan does not unlock it.
 | `overall_status` | status or `not_applicable` if no plans |
 | `unbudgeted_expenses` | Effective monthly expenses without plan category |
 | `total_expenses` | budgeted realized + unbudgeted |
+| `expected` | Current/future sum of plan expected values only; zero if plans have no qualifying pending expenses; `null` for ended or zero-plan budget |
+| `projected_spending` | budgeted realized + summary expected; `null` for ended or zero-plan budget |
+| `projected_available` | total planned − projected spending; `null` for ended or zero-plan budget |
+| `projected_status` | Threshold status from projected spending ÷ total planned; `null` for ended or zero-plan budget |
 
 Source corrections (state, removal/restoration, amount, type, category, date)
 recalculate old/new matching period/category next read. Income/transfers stay
