@@ -95,9 +95,9 @@ and identifies ranked category totals/shares plus correctly scoped evolution.
 
 ### Frontend — after T033
 
-- [x] T034 [P] [US2] Build expense visualization with ranked accessible table/legend, archived label, and semantic category colors in `../zunera-frontend/src/components/dashboard/ExpenseDistributionCard.vue`
-- [x] T035 [P] [US2] Build evolution visualization with interval labels, partial marker, and text/table alternative in `../zunera-frontend/src/components/dashboard/FinancialEvolutionCard.vue`
-- [x] T036 [P] [US2] Add distribution/evolution rendering, empty, theme, and non-color accessibility tests in `../zunera-frontend/src/components/dashboard/__tests__/ExpenseDistributionCard.spec.js` and `../zunera-frontend/src/components/dashboard/__tests__/FinancialEvolutionCard.spec.js`
+- [x] T034 [P] [US2] Build an ApexCharts donut expense visualization with ranked accessible breakdown, archived label, and semantic category colors in `../zunera-frontend/src/components/charts/ExpenseCategoryChart.vue` and `../zunera-frontend/src/components/dashboard/ExpenseDistributionCard.vue`
+- [x] T035 [P] [US2] Build an ApexCharts area evolution visualization with interval labels, partial marker, and text alternative in `../zunera-frontend/src/components/charts/FinancialEvolutionChart.vue` and `../zunera-frontend/src/components/dashboard/FinancialEvolutionCard.vue`
+- [x] T036 [P] [US2] Add chart/card distribution/evolution rendering, empty, theme, and non-color accessibility tests in `../zunera-frontend/src/components/charts/__tests__/` and `../zunera-frontend/src/components/dashboard/__tests__/`
 - [x] T037 [US2] Wire distribution/evolution slices, per-section retry, and responsive layout into `../zunera-frontend/src/views/dashboard/FinancialDashboardView.vue`
 - [x] T038 [US2] Add expense/evolution, archived-category, partial-interval, keyboard, 320px, and theme E2E coverage in `../zunera-frontend/e2e/financial-dashboard.spec.js`
 
@@ -252,9 +252,10 @@ Implementation landed on branch `008-financial-dashboard` in `zunera-specs`,
   performance cases. The 10,000-movement performance test completes all six
   projections in 0.44s, inside the 2-second target. `vendor/bin/pint --test`
   passes repo-wide and the OpenAPI contract lints clean with Redocly.
-- **Frontend**: 274 unit tests pass (46 new dashboard cases across service,
-  store, formatter, component, and view orchestration), ESLint and Prettier are
-  clean, the production build succeeds, and
+- **Frontend**: 276 unit tests pass, including reusable ApexCharts
+  area/donut components and dashboard-card coverage. The full unit suite and
+  focused chart/card suite pass; ESLint and Prettier are clean, the production
+  build succeeds, and
   `CI=1 npx playwright test e2e/financial-dashboard.spec.js` passes 18/18 across
   chromium, firefox, and webkit.
 - Host-shell note: the local PHP CLI has no `pdo_sqlite`/`pdo_mysql`, so the

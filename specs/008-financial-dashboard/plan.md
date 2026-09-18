@@ -20,7 +20,8 @@ sections after backend contract, authorization, validation, and tests pass.
 
 **Language/Version**: PHP 8.3/Laravel 13.17+; JavaScript/Vue 3.5.40  
 **Primary Dependencies**: Sanctum 4, Eloquent, Axios 1.19, Pinia 4, Element Plus
-2.14.5, Tailwind 4.3, Vue Router 5.2; no chart package  
+2.14.5, Tailwind 4.3, Vue Router 5.2, ApexCharts 7.4, and vue3-apexcharts
+1.11  
 **Storage**: Existing relational records; integer BRL centavos; no dashboard
 aggregate persistence  
 **Testing**: PHPUnit 12, Laravel Pint, Vitest 4, Playwright 1.61, Redocly  
@@ -29,8 +30,8 @@ aggregate persistence
 **Performance Goals**: Usable dashboard sections within 2 seconds for up to
 10,000 owned financial movements after opening or changing period  
 **Constraints**: Protected read-only API; owner isolation; exact centavos;
-America/Sao_Paulo business date; no new packages; source records are sole truth;
-30-day future-only expected horizon  
+America/Sao_Paulo business date; source records are sole truth; presentation-only
+charts use ApexCharts; 30-day future-only expected horizon  
 **Scale/Scope**: Six independently retriable projections: summary, accounts,
 expense distribution, evolution, recent activity, upcoming activity.
 
@@ -40,7 +41,7 @@ expense distribution, evolution, recent activity, upcoming activity.
    API Resources, projection services, existing-rule reuse, measured indexes if
    needed, and feature/unit/performance tests in `../zunera-backend`.
 2. **Frontend** — Dashboard route/home label, Axios service, focused Pinia store,
-   feature components, accessible native data visualizations, i18n, and
+   feature components, accessible ApexCharts/CSS visualizations, i18n, and
    unit/Playwright tests in `../zunera-frontend`.
 
 Frontend starts only after the backend contract, authorization, validation,
@@ -89,7 +90,9 @@ specs/008-financial-dashboard/
 └── tests/{Feature,Unit}/FinancialDashboard/
 
 ../zunera-frontend/
+├── src/components/charts/
 ├── src/components/dashboard/
+├── src/composables/useChartTheme.js
 ├── src/views/dashboard/FinancialDashboardView.vue
 ├── src/services/dashboardService.js
 ├── src/stores/dashboard/dashboardStore.js
@@ -100,9 +103,10 @@ specs/008-financial-dashboard/
 
 **Structure Decision**: Six backend read-projection services isolate calculation
 and failure concerns. `FinancialDashboardView` stays composition-only; cards
-receive state/data as props and emit retry, navigation, period intent. No chart
-dependency exists, so feature-local semantic SVG/data-table visualizations use
-existing tokens and retain textual alternatives.
+receive state/data as props and emit retry, navigation, period intent.
+`BaseChart` centralizes ApexCharts theme, grid, tooltip, and typography defaults;
+feature chart components transform only backend-provided presentation data and
+retain textual alternatives. Active-account allocation remains lightweight CSS.
 
 ## Complexity Tracking
 
