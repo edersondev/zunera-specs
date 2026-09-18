@@ -87,7 +87,7 @@ produces correct derived values; transaction correction updates next budget read
 
 - [ ] T025 [P] [US2] Add aggregate unit cases for effective/pending/removed/income/transfer exclusions, full calendar months, exact status thresholds, negative availability, and no-plan Not-applicable in `../zunera-backend/tests/Unit/Budgets/BudgetCalculationServiceTest.php`.
 - [ ] T026 [P] [US2] Add feature tests for month read/resource fields, budgeted/unbudgeted/total values, owner isolation, and transaction-driven restatement in `../zunera-backend/tests/Feature/Budgets/ViewBudgetSpendingTest.php`.
-- [ ] T027 [US2] Complete calculation projection/resource mapping for category and monthly actual values, current category state plus preserved snapshots, status/excess text inputs, and normal `budget: null` read in `../zunera-backend/app/Services/Budgets/BudgetCalculationService.php` and `../zunera-backend/app/Http/Resources/Budgets/`.
+- [ ] T027 [US2] Complete calculation and resource mapping for category and monthly actual values, current category state plus preserved snapshots, status/excess text inputs, and normal `budget: null` read in `../zunera-backend/app/Services/Budgets/BudgetCalculationService.php` and `../zunera-backend/app/Http/Resources/Budgets/`.
 - [ ] T028 [US2] Run calculation and spending feature suites in `../zunera-backend/tests/Unit/Budgets/BudgetCalculationServiceTest.php` and `../zunera-backend/tests/Feature/Budgets/ViewBudgetSpendingTest.php` before frontend monitor work.
 
 ### Frontend (after T028)
@@ -162,10 +162,11 @@ expected/projected fields; past month and recurrence definition alone do not.
 **Purpose**: Complete performance, accessibility, contract, quality, and
 cross-repository verification without expanding scope.
 
-- [ ] T052 [P] Add 10,000-movement selected-month performance fixture/test and add composite source-query index only if measured need is demonstrated in `../zunera-backend/tests/Performance/Budgets/BudgetPerformanceTest.php` and `../zunera-backend/database/migrations/*_add_budget_aggregate_index_to_transactions_table.php`.
-- [ ] T053 [P] Validate Light/Dark/System, 320px, 200% zoom, reduced motion, focus-return, alerts, 44px targets, and no-color-only progress in `../zunera-frontend/e2e/budgets.spec.js` and `../zunera-frontend/src/components/budgets/`.
-- [ ] T054 Validate final API contract and quickstart scenarios in `specs/009-monthly-budgets/contracts/budgets-api.yaml` and `specs/009-monthly-budgets/quickstart.md`.
-- [ ] T055 Run final backend tests/Pint and frontend unit/Playwright/build commands documented in `specs/009-monthly-budgets/quickstart.md`.
+- [ ] T052 [P] Add 10,000-movement selected-month performance fixture/test and inspect its query plan in `../zunera-backend/tests/Performance/Budgets/BudgetPerformanceTest.php`.
+- [ ] T053 If T052 misses the two-second target, add the demonstrated necessary composite source-query index in `../zunera-backend/database/migrations/*_add_budget_aggregate_index_to_transactions_table.php` and rerun the performance test.
+- [ ] T054 [P] Validate Light/Dark/System, 320px, 200% zoom, reduced motion, focus-return, alerts, 44px targets, and no-color-only progress in `../zunera-frontend/e2e/budgets.spec.js` and `../zunera-frontend/src/components/budgets/`.
+- [ ] T055 Validate final API contract and quickstart scenarios in `specs/009-monthly-budgets/contracts/budgets-api.yaml` and `specs/009-monthly-budgets/quickstart.md`.
+- [ ] T056 Run final backend tests/Pint and frontend unit/Playwright/build commands documented in `specs/009-monthly-budgets/quickstart.md`.
 
 ---
 
@@ -199,7 +200,8 @@ US1 + US2 + US3 + US4 → Polish
   parallel.
 - US4: T044/T045 backend tests run in parallel; after T047, T048 may proceed
   before T049.
-- Polish: T052 and T053 may run in parallel; T054/T055 follow completed work.
+- Polish: T052 precedes conditional T053; T054 may run in parallel with T052.
+  T055 follows completed feature work, then T056 runs the final verification suite.
 
 ## Implementation Strategy
 
