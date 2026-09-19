@@ -1,0 +1,238 @@
+openapi: 3.1.0
+info:
+  title: Zunera Budgets API
+  version: 1.0.0
+  license: { name: Proprietary, identifier: LicenseRef-Proprietary }
+servers: [{ url: /api/v1 }]
+paths:
+  /budgets/{year}/{month}:
+    get:
+      summary: Read owned monthly budget and derived spending projection
+      operationId: getMonthlyBudget
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Year' }
+        - { $ref: '#/components/parameters/Month' }
+      responses:
+        '200':
+          description: Selected month; `budget` is null when normal no-budget state applies.
+          content: { application/json: { schema: { $ref: '#/components/schemas/BudgetMonthResponse' } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /budgets:
+    post:
+      summary: Create an empty owned monthly budget
+      operationId: createMonthlyBudget
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CreateBudgetRequest' } } }
+      responses:
+        '201': { description: Created budget projection, content: { application/json: { schema: { $ref: '#/components/schemas/BudgetMonthResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /budgets/{budget_id}/plans:
+    post:
+      summary: Add a category plan to owned monthly budget
+      operationId: createBudgetCategoryPlan
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/BudgetId' }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CreatePlanRequest' } } }
+      responses:
+        '201': { description: Updated budget projection, content: { application/json: { schema: { $ref: '#/components/schemas/BudgetMonthResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /budgets/{budget_id}/plans/{plan_id}:
+    patch:
+      summary: Change planned amount on owned mutable category plan
+      operationId: updateBudgetCategoryPlan
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/BudgetId' }
+        - { $ref: '#/components/parameters/PlanId' }
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/UpdatePlanRequest' } } }
+      responses:
+        '200': { description: Updated budget projection, content: { application/json: { schema: { $ref: '#/components/schemas/BudgetMonthResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+    delete:
+      summary: Remove owned mutable category plan only
+      operationId: deleteBudgetCategoryPlan
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/BudgetId' }
+        - { $ref: '#/components/parameters/PlanId' }
+      responses:
+        '200': { description: Updated budget projection, content: { application/json: { schema: { $ref: '#/components/schemas/BudgetMonthResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+  /budgets/{budget_id}/copy:
+    post:
+      summary: Copy owned budget planned amounts to an empty different month
+      operationId: copyMonthlyBudget
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/BudgetId' }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CopyBudgetRequest' } } }
+      responses:
+        '201': { description: Independent copied destination budget projection, content: { application/json: { schema: { $ref: '#/components/schemas/BudgetMonthResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+components:
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: zunera_session }
+  parameters:
+    BudgetId: { name: budget_id, in: path, required: true, schema: { type: integer, minimum: 1 } }
+    PlanId: { name: plan_id, in: path, required: true, schema: { type: integer, minimum: 1 } }
+    Year: { name: year, in: path, required: true, schema: { type: integer, minimum: 1900, maximum: 2100 } }
+    Month: { name: month, in: path, required: true, schema: { type: integer, minimum: 1, maximum: 12 } }
+  schemas:
+    Money:
+      type: object
+      required: [amount_centavos, currency_code]
+      properties:
+        amount_centavos: { type: integer }
+        currency_code: { type: string, const: BRL }
+    Period:
+      type: object
+      required: [year, month, from, to]
+      properties:
+        year: { type: integer, minimum: 1900, maximum: 2100 }
+        month: { type: integer, minimum: 1, maximum: 12 }
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+    CategoryIdentity:
+      type: object
+      required: [id, name, classification, origin, status]
+      description: |
+        Plan category identity. `name`, `classification`, `origin`, `color`, and
+        `icon` come from the immutable plan snapshot taken when the plan was
+        created or copied. `status` always reflects the live linked category, so
+        a category archived after planning reports `archived` without rewriting
+        the preserved identity.
+      properties:
+        id: { type: integer, minimum: 1 }
+        name: { type: string }
+        classification: { type: string, const: expense }
+        origin: { type: string, enum: [system, personal] }
+        status: { type: string, enum: [active, archived] }
+        color: { type: [string, 'null'] }
+        icon: { type: [string, 'null'] }
+    BudgetStatus:
+      type: string
+      enum: [within, approaching, reached, exceeded, not_applicable]
+    CategoryPlan:
+      type: object
+      required: [id, category, planned, realized, available, utilization_percent, status, is_read_only]
+      properties:
+        id: { type: integer, minimum: 1 }
+        category: { $ref: '#/components/schemas/CategoryIdentity' }
+        planned: { $ref: '#/components/schemas/Money' }
+        realized: { $ref: '#/components/schemas/Money' }
+        available: { $ref: '#/components/schemas/Money' }
+        utilization_percent: { type: number, minimum: 0 }
+        status: { $ref: '#/components/schemas/BudgetStatus' }
+        excess:
+          description: Overspend magnitude `realized − planned` when positive, otherwise 0; always present so clients never infer excess from a negative `available`.
+          $ref: '#/components/schemas/Money'
+        expected:
+          description: Qualifying pending spending for this category in the selected current/future month; zero when none qualifies, null for an ended month.
+          oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }]
+        projected_spending:
+          description: This plan's realized spending plus expected spending; null for an ended month.
+          oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }]
+        projected_available:
+          description: This plan's planned amount less projected spending; null for an ended month.
+          oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }]
+        projected_status:
+          description: This plan's projected status using standard thresholds; null for an ended month.
+          oneOf: [{ $ref: '#/components/schemas/BudgetStatus' }, { type: 'null' }]
+        is_read_only: { type: boolean }
+    BudgetSummary:
+      type: object
+      required: [total_planned, budgeted_realized, actual_available, overall_utilization_percent, overall_status, unbudgeted_expenses, total_expenses]
+      properties:
+        total_planned: { $ref: '#/components/schemas/Money' }
+        budgeted_realized: { $ref: '#/components/schemas/Money' }
+        actual_available: { $ref: '#/components/schemas/Money' }
+        overall_utilization_percent: { type: [number, 'null'], minimum: 0 }
+        overall_status: { $ref: '#/components/schemas/BudgetStatus' }
+        unbudgeted_expenses: { $ref: '#/components/schemas/Money' }
+        total_expenses: { $ref: '#/components/schemas/Money' }
+        expected:
+          description: Current/future sum of expected budgeted category-plan spending; zero when no qualifying pending expense exists, null for ended or zero-plan budget.
+          oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }]
+        projected_spending:
+          description: Budgeted realized spending plus summary expected spending; null for ended or zero-plan budget.
+          oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }]
+        projected_available:
+          description: Total planned less projected spending; null for ended or zero-plan budget.
+          oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }]
+        projected_status:
+          description: Projected budgeted-category status using standard thresholds; null for ended or zero-plan budget.
+          oneOf: [{ $ref: '#/components/schemas/BudgetStatus' }, { type: 'null' }]
+    Budget:
+      type: object
+      required: [id, period, summary, plans]
+      properties:
+        id: { type: integer, minimum: 1 }
+        period: { $ref: '#/components/schemas/Period' }
+        summary: { $ref: '#/components/schemas/BudgetSummary' }
+        plans: { type: array, items: { $ref: '#/components/schemas/CategoryPlan' } }
+    BudgetMonthResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [period, budget]
+          properties:
+            period: { $ref: '#/components/schemas/Period' }
+            budget: { oneOf: [{ $ref: '#/components/schemas/Budget' }, { type: 'null' }] }
+    CreateBudgetRequest:
+      type: object
+      required: [year, month]
+      properties:
+        year: { type: integer, minimum: 1900, maximum: 2100 }
+        month: { type: integer, minimum: 1, maximum: 12 }
+    CreatePlanRequest:
+      type: object
+      required: [category_id, planned_amount_centavos]
+      properties:
+        category_id: { type: integer, minimum: 1 }
+        planned_amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
+    UpdatePlanRequest:
+      type: object
+      required: [planned_amount_centavos]
+      properties:
+        planned_amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
+    CopyBudgetRequest:
+      type: object
+      required: [destination_year, destination_month]
+      properties:
+        destination_year: { type: integer, minimum: 1900, maximum: 2100 }
+        destination_month: { type: integer, minimum: 1, maximum: 12 }
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+        code: { type: string }
+        errors: { type: object, additionalProperties: { type: array, items: { type: string } } }
+  responses:
+    Error:
+      description: Authentication, validation, ownership, state, or conflict error without foreign-data disclosure.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
