@@ -408,6 +408,7 @@ components:
         total_amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
         installment_count: { type: integer, minimum: 1, maximum: 360 }
         confirm_over_limit: { type: boolean, default: false, description: True only for an explicit user confirmation submitted with a new Idempotency-Key after a confirmation-required response. }
+        expected_available_credit_centavos: { type: [integer, 'null'], description: Optional echo of the available credit reported by the confirmation-required response; a mismatch returns 409 `stale_over_limit_confirmation`. }
     UpdatePurchaseRequest:
       type: object
       minProperties: 1
@@ -420,6 +421,7 @@ components:
         total_amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
         installment_count: { type: integer, minimum: 1, maximum: 360 }
         confirm_over_limit: { type: boolean, default: false, description: True only for an explicit user confirmation submitted with a new Idempotency-Key after a confirmation-required response. }
+        expected_available_credit_centavos: { type: [integer, 'null'], description: Optional echo of the available credit reported by the confirmation-required response; a mismatch returns 409 `stale_over_limit_confirmation`. }
     OverLimitConfirmationRequiredError:
       type: object
       required: [message, code, resulting_available_credit, is_over_limit]
