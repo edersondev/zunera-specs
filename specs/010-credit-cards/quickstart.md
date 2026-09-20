@@ -3,6 +3,9 @@
 ## Prerequisites
 
 - All repositories use branch `010-credit-cards`.
+- Backend tests run in the `../zunera-backend` Docker test stack (`app` +
+  `dbmysql_test`); frontend browser tests run with the installed Playwright
+  browsers and let `playwright.config.js` start the web server.
 - Backend contract, authorization, validation, and tests land before frontend.
 - Seed active/archived accounts, cards, categories; owner/foreign records;
   business dates around February/leap years; effective/pending/removed payments;
@@ -67,14 +70,17 @@
 ## Commands
 
 ```bash
-# backend
-php artisan test --filter=CreditCards
-vendor/bin/pint --dirty --format=agent
+# backend (Docker test stack from ../zunera-backend)
+./start.sh
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.test.yml exec -T app php artisan test --filter=CreditCards
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.test.yml exec -T app vendor/bin/pint --dirty --format=agent
+./stop.sh
 
-# frontend
-npm run test:unit -- --run src/**/credit-cards/** src/services/__tests__/creditCardService.spec.js
-CI=1 npm run test:e2e -- e2e/credit-cards.spec.js
+# frontend (../zunera-frontend, Playwright with installed browsers)
+npm run test:unit -- --run src/utils/credit-cards src/services/__tests__/creditCardService.spec.js
 npm run build
+CI=1 npm run test:e2e -- e2e/credit-cards.spec.js
+npm run lint
 
 # contract
 npx @redocly/cli lint specs/010-credit-cards/contracts/credit-cards-api.yaml
