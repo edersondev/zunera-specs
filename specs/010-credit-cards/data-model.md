@@ -86,6 +86,25 @@ Credit events preserve original purchase and statement rows. Recalculation after
 payment/credit event edit, removal, or restoration writes no duplicate money
 effect and never makes statement balance negative.
 
+### CreditCardMutationRequest
+
+| Field | Rules |
+|---|---|
+| `id`, `user_id` | Stable identity and required owner |
+| `operation` | Required mutation name, for example `card.create` or `statement_payment.store` |
+| `idempotency_key` | Required client-supplied key; unique together with `user_id` |
+| `request_fingerprint` | Stable hash of the canonical request payload |
+| `response_status`, `response_body` | Stored replay response returned for a retry with the same key and fingerprint |
+| `locked_resource_type`, `locked_resource_id` | Nullable record of the primary locked card, statement, purchase, or account |
+| timestamps | Recorded when the mutation is first accepted |
+
+Same key plus same fingerprint replays the stored response without reapplying
+money effects. Same key plus a different fingerprint is rejected as a conflict.
+An explicit over-limit confirmation is a new mutation with a new key, while a
+network retry of either the initial or confirmed mutation reuses that mutation's
+own key. Storage and replay semantics follow the existing
+`TransferMutationRequest` and `RecurringMutationRequest` precedent.
+
 ## Relationships and authoritative projections
 
 ```text
@@ -94,6 +113,7 @@ User 1 ── * CreditCard 1 ── * Purchase 1 ── * Installment * ── 1
                                   └── * CreditEvent ─┴── * CreditApplication
 Statement 1 ── * StatementPayment * ── 1 FinancialAccount
 Purchase * ── 1 Category
+User 1 ── * CreditCardMutationRequest (owner/key/fingerprint/replay)
 ```
 
 | Consumer | Card-source rule |

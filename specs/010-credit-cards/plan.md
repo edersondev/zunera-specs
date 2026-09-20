@@ -83,17 +83,17 @@ specs/010-credit-cards/
 │   ├── Enums/CreditCards/
 │   ├── Exceptions/CreditCards/
 │   ├── Http/{Controllers/Api/V1,Requests,Resources}/CreditCards/
-│   ├── Models/{CreditCard,CreditCardPurchase,CreditCardInstallment,CreditCardStatement,CreditCardStatementPayment,CreditCardCreditEvent,CreditCardCreditApplication}.php
-│   └── Services/{CreditCards,Budgets,Dashboard,FinancialHistory}/
+│   ├── Models/{CreditCard,CreditCardPurchase,CreditCardInstallment,CreditCardStatement,CreditCardStatementPayment,CreditCardCreditEvent,CreditCardCreditApplication,CreditCardMutationRequest}.php
+│   └── Services/{CreditCards,Budgets,FinancialDashboard,FinancialHistory}/
 ├── database/{factories,migrations}/
 ├── routes/api.php
 └── tests/{Feature,Unit}/CreditCards/
 
 ../zunera-frontend/
 ├── src/
-│   ├── components/credit-cards/
-│   ├── stores/credit-cards/creditCardStore.js
-│   ├── services/creditCardService.js
+│   ├── components/{credit-cards,dashboard}/
+│   ├── stores/credit-cards/{creditCardStore.js,__tests__/}
+│   ├── services/{creditCardService.js,__tests__/}
 │   ├── utils/credit-cards/
 │   ├── views/credit-cards/
 │   └── {router/index.js,layouts/AppShell.vue,i18n/messages.js}

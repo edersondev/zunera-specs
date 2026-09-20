@@ -4,7 +4,7 @@
 **Backend Branch**: `010-credit-cards` (`../zunera-backend`)  
 **Frontend Branch**: `010-credit-cards` (`../zunera-frontend`)  
 **Created**: 2026-09-20  
-**Status**: Ready for planning  
+**Status**: Ready for implementation  
 **Input**: User description: "Create the Credit Cards feature for Zunera."
 
 ## Clarifications
