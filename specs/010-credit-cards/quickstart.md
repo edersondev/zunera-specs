@@ -72,9 +72,8 @@
 ```bash
 # backend (Docker test stack from ../zunera-backend)
 ./start.sh
-docker compose -f docker/docker-compose.yml -f docker/docker-compose.test.yml exec -T app php artisan test --filter=CreditCards
-docker compose -f docker/docker-compose.yml -f docker/docker-compose.test.yml exec -T app vendor/bin/pint --dirty --format=agent
-./stop.sh
+docker exec zunera-backend-app-1 php artisan test --filter=CreditCards
+docker exec zunera-backend-app-1 vendor/bin/pint --format=agent
 
 # frontend (../zunera-frontend, Playwright with installed browsers)
 npm run test:unit -- --run src/utils/credit-cards src/services/__tests__/creditCardService.spec.js

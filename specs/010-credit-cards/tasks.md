@@ -198,7 +198,7 @@
 - [ ] T088 [P] Seed 10,000 combined owned financial/card movements; assert card list, statement read, and affected projections each complete within 2 seconds; and capture query-plan evidence before adding indexes in `../zunera-backend/tests/Feature/CreditCards/CreditCardQueryPerformanceTest.php` and `../zunera-backend/tests/Performance/CreditCards/query-plans.md`.
 - [ ] T089 [P] Add responsive theme and keyboard/screen-reader browser checks in `../zunera-frontend/e2e/credit-cards.spec.js`.
 - [ ] T090 Validate lifecycle examples and manual acceptance checks in `specs/010-credit-cards/quickstart.md`.
-- [ ] T091 Run full backend quality and Credit Cards suites inside the `../zunera-backend` Docker test stack with `./start.sh` and `docker compose -f docker/docker-compose.yml -f docker/docker-compose.test.yml exec -T app php artisan test` plus `... exec -T app vendor/bin/pint --dirty --format=agent`.
+- [ ] T091 Run full backend quality and Credit Cards suites against the running container with `docker exec zunera-backend-app-1 php artisan test` plus `docker exec zunera-backend-app-1 vendor/bin/pint --format=agent` (start the stack first with `../zunera-backend/start.sh` if it is not running).
 - [ ] T092 Run frontend unit and Playwright suites from `../zunera-frontend/` with `npm run test:unit -- --run`, `npm run build`, and `CI=1 npm run test:e2e -- e2e/credit-cards.spec.js`.
 - [ ] T093 Validate final contract at `specs/010-credit-cards/contracts/credit-cards-api.yaml` with Redocly.
 - [ ] T094 Run frontend lint and production-build verification with `npm run lint` and `npm run build` from `../zunera-frontend/`.
