@@ -12,9 +12,9 @@
 
 **Purpose**: Confirm shared feature context and establish a testable API contract.
 
-- [ ] T001 Verify the `010-credit-cards` branch is checked out in `zunera-specs`, `../zunera-backend`, and `../zunera-frontend`.
-- [ ] T002 [P] Validate `specs/010-credit-cards/contracts/credit-cards-api.yaml` with Redocly.
-- [ ] T003 [P] Add Credit Cards API fixture and authentication helpers in `../zunera-backend/tests/Support/CreditCards/` following existing Financial Accounts test conventions.
+- [X] T001 Verify the `010-credit-cards` branch is checked out in `zunera-specs`, `../zunera-backend`, and `../zunera-frontend`.
+- [X] T002 [P] Validate `specs/010-credit-cards/contracts/credit-cards-api.yaml` with Redocly.
+- [X] T003 [P] Add Credit Cards API fixture and authentication helpers in `../zunera-backend/tests/Support/CreditCards/` following existing Financial Accounts test conventions.
 - [ ] T004 [P] Add representative request/response contract fixtures in `specs/010-credit-cards/contracts/fixtures/credit-cards.yaml` for card, purchase, statement, payment, and credit-event examples.
 
 ---
@@ -23,15 +23,15 @@
 
 **Purpose**: Create authoritative card-domain primitives used by every user story. No user story begins until this phase is complete.
 
-- [ ] T005 Create credit-card persistence migrations in `../zunera-backend/database/migrations/` for cards, purchases, installments, statements, statement payments, credit events, credit applications, and mutation requests from `specs/010-credit-cards/data-model.md`.
-- [ ] T006 [P] Create Eloquent models, relationships, casts, factories, and ownership scopes in `../zunera-backend/app/Models/CreditCard.php`, `../zunera-backend/app/Models/CreditCardPurchase.php`, `../zunera-backend/app/Models/CreditCardInstallment.php`, `../zunera-backend/app/Models/CreditCardStatement.php`, `../zunera-backend/app/Models/CreditCardStatementPayment.php`, `../zunera-backend/app/Models/CreditCardCreditEvent.php`, `../zunera-backend/app/Models/CreditCardCreditApplication.php`, and `../zunera-backend/app/Models/CreditCardMutationRequest.php`.
-- [ ] T007 [P] Create card, purchase, installment, statement, payment, and credit-event enums plus immutable DTOs in `../zunera-backend/app/Enums/CreditCards/` and `../zunera-backend/app/Data/CreditCards/`.
-- [ ] T008 [P] Add 100 representative statement-cycle unit cases for currency allocation, day clamping, inclusive closing-day allocation and next-calendar-date finalization, due-date calculation, leap-year, year-boundary, and 1/360-installment boundaries in `../zunera-backend/tests/Unit/CreditCards/BillingCycleCalculatorTest.php` and `../zunera-backend/tests/Unit/CreditCards/InstallmentAllocatorTest.php`.
-- [ ] T009 Implement exact-cent installment allocation and America/Sao_Paulo billing-cycle calculation in `../zunera-backend/app/Services/CreditCards/InstallmentAllocator.php` and `../zunera-backend/app/Services/CreditCards/BillingCycleCalculator.php`.
-- [ ] T010 Implement mutation idempotency storage, request fingerprinting, same-request replay, fresh-key explicit over-limit confirmation, and lock ordering in `../zunera-backend/app/Services/CreditCards/CreditCardMutationIdempotencyService.php` and `../zunera-backend/app/Exceptions/CreditCards/`.
-- [ ] T011 Implement card balance, available-credit, statement-total, and oldest-unpaid-credit-application projection in `../zunera-backend/app/Services/CreditCards/CreditCardObligationReconciler.php`.
-- [ ] T012 Add ownership authorization and error rendering in `../zunera-backend/app/Policies/CreditCardPolicy.php`, register that policy for `CreditCard` in `../zunera-backend/app/Providers/AppServiceProvider.php`, and map typed Credit Cards exceptions in `../zunera-backend/bootstrap/app.php` (Laravel 13 slim has no `AuthServiceProvider` or `app/Exceptions/Handler.php`).
-- [ ] T013 Add shared API resource representations and financial-mutation idempotency header handling in `../zunera-backend/app/Http/Resources/CreditCards/` and `../zunera-backend/app/Http/Middleware/`.
+- [X] T005 Create credit-card persistence migrations in `../zunera-backend/database/migrations/` for cards, purchases, installments, statements, statement payments, credit events, credit applications, and mutation requests from `specs/010-credit-cards/data-model.md`.
+- [X] T006 [P] Create Eloquent models, relationships, casts, factories, and ownership scopes in `../zunera-backend/app/Models/CreditCard.php`, `../zunera-backend/app/Models/CreditCardPurchase.php`, `../zunera-backend/app/Models/CreditCardInstallment.php`, `../zunera-backend/app/Models/CreditCardStatement.php`, `../zunera-backend/app/Models/CreditCardStatementPayment.php`, `../zunera-backend/app/Models/CreditCardCreditEvent.php`, `../zunera-backend/app/Models/CreditCardCreditApplication.php`, and `../zunera-backend/app/Models/CreditCardMutationRequest.php`.
+- [X] T007 [P] Create card, purchase, installment, statement, payment, and credit-event enums plus immutable DTOs in `../zunera-backend/app/Enums/CreditCards/` and `../zunera-backend/app/Data/CreditCards/`.
+- [X] T008 [P] Add 100 representative statement-cycle unit cases for currency allocation, day clamping, inclusive closing-day allocation and next-calendar-date finalization, due-date calculation, leap-year, year-boundary, and 1/360-installment boundaries in `../zunera-backend/tests/Unit/CreditCards/BillingCycleCalculatorTest.php` and `../zunera-backend/tests/Unit/CreditCards/InstallmentAllocatorTest.php`.
+- [X] T009 Implement exact-cent installment allocation and America/Sao_Paulo billing-cycle calculation in `../zunera-backend/app/Services/CreditCards/InstallmentAllocator.php` and `../zunera-backend/app/Services/CreditCards/BillingCycleCalculator.php`.
+- [X] T010 Implement mutation idempotency storage, request fingerprinting, same-request replay, fresh-key explicit over-limit confirmation, and lock ordering in `../zunera-backend/app/Services/CreditCards/CreditCardMutationIdempotencyService.php` and `../zunera-backend/app/Exceptions/CreditCards/`.
+- [X] T011 Implement card balance, available-credit, statement-total, and oldest-unpaid-credit-application projection in `../zunera-backend/app/Services/CreditCards/CreditCardObligationReconciler.php`.
+- [X] T012 Add ownership authorization and error rendering in `../zunera-backend/app/Policies/CreditCardPolicy.php`, register that policy for `CreditCard` in `../zunera-backend/app/Providers/AppServiceProvider.php`, and map typed Credit Cards exceptions in `../zunera-backend/bootstrap/app.php` (Laravel 13 slim has no `AuthServiceProvider` or `app/Exceptions/Handler.php`).
+- [X] T013 Add shared API resource representations and financial-mutation idempotency header handling in `../zunera-backend/app/Http/Resources/CreditCards/` and `../zunera-backend/app/Http/Middleware/`.
 - [ ] T014 Verify persistence, allocation, idempotency, ownership, and reconciliation in `../zunera-backend/tests/Unit/CreditCards/` and `../zunera-backend/tests/Feature/CreditCards/FoundationalCreditCardDomainTest.php`.
 
 **Checkpoint**: The shared domain represents a card, calculates billing periods deterministically, safely replays mutations, and reconciles obligations without touching ordinary financial-account balances.
@@ -46,14 +46,14 @@
 
 ### Backend for User Story 1
 
-- [ ] T015 [P] [US1] Write card creation, listing, detail, update, ownership isolation, archive-eligibility, and billing-day-immutability coverage (after a closing/due day update, existing statements keep their original period, closing date, due date, and installment assignments while later purchases use the new billing days) in `../zunera-backend/tests/Feature/CreditCards/CreditCardManagementTest.php`.
-- [ ] T016 [P] [US1] Write validation coverage for positive limits, valid days, safe identifiers, status, and no sensitive credentials in `../zunera-backend/tests/Feature/CreditCards/CreditCardManagementValidationTest.php`.
-- [ ] T017 [US1] Implement create, list, detail, update, and archive lifecycle rules in `../zunera-backend/app/Services/CreditCards/CreditCardService.php`.
-- [ ] T018 [US1] Implement create/update validation in `../zunera-backend/app/Http/Requests/CreditCards/StoreCreditCardRequest.php` and `../zunera-backend/app/Http/Requests/CreditCards/UpdateCreditCardRequest.php`.
-- [ ] T019 [US1] Implement summary/detail resources, including limit, used credit, available credit, status, and historical indicators, in `../zunera-backend/app/Http/Resources/CreditCards/CreditCardResource.php` and `../zunera-backend/app/Http/Resources/CreditCards/CreditCardDetailResource.php`.
-- [ ] T020 [US1] Add authenticated card controller actions and routes in `../zunera-backend/app/Http/Controllers/Api/V1/CreditCardController.php` and `../zunera-backend/routes/api.php`.
+- [X] T015 [P] [US1] Write card creation, listing, detail, update, ownership isolation, archive-eligibility, and billing-day-immutability coverage (after a closing/due day update, existing statements keep their original period, closing date, due date, and installment assignments while later purchases use the new billing days) in `../zunera-backend/tests/Feature/CreditCards/CreditCardManagementTest.php`.
+- [X] T016 [P] [US1] Write validation coverage for positive limits, valid days, safe identifiers, status, and no sensitive credentials in `../zunera-backend/tests/Feature/CreditCards/CreditCardManagementValidationTest.php`.
+- [X] T017 [US1] Implement create, list, detail, update, and archive lifecycle rules in `../zunera-backend/app/Services/CreditCards/CreditCardService.php`.
+- [X] T018 [US1] Implement create/update validation in `../zunera-backend/app/Http/Requests/CreditCards/StoreCreditCardRequest.php` and `../zunera-backend/app/Http/Requests/CreditCards/UpdateCreditCardRequest.php`.
+- [X] T019 [US1] Implement summary/detail resources, including limit, used credit, available credit, status, and historical indicators, in `../zunera-backend/app/Http/Resources/CreditCards/CreditCardResource.php` and `../zunera-backend/app/Http/Resources/CreditCards/CreditCardDetailResource.php`.
+- [X] T020 [US1] Add authenticated card controller actions and routes in `../zunera-backend/app/Http/Controllers/Api/V1/CreditCardController.php` and `../zunera-backend/routes/api.php`.
 - [ ] T021 [US1] Align create, read, update, and archive examples in `specs/010-credit-cards/contracts/credit-cards-api.yaml`.
-- [ ] T022 [US1] Run backend feature and contract checks from `../zunera-backend/tests/Feature/CreditCards/CreditCardManagementTest.php` and `specs/010-credit-cards/contracts/credit-cards-api.yaml`.
+- [X] T022 [US1] Run backend feature and contract checks from `../zunera-backend/tests/Feature/CreditCards/CreditCardManagementTest.php` and `specs/010-credit-cards/contracts/credit-cards-api.yaml`.
 
 ### Frontend for User Story 1
 
@@ -62,8 +62,8 @@
 - [ ] T025 [P] [US1] Add card list, detail, create, update, archive, stable same-mutation `Idempotency-Key` generation, and safe replay-retry API-service tests in `../zunera-frontend/src/services/__tests__/creditCardService.spec.js`.
 - [ ] T026 [P] [US1] Add loading, feedback, and archived-card state tests in `../zunera-frontend/src/stores/credit-cards/__tests__/creditCardStore.spec.js`.
 - [ ] T027 [US1] Implement card API access, stable same-mutation `Idempotency-Key` reuse for network retry/replay, fresh-key user-confirmed mutation submission, and state orchestration in `../zunera-frontend/src/services/creditCardService.js` and `../zunera-frontend/src/stores/credit-cards/creditCardStore.js`.
-- [ ] T028 [US1] Implement accessible responsive card list, detail, and create/edit/archive flows in `../zunera-frontend/src/views/credit-cards/CreditCardsListView.vue`, `../zunera-frontend/src/views/credit-cards/CreditCardDetailView.vue`, and `../zunera-frontend/src/components/credit-cards/CreditCardForm.vue`.
-- [ ] T029 [US1] Register navigation, routes, localized feedback, and management browser coverage, including the spec-local fixture builders used by the Credit Cards browser suite, in `../zunera-frontend/src/router/index.js`, `../zunera-frontend/src/layouts/AppShell.vue`, `../zunera-frontend/src/i18n/messages.js`, and `../zunera-frontend/e2e/credit-cards.spec.js`.
+- [X] T028 [US1] Implement accessible responsive card list, detail, and create/edit/archive flows in `../zunera-frontend/src/views/credit-cards/CreditCardsListView.vue`, `../zunera-frontend/src/views/credit-cards/CreditCardDetailView.vue`, and `../zunera-frontend/src/components/credit-cards/CreditCardForm.vue`.
+- [X] T029 [US1] Register navigation, routes, localized feedback, and management browser coverage, including the spec-local fixture builders used by the Credit Cards browser suite, in `../zunera-frontend/src/router/index.js`, `../zunera-frontend/src/layouts/AppShell.vue`, `../zunera-frontend/src/i18n/messages.js`, and `../zunera-frontend/e2e/credit-cards.spec.js`.
 
 **Checkpoint**: A user manages only their own non-sensitive cards; archives stay readable and correctly guarded by financial state.
 
@@ -77,12 +77,12 @@
 
 ### Backend for User Story 2
 
-- [ ] T030 [P] [US2] Write one-time purchase, closing-day assignment, archived-card rejection, typed over-limit confirmation-required flow with a fresh confirmation key and same-request network replay, exact negative availability, and no-account-balance-movement coverage in `../zunera-backend/tests/Feature/CreditCards/CreditCardPurchaseTest.php`.
-- [ ] T031 [P] [US2] Write exact installment rounding, sequential statement allocation, category ownership, and purchase idempotency coverage in `../zunera-backend/tests/Feature/CreditCards/CreditCardInstallmentPurchaseTest.php`.
-- [ ] T032 [US2] Implement purchase creation, category authorization, projected-limit checks, explicit over-limit confirmation gating, and immutable installment generation in `../zunera-backend/app/Services/CreditCards/CreditCardPurchaseService.php`.
-- [ ] T033 [US2] Implement positive-money, date, owned-card/category, interest-free installment-count, and explicit over-limit-confirmation validation in `../zunera-backend/app/Http/Requests/CreditCards/StoreCreditCardPurchaseRequest.php`.
+- [X] T030 [P] [US2] Write one-time purchase, closing-day assignment, archived-card rejection, typed over-limit confirmation-required flow with a fresh confirmation key and same-request network replay, exact negative availability, and no-account-balance-movement coverage in `../zunera-backend/tests/Feature/CreditCards/CreditCardPurchaseTest.php`.
+- [X] T031 [P] [US2] Write exact installment rounding, sequential statement allocation, category ownership, and purchase idempotency coverage in `../zunera-backend/tests/Feature/CreditCards/CreditCardInstallmentPurchaseTest.php`.
+- [X] T032 [US2] Implement purchase creation, category authorization, projected-limit checks, explicit over-limit confirmation gating, and immutable installment generation in `../zunera-backend/app/Services/CreditCards/CreditCardPurchaseService.php`.
+- [X] T033 [US2] Implement positive-money, date, owned-card/category, interest-free installment-count, and explicit over-limit-confirmation validation in `../zunera-backend/app/Http/Requests/CreditCards/StoreCreditCardPurchaseRequest.php`.
 - [ ] T034 [US2] Implement purchase/installment resources with statement period, due date, realization state, and sequence in `../zunera-backend/app/Http/Resources/CreditCards/CreditCardPurchaseResource.php` and `../zunera-backend/app/Http/Resources/CreditCards/CreditCardInstallmentResource.php`.
-- [ ] T035 [US2] Add authorized purchase creation/listing controller actions and routes in `../zunera-backend/app/Http/Controllers/Api/V1/CreditCardPurchaseController.php` and `../zunera-backend/routes/api.php`.
+- [X] T035 [US2] Add authorized purchase creation/listing controller actions and routes in `../zunera-backend/app/Http/Controllers/Api/V1/CreditCardPurchaseController.php` and `../zunera-backend/routes/api.php`.
 - [ ] T036 [US2] Align purchase operations, idempotency requirements, typed over-limit confirmation-required/retry responses, and error examples in `specs/010-credit-cards/contracts/credit-cards-api.yaml`.
 - [ ] T037 [US2] Run purchase/allocator suites in `../zunera-backend/tests/Feature/CreditCards/CreditCardPurchaseTest.php`, `../zunera-backend/tests/Feature/CreditCards/CreditCardInstallmentPurchaseTest.php`, and `../zunera-backend/tests/Unit/CreditCards/InstallmentAllocatorTest.php`.
 
@@ -91,8 +91,8 @@
 - [ ] T038 [P] [US2] Add purchase submission, fresh-key over-limit confirmation, same-request retry with stable idempotency key, installment preview, category failure, and assigned-statement client tests in `../zunera-frontend/src/services/__tests__/creditCardService.spec.js` and `../zunera-frontend/src/stores/credit-cards/__tests__/creditCardStore.spec.js`.
 - [ ] T039 [P] [US2] Add currency input, installment preview, closing-date explanation, typed over-limit warning/confirmation with negative availability, and accessible-error tests in `../zunera-frontend/src/components/credit-cards/__tests__/CreditCardPurchaseForm.spec.js`.
 - [ ] T040 [US2] Extend client state for purchases, installments, statement assignment previews, and idempotent feedback in `../zunera-frontend/src/services/creditCardService.js` and `../zunera-frontend/src/stores/credit-cards/creditCardStore.js`.
-- [ ] T041 [US2] Implement purchase entry, over-limit warning/explicit confirmation with negative availability, and installment schedule presentation in `../zunera-frontend/src/components/credit-cards/CreditCardPurchaseForm.vue`, `../zunera-frontend/src/components/credit-cards/InstallmentSchedule.vue`, and `../zunera-frontend/src/views/credit-cards/CreditCardDetailView.vue`.
-- [ ] T042 [US2] Add browser coverage for single/installment purchases, closing-day messaging, over-limit confirmation with a fresh request key, confirmed-request network retry, and unchanged paying-account balance in `../zunera-frontend/e2e/credit-cards.spec.js`.
+- [X] T041 [US2] Implement purchase entry, over-limit warning/explicit confirmation with negative availability, and installment schedule presentation in `../zunera-frontend/src/components/credit-cards/CreditCardPurchaseForm.vue`, `../zunera-frontend/src/components/credit-cards/InstallmentSchedule.vue`, and `../zunera-frontend/src/views/credit-cards/CreditCardDetailView.vue`.
+- [X] T042 [US2] Add browser coverage for single/installment purchases, closing-day messaging, over-limit confirmation with a fresh request key, confirmed-request network retry, and unchanged paying-account balance in `../zunera-frontend/e2e/credit-cards.spec.js`.
 
 **Checkpoint**: Card spending is recorded once, installments reconcile exactly, and ordinary financial accounts are not charged.
 
@@ -106,14 +106,14 @@
 
 ### Backend for User Story 3
 
-- [ ] T043 [P] [US3] Write inclusive-closing-day/next-calendar-date finalization plus open, closed, partially paid, paid, overdue, and zero-amount statement coverage in `../zunera-backend/tests/Feature/CreditCards/CreditCardStatementTest.php`.
-- [ ] T044 [P] [US3] Write 100 representative partial/full settlement, account ownership, intentional overdraft, replay, edit/remove/restore, and payment-history lifecycle cases in `../zunera-backend/tests/Feature/CreditCards/CreditCardStatementPaymentTest.php`.
-- [ ] T045 [US3] Implement statement refresh, close finalization, state transitions, history, and retrieval in `../zunera-backend/app/Services/CreditCards/CreditCardStatementService.php`.
-- [ ] T046 [US3] Implement payment creation, correction, removal, restoration, account-balance deltas, and double-application prevention in `../zunera-backend/app/Services/CreditCards/CreditCardStatementPaymentService.php`.
-- [ ] T047 [US3] Reuse financial-account balance conventions through a card-payment reconciliation adapter in `../zunera-backend/app/Services/CreditCards/CreditCardPaymentAccountReconciler.php` and `../zunera-backend/app/Services/Transactions/TransactionBalanceReconciler.php`.
-- [ ] T048 [US3] Implement payment, correction, removal, and restoration validation in `../zunera-backend/app/Http/Requests/CreditCards/StoreCreditCardStatementPaymentRequest.php` and `../zunera-backend/app/Http/Requests/CreditCards/UpdateCreditCardStatementPaymentRequest.php`.
+- [X] T043 [P] [US3] Write inclusive-closing-day/next-calendar-date finalization plus open, closed, partially paid, paid, overdue, and zero-amount statement coverage in `../zunera-backend/tests/Feature/CreditCards/CreditCardStatementTest.php`.
+- [X] T044 [P] [US3] Write 100 representative partial/full settlement, account ownership, intentional overdraft, replay, edit/remove/restore, and payment-history lifecycle cases in `../zunera-backend/tests/Feature/CreditCards/CreditCardStatementPaymentTest.php`.
+- [X] T045 [US3] Implement statement refresh, close finalization, state transitions, history, and retrieval in `../zunera-backend/app/Services/CreditCards/CreditCardStatementService.php`.
+- [X] T046 [US3] Implement payment creation, correction, removal, restoration, account-balance deltas, and double-application prevention in `../zunera-backend/app/Services/CreditCards/CreditCardStatementPaymentService.php`.
+- [X] T047 [US3] Reuse financial-account balance conventions through a card-payment reconciliation adapter in `../zunera-backend/app/Services/CreditCards/CreditCardPaymentAccountReconciler.php` and `../zunera-backend/app/Services/Transactions/TransactionBalanceReconciler.php`.
+- [X] T048 [US3] Implement payment, correction, removal, and restoration validation in `../zunera-backend/app/Http/Requests/CreditCards/StoreCreditCardStatementPaymentRequest.php` and `../zunera-backend/app/Http/Requests/CreditCards/UpdateCreditCardStatementPaymentRequest.php`.
 - [ ] T049 [US3] Implement statement, line-item, and payment-history resources in `../zunera-backend/app/Http/Resources/CreditCards/CreditCardStatementResource.php`, `../zunera-backend/app/Http/Resources/CreditCards/CreditCardStatementDetailResource.php`, and `../zunera-backend/app/Http/Resources/CreditCards/CreditCardStatementPaymentResource.php`.
-- [ ] T050 [US3] Add statement/payment controller actions and routes in `../zunera-backend/app/Http/Controllers/Api/V1/CreditCardStatementController.php`, `../zunera-backend/app/Http/Controllers/Api/V1/CreditCardStatementPaymentController.php`, and `../zunera-backend/routes/api.php`.
+- [X] T050 [US3] Add statement/payment controller actions and routes in `../zunera-backend/app/Http/Controllers/Api/V1/CreditCardStatementController.php`, `../zunera-backend/app/Http/Controllers/Api/V1/CreditCardStatementPaymentController.php`, and `../zunera-backend/routes/api.php`.
 - [ ] T051 [US3] Align statement state, payment, correction, and replay responses in `specs/010-credit-cards/contracts/credit-cards-api.yaml`.
 - [ ] T052 [US3] Run statement/payment backend regression suites in `../zunera-backend/tests/Feature/CreditCards/CreditCardStatementTest.php` and `../zunera-backend/tests/Feature/CreditCards/CreditCardStatementPaymentTest.php`.
 
