@@ -82,7 +82,7 @@ paths:
         '201': { description: Created purchase, content: { application/json: { schema: { $ref: '#/components/schemas/PurchaseResponse' } } } }
         '401': { $ref: '#/components/responses/Error' }
         '404': { $ref: '#/components/responses/Error' }
-        '409': { $ref: '#/components/responses/OverLimitConfirmationRequired' }
+        '409': { $ref: '#/components/responses/PurchaseConflict' }
         '422': { $ref: '#/components/responses/Error' }
   /credit-card-purchases/{purchase_id}:
     get:
@@ -104,7 +104,7 @@ paths:
         '200': { description: Corrected purchase, content: { application/json: { schema: { $ref: '#/components/schemas/PurchaseResponse' } } } }
         '401': { $ref: '#/components/responses/Error' }
         '404': { $ref: '#/components/responses/Error' }
-        '409': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/PurchaseConflict' }
         '422': { $ref: '#/components/responses/Error' }
   /credit-card-purchases/{purchase_id}/credit-events:
     post:
@@ -428,6 +428,10 @@ components:
         code: { type: string, const: OVER_LIMIT_CONFIRMATION_REQUIRED }
         resulting_available_credit: { $ref: '#/components/schemas/Money' }
         is_over_limit: { type: boolean, const: true }
+    PurchaseConflictError:
+      anyOf:
+        - $ref: '#/components/schemas/Error'
+        - $ref: '#/components/schemas/OverLimitConfirmationRequiredError'
     CreateCreditEventRequest:
       type: object
       required: [reason, amount_centavos, event_date]
@@ -527,6 +531,6 @@ components:
     Error:
       description: Authentication, ownership, validation, current-state, idempotency, or concurrency error without foreign-data disclosure.
       content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
-    OverLimitConfirmationRequired:
-      description: Purchase would exceed available credit. Resubmit the unchanged request with explicit over-limit confirmation.
-      content: { application/json: { schema: { $ref: '#/components/schemas/OverLimitConfirmationRequiredError' } } }
+    PurchaseConflict:
+      description: Purchase mutation conflict. An over-limit confirmation response includes code `OVER_LIMIT_CONFIRMATION_REQUIRED` and resulting available credit; other idempotency, lifecycle, or concurrency conflicts use the standard error shape.
+      content: { application/json: { schema: { $ref: '#/components/schemas/PurchaseConflictError' } } }
