@@ -146,7 +146,9 @@ shared fetch/mutation state.
   response, and uses one transaction. Lock order is financial accounts by id,
   then cards by id, then statements by closing date/id, then affected purchases
   and payments. Recheck availability/outstanding after locks; stale over-limit
-  confirmation receives a typed conflict/warning and cannot mutate money.
+  confirmation receives a typed conflict/warning and cannot mutate money. An
+  explicit over-limit confirmation is a new mutation with a new key; only a
+  network replay of the same initial or confirmed mutation reuses its key.
 - Extend derived sources: installments recognized in statement-closing month
   enter Budget/Dashboard/history once when effective; pending open/future
   installments are expected only where existing Budget rules allow it. Payment
@@ -178,8 +180,10 @@ shared fetch/mutation state.
   under `/app`; place the distinct Credit Cards primary navigation item beside
   financial-account management without reusing account components. Route metadata
   drives title and active navigation.
-- `creditCardService` centralizes CSRF, idempotency retry keys, data unwrap, and
-  field-error mapping. Feature Pinia setup store uses shallow refs for server
+- `creditCardService` centralizes CSRF, idempotency keys, data unwrap, and
+  field-error mapping. It creates a fresh key for an explicit over-limit
+  confirmation and reuses a key only for network replay of the identical
+  mutation. Feature Pinia setup store uses shallow refs for server
   snapshots/loading/errors and explicit actions. It never calculates money,
   status, cycle, or available credit locally; after mutation it refreshes only
   impacted card/statement plus affected dashboard/budget/history slices.

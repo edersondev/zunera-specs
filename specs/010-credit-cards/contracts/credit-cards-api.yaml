@@ -231,7 +231,7 @@ components:
     PurchaseId: { name: purchase_id, in: path, required: true, schema: { type: integer, minimum: 1 } }
     StatementId: { name: statement_id, in: path, required: true, schema: { type: integer, minimum: 1 } }
     PaymentId: { name: payment_id, in: path, required: true, schema: { type: integer, minimum: 1 } }
-    IdempotencyKey: { name: Idempotency-Key, in: header, required: true, schema: { type: string, minLength: 1, maxLength: 255 } }
+    IdempotencyKey: { name: Idempotency-Key, in: header, required: true, description: Reuse only for a network replay of an identical mutation; an explicit over-limit confirmation is a new mutation with a new key., schema: { type: string, minLength: 1, maxLength: 255 } }
     CardView: { name: view, in: query, schema: { type: string, enum: [active, archived], default: active } }
     StatementStatus: { name: status, in: query, schema: { type: string, enum: [open, closed, partially_paid, paid, overdue] } }
     Page: { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
@@ -407,7 +407,7 @@ components:
         purchase_date: { type: string, format: date }
         total_amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
         installment_count: { type: integer, minimum: 1, maximum: 360 }
-        confirm_over_limit: { type: boolean, default: false }
+        confirm_over_limit: { type: boolean, default: false, description: True only for an explicit user confirmation submitted with a new Idempotency-Key after a confirmation-required response. }
     UpdatePurchaseRequest:
       type: object
       minProperties: 1
@@ -419,7 +419,7 @@ components:
         purchase_date: { type: string, format: date }
         total_amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
         installment_count: { type: integer, minimum: 1, maximum: 360 }
-        confirm_over_limit: { type: boolean, default: false, description: Required as true only after a confirmation-required over-limit response. }
+        confirm_over_limit: { type: boolean, default: false, description: True only for an explicit user confirmation submitted with a new Idempotency-Key after a confirmation-required response. }
     OverLimitConfirmationRequiredError:
       type: object
       required: [message, code, resulting_available_credit, is_over_limit]
@@ -532,5 +532,5 @@ components:
       description: Authentication, ownership, validation, current-state, idempotency, or concurrency error without foreign-data disclosure.
       content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
     PurchaseConflict:
-      description: Purchase mutation conflict. An over-limit confirmation response includes code `OVER_LIMIT_CONFIRMATION_REQUIRED` and resulting available credit; other idempotency, lifecycle, or concurrency conflicts use the standard error shape.
+      description: Purchase mutation conflict. An over-limit confirmation response includes code `OVER_LIMIT_CONFIRMATION_REQUIRED` and resulting available credit; explicit confirmation is a new mutation with a new Idempotency-Key, while network replay reuses the key of the identical request. Other idempotency, lifecycle, or concurrency conflicts use the standard error shape.
       content: { application/json: { schema: { $ref: '#/components/schemas/PurchaseConflictError' } } }

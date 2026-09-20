@@ -327,9 +327,11 @@ use, and affected financial views; a user cannot silently alter a closed item.
   limit when recorded.
 - **FR-005**: A purchase exceeding available credit MUST first return a typed
   confirmation-required outcome with the exact resulting negative available
-  credit. The user may resubmit the unchanged purchase with explicit
-  confirmation; it then remains permitted and identifies card as over limit.
-  Confirmation does not change limit or create a cash-account movement.
+  credit. The user may submit the same purchase details with explicit
+  confirmation as a new mutation using a new Idempotency-Key; it then remains
+  permitted and identifies card as over limit. A network retry of either the
+  initial or confirmed mutation reuses that mutation's own key. Confirmation
+  does not change limit or create a cash-account movement.
 - **FR-006**: Only active owned cards may accept new purchases. Archived cards
   remain readable with their historical purchases, installments, statements,
   payments, and credit figures, but cannot accept new purchases or be archived
