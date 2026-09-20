@@ -57,11 +57,11 @@
 
 ### Frontend for User Story 1
 
-- [ ] T023 [P] [US1] Add formatter tests for BRL amounts, calendar dates, installment sequence labels, statement status, over-limit, and available-credit display in `../zunera-frontend/src/utils/credit-cards/__tests__/creditCardFormatters.spec.js`.
-- [ ] T024 [US1] Implement pure presentation formatters that only render server-provided values, with no client-side money, status, or cycle derivation, in `../zunera-frontend/src/utils/credit-cards/creditCardFormatters.js`.
-- [ ] T025 [P] [US1] Add card list, detail, create, update, archive, stable same-mutation `Idempotency-Key` generation, and safe replay-retry API-service tests in `../zunera-frontend/src/services/__tests__/creditCardService.spec.js`.
-- [ ] T026 [P] [US1] Add loading, feedback, and archived-card state tests in `../zunera-frontend/src/stores/credit-cards/__tests__/creditCardStore.spec.js`.
-- [ ] T027 [US1] Implement card API access, stable same-mutation `Idempotency-Key` reuse for network retry/replay, fresh-key user-confirmed mutation submission, and state orchestration in `../zunera-frontend/src/services/creditCardService.js` and `../zunera-frontend/src/stores/credit-cards/creditCardStore.js`.
+- [X] T023 [P] [US1] Add formatter tests for BRL amounts, calendar dates, installment sequence labels, statement status, over-limit, and available-credit display in `../zunera-frontend/src/utils/credit-cards/__tests__/creditCardFormatters.spec.js`.
+- [X] T024 [US1] Implement pure presentation formatters that only render server-provided values, with no client-side money, status, or cycle derivation, in `../zunera-frontend/src/utils/credit-cards/creditCardFormatters.js`.
+- [X] T025 [P] [US1] Add card list, detail, create, update, archive, stable same-mutation `Idempotency-Key` generation, and safe replay-retry API-service tests in `../zunera-frontend/src/services/__tests__/creditCardService.spec.js`.
+- [X] T026 [P] [US1] Add loading, feedback, and archived-card state tests in `../zunera-frontend/src/stores/credit-cards/__tests__/creditCardStore.spec.js`.
+- [X] T027 [US1] Implement card API access, stable same-mutation `Idempotency-Key` reuse for network retry/replay, fresh-key user-confirmed mutation submission, and state orchestration in `../zunera-frontend/src/services/creditCardService.js` and `../zunera-frontend/src/stores/credit-cards/creditCardStore.js`.
 - [X] T028 [US1] Implement accessible responsive card list, detail, and create/edit/archive flows in `../zunera-frontend/src/views/credit-cards/CreditCardsListView.vue`, `../zunera-frontend/src/views/credit-cards/CreditCardDetailView.vue`, and `../zunera-frontend/src/components/credit-cards/CreditCardForm.vue`.
 - [X] T029 [US1] Register navigation, routes, localized feedback, and management browser coverage, including the spec-local fixture builders used by the Credit Cards browser suite, in `../zunera-frontend/src/router/index.js`, `../zunera-frontend/src/layouts/AppShell.vue`, `../zunera-frontend/src/i18n/messages.js`, and `../zunera-frontend/e2e/credit-cards.spec.js`.
 
