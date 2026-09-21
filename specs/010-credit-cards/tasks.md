@@ -63,7 +63,7 @@
 - [X] T026 [P] [US1] Add loading, feedback, and archived-card state tests in `../zunera-frontend/src/stores/credit-cards/__tests__/creditCardStore.spec.js`.
 - [X] T027 [US1] Implement card API access, stable same-mutation `Idempotency-Key` reuse for network retry/replay, fresh-key user-confirmed mutation submission, and state orchestration in `../zunera-frontend/src/services/creditCardService.js` and `../zunera-frontend/src/stores/credit-cards/creditCardStore.js`.
 - [X] T028 [US1] Implement accessible responsive card list, detail, and create/edit/archive flows in `../zunera-frontend/src/views/credit-cards/CreditCardsListView.vue`, `../zunera-frontend/src/views/credit-cards/CreditCardDetailView.vue`, and `../zunera-frontend/src/components/credit-cards/CreditCardForm.vue`.
-- [X] T029 [US1] Register navigation, routes, localized feedback, and management browser coverage, including the spec-local fixture builders used by the Credit Cards browser suite, in `../zunera-frontend/src/router/index.js`, `../zunera-frontend/src/layouts/AppShell.vue`, `../zunera-frontend/src/i18n/messages.js`, and `../zunera-frontend/e2e/credit-cards.spec.js`.
+- [ ] T029 [US1] Register navigation, routes, localized feedback, and management browser coverage, including the spec-local fixture builders used by the Credit Cards browser suite, in `../zunera-frontend/src/router/index.js`, `../zunera-frontend/src/layouts/AppShell.vue`, `../zunera-frontend/src/i18n/messages.js`, and `../zunera-frontend/e2e/credit-cards.spec.js`. (Routes, navigation, and i18n are done; the Playwright management journey is still open.)
 
 **Checkpoint**: A user manages only their own non-sensitive cards; archives stay readable and correctly guarded by financial state.
 
