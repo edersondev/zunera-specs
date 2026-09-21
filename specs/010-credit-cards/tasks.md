@@ -152,7 +152,7 @@
 
 - [ ] T068 [P] [US4] Add dashboard card-summary service/store tests in `../zunera-frontend/src/services/__tests__/creditCardService.spec.js` and `../zunera-frontend/src/stores/credit-cards/__tests__/creditCardStore.spec.js`.
 - [ ] T069 [P] [US4] Add obligation/available-credit, upcoming-due, and non-color-only status tests in `../zunera-frontend/src/components/dashboard/__tests__/CreditCardSummary.spec.js`.
-- [ ] T070 [US4] Implement card summary loading and presentation in `../zunera-frontend/src/services/creditCardService.js`, `../zunera-frontend/src/stores/credit-cards/creditCardStore.js`, `../zunera-frontend/src/components/dashboard/CreditCardSummary.vue`, and `../zunera-frontend/src/views/dashboard/FinancialDashboardView.vue`.
+- [X] T070 [US4] Implement card summary loading and presentation in `../zunera-frontend/src/services/creditCardService.js`, `../zunera-frontend/src/stores/credit-cards/creditCardStore.js`, `../zunera-frontend/src/components/dashboard/CreditCardSummary.vue`, and `../zunera-frontend/src/views/dashboard/FinancialDashboardView.vue`.
 - [ ] T071 [US4] Update expected/realized card spending and history presentation, and add the recurring-card-unsupported notice with manual-card-purchase guidance, in `../zunera-frontend/src/views/budgets/BudgetsView.vue`, `../zunera-frontend/src/views/transactions/TransactionsListView.vue` (existing `listFinancialHistory` screen), and `../zunera-frontend/src/views/recurring-transactions/RecurringTransactionsListView.vue`.
 - [ ] T072 [US4] Add browser coverage for budget recognition, dashboard obligations, history entries, payment non-duplication, and the recurring-card-unsupported notice in `../zunera-frontend/e2e/credit-cards.spec.js`.
 
