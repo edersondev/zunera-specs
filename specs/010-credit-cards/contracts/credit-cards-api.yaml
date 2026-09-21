@@ -63,6 +63,17 @@ paths:
         '401': { $ref: '#/components/responses/Error' }
         '404': { $ref: '#/components/responses/Error' }
         '409': { $ref: '#/components/responses/Error' }
+  /credit-cards/{card_id}/restore:
+    post:
+      summary: Restore an archived owned card to active use
+      operationId: restoreCreditCard
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/CardId' }, { $ref: '#/components/parameters/IdempotencyKey' }]
+      responses:
+        '200': { description: Restored active card, content: { application/json: { schema: { $ref: '#/components/schemas/CardResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
   /credit-cards/{card_id}/purchases:
     get:
       summary: List owned card purchases newest first
