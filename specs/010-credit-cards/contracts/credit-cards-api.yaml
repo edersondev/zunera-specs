@@ -7,6 +7,7 @@ info:
     Owner-scoped personal credit-card management. Card purchases create
     obligations; statement payments settle them from financial accounts and are
     never categorized expenses. All financial mutations require Idempotency-Key.
+x-contract-fixtures: ./fixtures/credit-cards.yaml
 servers: [{ url: /api/v1 }]
 paths:
   /credit-cards:

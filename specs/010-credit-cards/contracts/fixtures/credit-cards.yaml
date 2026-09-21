@@ -1,0 +1,216 @@
+# Representative API payloads used by contract review and browser-test fixtures.
+# Amounts are integer centavos; every monetary value uses BRL.
+
+requests:
+  create_card:
+    name: Nubank Platinum
+    institution_name: Nubank
+    last_four: '1234'
+    credit_limit_centavos: 500000
+    closing_day: 25
+    due_day: 5
+    color: '#820ad1'
+    icon: credit-card
+  create_installment_purchase:
+    category_id: 18
+    description: Fone de ouvido
+    notes: Compra em três parcelas sem juros
+    purchase_date: '2026-09-25'
+    total_amount_centavos: 10000
+    installment_count: 3
+    confirm_over_limit: false
+  confirm_over_limit_purchase:
+    category_id: 18
+    description: Monitor ultrawide
+    purchase_date: '2026-09-25'
+    total_amount_centavos: 600000
+    installment_count: 1
+    confirm_over_limit: true
+    expected_available_credit_centavos: 490000
+  create_payment:
+    financial_account_id: 7
+    amount_centavos: 3334
+    payment_date: '2026-10-05'
+    status: effective
+    notes: Primeira parcela da fatura
+  create_credit_event:
+    reason: refund
+    amount_centavos: 3333
+    event_date: '2026-10-06'
+    notes: Estorno parcial do lojista
+
+responses:
+  card:
+    data: &card
+      id: 41
+      name: Nubank Platinum
+      institution_name: Nubank
+      last_four: '1234'
+      color: '#820ad1'
+      icon: credit-card
+      status: active
+      closing_day: 25
+      due_day: 5
+      summary:
+        credit_limit: { amount_centavos: 500000, currency_code: BRL }
+        used_credit: { amount_centavos: 10000, currency_code: BRL }
+        card_credit: { amount_centavos: 0, currency_code: BRL }
+        available_credit: { amount_centavos: 490000, currency_code: BRL }
+        is_over_limit: false
+      current_statement: &statement_summary
+        id: 72
+        card: &card_identity
+          id: 41
+          name: Nubank Platinum
+          institution_name: Nubank
+          last_four: '1234'
+          color: '#820ad1'
+          icon: credit-card
+          status: active
+        period_from: '2026-08-26'
+        period_to: '2026-09-25'
+        closing_date: '2026-09-25'
+        due_date: '2026-10-05'
+        original_amount: { amount_centavos: 3334, currency_code: BRL }
+        credit_adjustments: { amount_centavos: 0, currency_code: BRL }
+        net_amount: { amount_centavos: 3334, currency_code: BRL }
+        paid_amount: { amount_centavos: 0, currency_code: BRL }
+        card_credit_applied: { amount_centavos: 0, currency_code: BRL }
+        outstanding_amount: { amount_centavos: 3334, currency_code: BRL }
+        status: closed
+        is_current: true
+  purchase:
+    data:
+      id: 96
+      card: *card_identity
+      category: { id: 18, name: Tecnologia, classification: expense, status: active }
+      description: Fone de ouvido
+      notes: Compra em três parcelas sem juros
+      purchase_date: '2026-09-25'
+      total_amount: { amount_centavos: 10000, currency_code: BRL }
+      installment_count: 3
+      installments:
+        - &first_installment
+          id: 301
+          sequence: 1
+          total_count: 3
+          amount: { amount_centavos: 3334, currency_code: BRL }
+          credit_adjustment: { amount_centavos: 0, currency_code: BRL }
+          recognized_amount: { amount_centavos: 3334, currency_code: BRL }
+          recognition_date: '2026-09-25'
+          recognition_status: effective
+          statement: *statement_summary
+        - id: 302
+          sequence: 2
+          total_count: 3
+          amount: { amount_centavos: 3333, currency_code: BRL }
+          credit_adjustment: { amount_centavos: 0, currency_code: BRL }
+          recognized_amount: { amount_centavos: 3333, currency_code: BRL }
+          recognition_date: '2026-10-25'
+          recognition_status: pending
+          statement:
+            id: 73
+            card: *card_identity
+            period_from: '2026-09-26'
+            period_to: '2026-10-25'
+            closing_date: '2026-10-25'
+            due_date: '2026-11-05'
+            original_amount: { amount_centavos: 3333, currency_code: BRL }
+            credit_adjustments: { amount_centavos: 0, currency_code: BRL }
+            net_amount: { amount_centavos: 3333, currency_code: BRL }
+            paid_amount: { amount_centavos: 0, currency_code: BRL }
+            card_credit_applied: { amount_centavos: 0, currency_code: BRL }
+            outstanding_amount: { amount_centavos: 3333, currency_code: BRL }
+            status: open
+            is_current: false
+        - id: 303
+          sequence: 3
+          total_count: 3
+          amount: { amount_centavos: 3333, currency_code: BRL }
+          credit_adjustment: { amount_centavos: 0, currency_code: BRL }
+          recognized_amount: { amount_centavos: 3333, currency_code: BRL }
+          recognition_date: '2026-11-25'
+          recognition_status: pending
+          statement:
+            id: 74
+            card: *card_identity
+            period_from: '2026-10-26'
+            period_to: '2026-11-25'
+            closing_date: '2026-11-25'
+            due_date: '2026-12-05'
+            original_amount: { amount_centavos: 3333, currency_code: BRL }
+            credit_adjustments: { amount_centavos: 0, currency_code: BRL }
+            net_amount: { amount_centavos: 3333, currency_code: BRL }
+            paid_amount: { amount_centavos: 0, currency_code: BRL }
+            card_credit_applied: { amount_centavos: 0, currency_code: BRL }
+            outstanding_amount: { amount_centavos: 3333, currency_code: BRL }
+            status: open
+            is_current: false
+      credit_events: []
+      is_directly_editable: false
+  statement:
+    data:
+      <<: *statement_summary
+      installments: [*first_installment]
+      payments:
+        - &payment
+          id: 114
+          statement_id: 72
+          financial_account: { id: 7, name: Conta corrente, status: active }
+          amount: { amount_centavos: 3334, currency_code: BRL }
+          payment_date: '2026-10-05'
+          notes: Primeira parcela da fatura
+          status: effective
+          is_removed: false
+      credit_events: []
+  payment:
+    data:
+      payment: *payment
+      statement:
+        <<: *statement_summary
+        paid_amount: { amount_centavos: 3334, currency_code: BRL }
+        outstanding_amount: { amount_centavos: 0, currency_code: BRL }
+        status: paid
+      card: *card
+  credit_event:
+    data:
+      credit_event:
+        id: 208
+        reason: refund
+        amount: { amount_centavos: 3333, currency_code: BRL }
+        event_date: '2026-10-06'
+        notes: Estorno parcial do lojista
+        applications:
+          - installment_id: 302
+            statement_id: 73
+            amount: { amount_centavos: 3333, currency_code: BRL }
+      card: *card
+      affected_statements:
+        - <<: *statement_summary
+          paid_amount: { amount_centavos: 3334, currency_code: BRL }
+          outstanding_amount: { amount_centavos: 0, currency_code: BRL }
+          status: paid
+        - id: 73
+          card: *card_identity
+          period_from: '2026-09-26'
+          period_to: '2026-10-25'
+          closing_date: '2026-10-25'
+          due_date: '2026-11-05'
+          original_amount: { amount_centavos: 3333, currency_code: BRL }
+          credit_adjustments: { amount_centavos: 3333, currency_code: BRL }
+          net_amount: { amount_centavos: 0, currency_code: BRL }
+          paid_amount: { amount_centavos: 0, currency_code: BRL }
+          card_credit_applied: { amount_centavos: 0, currency_code: BRL }
+          outstanding_amount: { amount_centavos: 0, currency_code: BRL }
+          status: paid
+          is_current: false
+
+errors:
+  over_limit_confirmation_required:
+    message: Purchase requires explicit over-limit confirmation.
+    code: OVER_LIMIT_CONFIRMATION_REQUIRED
+    resulting_available_credit: { amount_centavos: -110000, currency_code: BRL }
+    is_over_limit: true
+  idempotency_key_reused_with_different_request:
+    message: Idempotency key was already used with a different request.
+    code: IDEMPOTENCY_KEY_REUSED
