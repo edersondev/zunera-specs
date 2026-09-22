@@ -36,6 +36,8 @@
 4. Apply a custom date range in the filters dialog: the period criterion appears
    alongside the other criteria, the navigator label follows the range start, and
    clicking an arrow replaces the range with the whole chosen month.
+   The dialog itself offers no search field; text typed in the filter row search is
+   preserved when the dialog applies.
 5. Remove the period criterion and then run Clear filters: the period returns to
    the navigator month while the other criteria are cleared.
 6. Confirm an account without movements still shows the "nothing recorded yet"

@@ -122,6 +122,9 @@
   the filter row holds only the search input plus the Search and Filters buttons; below
   640px the header stacks the title, navigator, and actions. Vitest passes 430 tests and
   `npm run lint` passes.
+- The filters dialog no longer duplicates the free-text search field: it carries type,
+  status, account, category, and period, and applying it keeps the text already typed in
+  the filter row.
 - Address sync deviation: the first load keeps the address unchanged and applies the
   current business month to the request; the period is written to the address as soon
   as the user changes the month, matching the budgets screen, which also never

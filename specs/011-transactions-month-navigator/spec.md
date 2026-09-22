@@ -29,6 +29,9 @@ and filter buttons and the right the month navigator."
 - Q: What should Clear filters do with the month scope? → A: Keep the month shown in
   the navigator and clear only search, type, status, account, category, and custom
   period criteria.
+- Q: Does the Filters dialog keep its own free-text search field? → A: No. Free-text
+  search lives only in the filter row; the dialog carries the advanced criteria
+  (type, status, account, category, and period).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -168,6 +171,9 @@ existing keyboard and screen-reader checks.
   navigator, and the page actions instead of crowding each other.
 - **FR-014**: While the movements are loading, the navigator's actions MUST be disabled so
   a user cannot queue conflicting month changes.
+- **FR-015**: The filters dialog MUST present only the advanced criteria — type, status,
+  account, category, and period — MUST NOT duplicate the free-text search field, and
+  applying it MUST keep whatever text is already typed in the filter row search.
 
 ### Security and Quality Requirements *(mandatory)*
 
