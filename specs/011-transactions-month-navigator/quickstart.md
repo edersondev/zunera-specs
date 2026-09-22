@@ -52,3 +52,17 @@ npm run lint
 npm run build
 CI=1 npm run test:e2e -- e2e/transactions.spec.js e2e/budgets.spec.js
 ```
+
+## Validation Evidence (2026-09-22)
+
+- Backend: `php artisan test --filter=FinancialHistory` → 13 passed (121 assertions);
+  `vendor/bin/pint --format=agent` → passed.
+- Frontend unit: `npm run test:unit -- --run` → 115 files, 428 tests passed; `npm run
+  lint` passed.
+- Frontend end-to-end: `CI=1 npm run test:e2e -- e2e/transactions.spec.js
+  e2e/budgets.spec.js` → 42 passed across chromium, firefox, and webkit, covering the
+  default month on load, month-scoped list and card totals, the period criterion for a
+  custom range, the address update on month change, and keyboard use at 320px.
+- Baseline check: the stashed (pre-change) checkout reproduces the budgets
+  `progressbar` strict-mode failures, confirming they came from the earlier budget
+  overview redesign rather than this feature.
