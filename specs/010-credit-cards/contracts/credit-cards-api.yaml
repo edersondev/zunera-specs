@@ -313,9 +313,11 @@ components:
         status: { type: string, enum: [active, archived] }
     Installment:
       type: object
-      required: [id, sequence, total_count, amount, recognition_date, recognition_status, statement]
+      required: [id, description, purchase_date, sequence, total_count, amount, recognition_date, recognition_status, statement]
       properties:
         id: { type: integer, minimum: 1 }
+        description: { type: string, description: Original purchase description. }
+        purchase_date: { type: string, format: date, description: Original purchase date. }
         sequence: { type: integer, minimum: 1 }
         total_count: { type: integer, minimum: 1 }
         amount: { $ref: '#/components/schemas/Money' }
