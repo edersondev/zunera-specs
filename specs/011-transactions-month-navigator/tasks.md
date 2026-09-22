@@ -46,7 +46,7 @@
 - [X] T012 [US1] Create the shared navigator in `../zunera-frontend/src/components/common/MonthNavigator.vue` with `month`, `loading`, `change-month`, `aria-live` label, and `month-previous`/`month-label`/`month-next` test hooks, replacing `../zunera-frontend/src/components/budgets/BudgetMonthNavigator.vue`.
 - [X] T013 [P] [US1] Add navigator unit coverage in `../zunera-frontend/src/components/common/__tests__/MonthNavigator.spec.js` and remove the superseded budgets navigator spec.
 - [X] T014 [US1] Point the budgets view at the shared navigator in `../zunera-frontend/src/views/budgets/BudgetsView.vue`.
-- [X] T015 [US1] Restructure the transactions filter row in `../zunera-frontend/src/components/transactions/TransactionFilterBar.vue` into two columns — search input plus Search and Filters buttons on the left, `MonthNavigator` on the right — adding a `month` prop and a `change-month` event, stacking to one column below 640px.
+- [X] T015 [US1] Add a `context` slot to `../zunera-frontend/src/components/layout/PageHeader.vue`, place the `MonthNavigator` there in `../zunera-frontend/src/views/transactions/TransactionsListView.vue` between the title and the page actions, and keep the search row limited to the search input plus the Search and Filters buttons in `../zunera-frontend/src/components/transactions/TransactionFilterBar.vue` (which keeps a `month` prop only as the period-criterion baseline).
 - [X] T016 [P] [US1] Update filter-bar coverage for the two-column row, the `change-month` event, and narrow-screen stacking in `../zunera-frontend/src/components/transactions/__tests__/TransactionFilterBar.spec.js`.
 - [X] T017 [US1] Own the selected month in `../zunera-frontend/src/views/transactions/TransactionsListView.vue`: derive it from the address period or the business month, request the inclusive month range with the other criteria, keep search/type/status/account/category on month change, reset pagination, and sync the address.
 - [X] T018 [P] [US1] Update view coverage for the default month scope, month-change period application, retained criteria, and address sync in `../zunera-frontend/src/views/transactions/__tests__/TransactionsListView.spec.js`.
@@ -117,8 +117,10 @@
   filter data once for the list and the totals. `php artisan test
   --filter=FinancialHistory` passes (13 tests) and Pint reports `passed`.
 - Frontend: the navigator moved to `src/components/common/MonthNavigator.vue` and
-  budgets now consumes it; the transactions filter row is a two-column layout with
-  the navigator on the right and stacks below 640px. Vitest passes 428 tests and
+  budgets now consumes it. On the transactions page it renders in the page header
+  between the title and the "Nova transação" actions through a new `context` slot, and
+  the filter row holds only the search input plus the Search and Filters buttons; below
+  640px the header stacks the title, navigator, and actions. Vitest passes 430 tests and
   `npm run lint` passes.
 - Address sync deviation: the first load keeps the address unchanged and applies the
   current business month to the request; the period is written to the address as soon

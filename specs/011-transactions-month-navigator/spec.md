@@ -34,9 +34,9 @@ and filter buttons and the right the month navigator."
 
 ### User Story 1 - Browse Transactions by Month (Priority: P1)
 
-As an authenticated user, I want a month navigator beside the search and filter
-buttons on the transactions page, so that I can step through one calendar month at a
-time the same way I do on the budgets page.
+As an authenticated user, I want a month navigator in the transactions page header,
+between the page title and the page actions, so that I can step through one calendar
+month at a time the same way I do on the budgets page.
 
 **Why this priority**: Month-by-month browsing is the requested capability; everything
 else only improves its accuracy and presentation.
@@ -60,7 +60,8 @@ next arrows to display another month's movements.
    the address, **Then** the same month is restored from the address.
 5. **Given** the user opens the page on a narrow screen or with keyboard only, **When**
    they use the navigator, **Then** the control remains reachable, announces the month,
-   and the layout keeps the search controls and the navigator readable without overlap.
+   and the header stacks the navigator with the heading and page actions without
+   overlap.
 
 ---
 
@@ -131,9 +132,9 @@ existing keyboard and screen-reader checks.
 
 ### Functional Requirements
 
-- **FR-001**: The transactions page MUST present a month navigator on the same row as
-  the search input and the filter buttons, with the search controls on the left and the
-  navigator on the right.
+- **FR-001**: The transactions page MUST present a month navigator in the page header,
+  positioned between the page title block and the page actions, and the search and filter
+  controls MUST stay together in the filter row below it.
 - **FR-002**: The navigator MUST show the selected month in the user's locale and MUST
   provide previous and next actions that move exactly one calendar month, including
   across year boundaries.
@@ -163,8 +164,8 @@ existing keyboard and screen-reader checks.
 - **FR-012**: The month navigator MUST be one shared control used by the budgets page and
   the transactions page, with identical behavior, wording, and accessibility metadata.
 - **FR-013**: The month navigator MUST remain usable with keyboard-only navigation, with
-  assistive technology, and on narrow screens where the search controls and the navigator
-  stack instead of crowding each other.
+  assistive technology, and on narrow screens where the header stacks the title, the
+  navigator, and the page actions instead of crowding each other.
 - **FR-014**: While the movements are loading, the navigator's actions MUST be disabled so
   a user cannot queue conflicting month changes.
 

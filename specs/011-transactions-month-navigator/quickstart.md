@@ -25,9 +25,9 @@
 
 ## Frontend validation
 
-1. Open the transactions page with no query parameters: the navigator shows the
-   current business month, the list is limited to it, and the address carries the
-   matching `from`/`to`.
+1. Open the transactions page with no query parameters: the header shows the navigator
+   between the title and the "Nova transação" actions, it displays the current business
+   month, and the list is limited to it.
 2. Use the next and previous arrows across a year boundary and confirm the label,
    the list, the totals, and the address all move together, and that the controls
    are disabled while loading.
