@@ -125,6 +125,10 @@
 - The filters dialog no longer duplicates the free-text search field: it carries type,
   status, account, category, and period, and applying it keeps the text already typed in
   the filter row.
+- Styling follows the design foundation's Tailwind ownership rule: the shared navigator
+  and the new header context wrapper use Tailwind utilities with the semantic
+  `--color-*` and `--radius-*` tokens, so no new scoped CSS block was introduced. Existing
+  filter-bar and page-header CSS predates this feature and stays as-is.
 - Address sync deviation: the first load keeps the address unchanged and applies the
   current business month to the request; the period is written to the address as soon
   as the user changes the month, matching the budgets screen, which also never
