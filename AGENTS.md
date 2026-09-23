@@ -1,6 +1,6 @@
 <!-- SPECKIT START -->
 For additional context about technologies, project structure, shell commands,
-and implementation order, read [specs/010-credit-cards/plan.md](specs/010-credit-cards/plan.md).
+and implementation order, read [specs/012-statement-transactions-expandable-list/plan.md](specs/012-statement-transactions-expandable-list/plan.md).
 <!-- SPECKIT END -->
 
 ## Zunera Workspace Layout
