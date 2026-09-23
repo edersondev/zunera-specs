@@ -1,6 +1,6 @@
 <!-- SPECKIT START -->
 For additional context about technologies, project structure, shell commands,
-and implementation order, read [specs/012-statement-transactions-expandable-list/plan.md](specs/012-statement-transactions-expandable-list/plan.md).
+and implementation order, read [specs/013-transactions-activity-redesign/plan.md](specs/013-transactions-activity-redesign/plan.md).
 <!-- SPECKIT END -->
 
 ## Zunera Workspace Layout
