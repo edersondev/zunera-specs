@@ -1,0 +1,25 @@
+endpoint: GET /api/v1/credit-card-statements/{statement_id}
+scope: authenticated owner, unchanged
+change: additive fields on each data.installments item
+fields:
+  purchase_id: integer
+  category:
+    id: integer
+    name: string
+    icon: string|null
+    color: string|null
+  purchase_total_amount:
+    amount_centavos: integer
+    currency_code: BRL
+  is_directly_editable: boolean
+unchanged:
+  - id
+  - description
+  - purchase_date
+  - sequence
+  - total_count
+  - amount
+  - credit_adjustment
+  - recognized_amount
+  - recognition_status
+  - statement
