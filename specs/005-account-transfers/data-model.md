@@ -44,7 +44,10 @@ additive nullable field does not change existing history behavior.
 The projection is served by `GET /financial-history` and also publishes
 `meta.totals` (`income_centavos`, `expense_centavos`,
 `financial_result_centavos`) computed from effective, non-removed income and
-expense transactions only.
+expense transactions only. Feature 011 made these totals period-aware: when the
+request carries `from` and/or `to`, only transactions dated inside that inclusive
+range contribute, so the totals always describe the listed period; a request
+without a period keeps the original all-time totals.
 
 ## Aggregate Boundaries
 

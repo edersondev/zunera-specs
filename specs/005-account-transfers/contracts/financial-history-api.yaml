@@ -33,9 +33,15 @@ paths:
         - name: from
           in: query
           schema: { type: string }
+          description: >-
+            Inclusive lower date bound for listed movements. When supplied it
+            also scopes meta.totals to the same period.
         - name: to
           in: query
           schema: { type: string }
+          description: >-
+            Inclusive upper date bound for listed movements. When supplied it
+            also scopes meta.totals to the same period.
         - name: financial_account_id
           in: query
           schema: { type: integer, minimum: 1 }
@@ -200,12 +206,28 @@ components:
           items: { $ref: '#/components/schemas/FinancialHistoryEntry' }
         meta:
           type: object
-          required: [current_page, last_page, per_page, total]
+          required: [current_page, last_page, per_page, total, totals]
           properties:
             current_page: { type: integer, minimum: 1 }
             last_page: { type: integer, minimum: 1 }
             per_page: { type: integer, minimum: 1, maximum: 50 }
             total: { type: integer, minimum: 0 }
+            totals: { $ref: '#/components/schemas/PeriodTotals' }
+    PeriodTotals:
+      type: object
+      required:
+        [income_centavos, expense_centavos, financial_result_centavos, currency_code]
+      properties:
+        income_centavos: { type: integer, minimum: 0 }
+        expense_centavos: { type: integer, minimum: 0 }
+        financial_result_centavos: { type: integer }
+        currency_code: { type: string, example: BRL }
+      description: >-
+        Realized income, expense, and net result computed from effective,
+        non-removed income and expense transactions only; transfers and
+        recognized credit-card expenses never contribute. Restricted to the
+        inclusive from/to period when the request supplies one, and all-time
+        when the request omits the period.
     Error:
       type: object
       required: [message]
