@@ -1,0 +1,75 @@
+openapi: 3.1.0
+info:
+  title: Zunera Financial History Period Totals Extension
+  version: 1.0.0
+  license: { name: Proprietary, identifier: LicenseRef-Proprietary }
+  description: >-
+    Documents the additive change to the financial-history collection response:
+    meta.totals becomes period-scoped when the request carries from and/or to.
+    The canonical owner of the endpoint stays
+    specs/005-account-transfers/contracts/financial-history-api.yaml, which is
+    amended in the same change; listing, authorization, validation, and
+    pagination are unchanged.
+servers:
+  - url: /api/v1
+paths:
+  /financial-history:
+    get:
+      summary: List owned history entries with period-scoped realized totals
+      operationId: listFinancialHistoryWithPeriodTotals
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: from
+          in: query
+          schema: { type: string }
+          description: Inclusive lower date bound; also scopes meta.totals.
+        - name: to
+          in: query
+          schema: { type: string }
+          description: Inclusive upper date bound; also scopes meta.totals.
+      responses:
+        '200':
+          description: Paginated movements plus realized totals for the requested period
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinancialHistoryPeriodTotalsResponse'
+        '401':
+          description: Unauthenticated request
+        '422':
+          description: Inverted period or invalid filter value
+components:
+  schemas:
+    FinancialHistoryPeriodTotalsResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            description: Existing discriminated history entry resource, unchanged.
+        meta:
+          type: object
+          required: [current_page, last_page, per_page, total, totals]
+          properties:
+            current_page: { type: integer, minimum: 1 }
+            last_page: { type: integer, minimum: 1 }
+            per_page: { type: integer, minimum: 1, maximum: 50 }
+            total: { type: integer, minimum: 0 }
+            totals:
+              $ref: '#/components/schemas/PeriodTotals'
+    PeriodTotals:
+      type: object
+      required:
+        [income_centavos, expense_centavos, financial_result_centavos, currency_code]
+      properties:
+        income_centavos: { type: integer, minimum: 0 }
+        expense_centavos: { type: integer, minimum: 0 }
+        financial_result_centavos: { type: integer }
+        currency_code: { type: string, example: BRL }
+      description: >-
+        Effective, non-removed income and expense transactions only. Restricted
+        to the inclusive from/to period when the request supplies one; all-time
+        when the request omits the period. Transfers and recognized credit-card
+        expenses never contribute.
