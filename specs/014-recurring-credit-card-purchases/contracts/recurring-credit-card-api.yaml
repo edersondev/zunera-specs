@@ -1,0 +1,444 @@
+openapi: 3.1.0
+info:
+  title: Zunera Recurring Credit Card Purchase Extension
+  version: 1.0.0
+  description: >-
+    Additive contract to the implemented Recurring Transactions and Credit Cards
+    APIs. Existing account-rule requests and account occurrence responses retain
+    their current behavior. All IDs and derived values are owner scoped.
+servers:
+  - url: /api/v1
+security:
+  - cookieAuth: []
+paths:
+  /recurring-transactions:
+    get:
+      summary: List owned account and card rules
+      parameters:
+        - { $ref: '#/components/parameters/DestinationFilter' }
+        - { $ref: '#/components/parameters/CardFilter' }
+      description: >-
+        Existing type, account, category, frequency, state, page, and per_page
+        filters remain available. Each item adds destination_type, credit_card,
+        and generation_mode. Card filters reject foreign or missing IDs without
+        revealing ownership.
+      responses:
+        '200': { description: Existing paginated recurrence collection with extended rule items. }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    post:
+      summary: Create an account or card recurrence
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateRule' }
+      responses:
+        '201': { $ref: '#/components/responses/RuleCreated' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /recurring-transactions/{recurring_transaction_id}:
+    get:
+      summary: Read an owned rule with destination identity and mode
+      parameters: [{ $ref: '#/components/parameters/RuleId' }]
+      responses:
+        '200': { $ref: '#/components/responses/RuleOk' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+    patch:
+      summary: Change future unrepresented dates of an owned rule
+      description: >-
+        destination_type cannot change. Account rules retain current update
+        behavior. Card, category, mode, amount, and schedule changes leave
+        represented occurrences and purchases untouched.
+      parameters:
+        - { $ref: '#/components/parameters/RuleId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateRule' }
+      responses:
+        '200': { $ref: '#/components/responses/RuleOk' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /recurring-transactions/{recurring_transaction_id}/occurrences:
+    get:
+      summary: List occurrences of an owned account or card rule
+      description: >-
+        Account-rule items keep their existing transaction ID, scheduled_date,
+        status, and removed_at meaning. Card-rule items use CardOccurrence.
+        Due card items remain listed after pause or end; newest scheduled first.
+      parameters:
+        - { $ref: '#/components/parameters/RuleId' }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+      responses:
+        '200':
+          description: Existing pagination envelope with account or card items.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta, links]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      oneOf:
+                        - { $ref: '#/components/schemas/AccountOccurrence' }
+                        - { $ref: '#/components/schemas/CardOccurrence' }
+                  meta: { type: object }
+                  links: { type: object }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /recurring-transactions/{recurring_transaction_id}/occurrences/{occurrence_id}/confirm:
+    post:
+      summary: Confirm one due card occurrence or explicitly approve over-limit
+      description: >-
+        Confirmation mode accepts a one-occurrence amount/date/card/category,
+        including when retrying a failed confirmation. Validated choices are
+        retained on the occurrence before purchase creation. If recording
+        fails, no financial record is committed; omitted fields on the next
+        confirmation reuse retained choices, and explicit revisions are
+        revalidated. The failed occurrence remains actionable.
+        Automatic mode awaiting_over_limit retains its scheduled amount/date;
+        confirm_over_limit is an explicit owner decision. Current credit is
+        rechecked. One purchase and recorded state commit atomically. Exact
+        Idempotency-Key replay returns the prior result; another key cannot
+        create another purchase. Rule pause/end does not prohibit action on an
+        already due occurrence.
+      parameters:
+        - { $ref: '#/components/parameters/RuleId' }
+        - { $ref: '#/components/parameters/OccurrenceId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConfirmOccurrence' }
+      responses:
+        '200': { $ref: '#/components/responses/OccurrenceOk' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /recurring-transactions/{recurring_transaction_id}/occurrences/{occurrence_id}/dismiss:
+    post:
+      summary: Dismiss an expected, failed confirmation, or awaiting-approval card occurrence
+      description: No purchase is created; the scheduled date remains reserved against regeneration and later cycles are unaffected.
+      parameters:
+        - { $ref: '#/components/parameters/RuleId' }
+        - { $ref: '#/components/parameters/OccurrenceId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200': { $ref: '#/components/responses/OccurrenceOk' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /recurring-transactions/{recurring_transaction_id}/occurrences/{occurrence_id}/retry:
+    post:
+      summary: Retry a failed automatic occurrence under current card rules
+      description: >-
+        Uses the original scheduled amount and date. It may record, remain
+        failed, or move to awaiting_over_limit. It cannot approve an over-limit
+        purchase automatically. An already due occurrence remains actionable
+        after the rule is paused or ended.
+      parameters:
+        - { $ref: '#/components/parameters/RuleId' }
+        - { $ref: '#/components/parameters/OccurrenceId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200': { $ref: '#/components/responses/OccurrenceOk' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /recurring-transactions/{recurring_transaction_id}/pause:
+    post:
+      summary: Existing pause action also applies to card rules
+      description: Future dates are skipped; already due card occurrences remain actionable.
+      parameters:
+        - { $ref: '#/components/parameters/RuleId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200': { $ref: '#/components/responses/RuleOk' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /recurring-transactions/{recurring_transaction_id}/resume:
+    post:
+      summary: Existing resume action checks current card and category eligibility
+      description: Resumes future schedule dates without rewriting represented ones.
+      parameters:
+        - { $ref: '#/components/parameters/RuleId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200': { $ref: '#/components/responses/RuleOk' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /recurring-transactions/{recurring_transaction_id}/end:
+    post:
+      summary: Existing permanent end action also applies to card rules
+      description: Stops future dates; historical purchases and already due occurrences remain.
+      parameters:
+        - { $ref: '#/components/parameters/RuleId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200': { $ref: '#/components/responses/RuleOk' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /credit-cards/{card_id}/purchases:
+    get:
+      summary: Existing card purchase list exposes nullable recurrence_source per item
+      parameters:
+        - { name: card_id, in: path, required: true, schema: { type: integer, minimum: 1 } }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+      responses:
+        '200': { description: Existing paginated purchase list; each purchase adds nullable recurrence_source. }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+  /credit-card-purchases/{purchase_id}:
+    get:
+      summary: Existing owned purchase detail, with nullable recurrence source
+      description: >-
+        The existing purchase response adds recurrence_source. Manual purchases
+        return null; recurrence purchases return the source rule ID, occurrence
+        ID, and scheduled date. Card list and statement activity expose the same
+        source, without changing purchase or installment financial states.
+      parameters:
+        - { name: purchase_id, in: path, required: true, schema: { type: integer, minimum: 1 } }
+      responses:
+        '200':
+          description: Existing purchase detail with recurrence_source.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/PurchaseSourceExtension' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+  /credit-card-statements/{statement_id}:
+    get:
+      summary: Existing statement detail includes recurrence source on purchase lines
+      parameters:
+        - { name: statement_id, in: path, required: true, schema: { type: integer, minimum: 1 } }
+      responses:
+        '200': { description: Existing statement detail and financial fields; recurring purchase lines add nullable recurrence_source. }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+  /financial-dashboard/upcoming-activity:
+    get:
+      summary: Include each eligible unrecorded card date once as a scheduled expectation
+      responses:
+        '200': { description: Existing upcoming activity response; card expected items identify destination, rule, scheduled date, and workflow state, with no purchase ID. }
+        '401': { $ref: '#/components/responses/Error' }
+  /financial-dashboard/recent-activity:
+    get:
+      summary: Include a recorded card purchase once in recent financial activity
+      responses:
+        '200': { description: Existing recent activity response; recorded card purchases carry recurrence_source and suppress their matching scheduled expectation. }
+        '401': { $ref: '#/components/responses/Error' }
+components:
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: zunera_session }
+  parameters:
+    RuleId: { name: recurring_transaction_id, in: path, required: true, schema: { type: integer, minimum: 1 } }
+    OccurrenceId: { name: occurrence_id, in: path, required: true, schema: { type: integer, minimum: 1 } }
+    DestinationFilter: { name: destination_type, in: query, schema: { $ref: '#/components/schemas/DestinationType' } }
+    CardFilter: { name: credit_card_id, in: query, schema: { type: integer, minimum: 1 } }
+    Page: { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+    PerPage: { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 50 } }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, minLength: 1, maxLength: 255 }
+      description: Exact replay is safe; changed reuse returns 409 idempotency_key_reused.
+  schemas:
+    DestinationType: { type: string, enum: [financial_account, credit_card] }
+    GenerationMode: { type: string, enum: [automatic, confirmation] }
+    DateInput:
+      type: string
+      description: Existing validated ISO YYYY-MM-DD or Brazilian DD/MM/YYYY date, 1900-01-01 through 2100-12-31.
+    CardSummary:
+      type: object
+      required: [id, name, institution_name, last_four, status]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        institution_name: { type: string }
+        last_four: { type: [string, 'null'], pattern: '^[0-9]{4}$' }
+        status: { type: string }
+    RecurrenceSource:
+      type: object
+      required: [recurring_transaction_id, occurrence_id, scheduled_date]
+      properties:
+        recurring_transaction_id: { type: integer }
+        occurrence_id: { type: integer }
+        scheduled_date: { type: string, format: date }
+    PurchaseSourceExtension:
+      type: object
+      description: >-
+        All existing Credit Cards 010 purchase fields remain required by that
+        contract; this schema defines the additive source field only.
+      required: [recurrence_source]
+      properties:
+        recurrence_source:
+          anyOf:
+            - { $ref: '#/components/schemas/RecurrenceSource' }
+            - { type: 'null' }
+    Rule:
+      type: object
+      required: [id, type, destination_type, financial_account, credit_card, generation_mode, amount_centavos, currency_code, description, category, frequency, start_date, state, next_expected_occurrence, generated_occurrence_count]
+      properties:
+        id: { type: integer }
+        type: { type: string, enum: [income, expense] }
+        destination_type: { $ref: '#/components/schemas/DestinationType' }
+        financial_account: { type: [object, 'null'], description: Existing account summary, null for card rules. }
+        credit_card: { anyOf: [{ $ref: '#/components/schemas/CardSummary' }, { type: 'null' }] }
+        generation_mode: { anyOf: [{ $ref: '#/components/schemas/GenerationMode' }, { type: 'null' }], description: Null for account rules. }
+        amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
+        currency_code: { type: string, const: BRL }
+        description: { type: string, minLength: 1, maxLength: 200 }
+        notes: { type: [string, 'null'], maxLength: 1000 }
+        category: { type: object, description: Existing category summary. }
+        frequency: { type: string, enum: [weekly, monthly, yearly] }
+        start_date: { type: string, format: date }
+        end_date: { type: [string, 'null'], format: date }
+        state: { type: string, enum: [active, paused, ended] }
+        paused_reason: { type: [string, 'null'] }
+        next_expected_occurrence: { type: [string, 'null'], format: date }
+        generated_occurrence_count: { type: integer, minimum: 0, description: Account transaction or represented card occurrence count, according to destination. }
+    CreateRule:
+      type: object
+      additionalProperties: false
+      required: [category_id, type, amount_centavos, description, frequency, start_date]
+      properties:
+        destination_type: { $ref: '#/components/schemas/DestinationType', description: Omitted means financial_account for backward compatibility. }
+        financial_account_id: { type: integer, minimum: 1, description: Required only for financial_account; forbidden for credit_card. }
+        credit_card_id: { type: integer, minimum: 1, description: Required only for credit_card; forbidden for financial_account. }
+        generation_mode: { $ref: '#/components/schemas/GenerationMode', description: Card only; omitted defaults automatic. }
+        category_id: { type: integer, minimum: 1 }
+        type: { type: string, enum: [income, expense], description: Card requires expense. }
+        amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
+        description: { type: string, minLength: 1, maxLength: 200 }
+        notes: { type: [string, 'null'], maxLength: 1000 }
+        frequency: { type: string, enum: [weekly, monthly, yearly] }
+        start_date: { $ref: '#/components/schemas/DateInput' }
+        end_date: { anyOf: [{ $ref: '#/components/schemas/DateInput' }, { type: 'null' }] }
+      oneOf:
+        - required: [financial_account_id]
+          properties: { destination_type: { const: financial_account } }
+          not: { required: [credit_card_id] }
+        - required: [destination_type, credit_card_id]
+          properties: { destination_type: { const: credit_card }, type: { const: expense } }
+          not: { required: [financial_account_id] }
+    UpdateRule:
+      type: object
+      minProperties: 1
+      additionalProperties: false
+      description: Existing editable rule fields plus same-type credit_card_id and card generation_mode; destination_type is immutable.
+      properties:
+        financial_account_id: { type: integer, minimum: 1 }
+        credit_card_id: { type: integer, minimum: 1 }
+        generation_mode: { $ref: '#/components/schemas/GenerationMode' }
+        category_id: { type: integer, minimum: 1 }
+        type: { type: string, enum: [income, expense] }
+        amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
+        description: { type: string, minLength: 1, maxLength: 200 }
+        notes: { type: [string, 'null'], maxLength: 1000 }
+        frequency: { type: string, enum: [weekly, monthly, yearly] }
+        start_date: { $ref: '#/components/schemas/DateInput' }
+        end_date: { anyOf: [{ $ref: '#/components/schemas/DateInput' }, { type: 'null' }] }
+    AccountOccurrence:
+      type: object
+      required: [id, scheduled_date, status]
+      properties:
+        id: { type: integer, description: Existing ordinary transaction ID. }
+        scheduled_date: { type: string, format: date }
+        status: { type: string, enum: [pending, effective] }
+        removed_at: { type: [string, 'null'], format: date-time }
+    CardOccurrence:
+      type: object
+      required: [id, scheduled_date, state, generation_mode, scheduled_amount_centavos, description, original_card, original_category, card, category, purchase_id]
+      properties:
+        id: { type: integer }
+        scheduled_date: { type: string, format: date }
+        state: { type: string, enum: [expected, awaiting_over_limit, failed, dismissed, recorded] }
+        generation_mode: { $ref: '#/components/schemas/GenerationMode' }
+        scheduled_amount_centavos: { type: integer, minimum: 1 }
+        description: { type: string }
+        notes: { type: [string, 'null'] }
+        original_card: { $ref: '#/components/schemas/CardSummary' }
+        original_category: { type: object }
+        card: { $ref: '#/components/schemas/CardSummary', description: Current effective choice, including a one-occurrence override. }
+        category: { type: object, description: Current effective choice, including a one-occurrence override. }
+        actual_amount_centavos: { type: [integer, 'null'], description: Latest validated confirmation choice, retained after a failed purchase attempt. }
+        actual_purchase_date: { type: [string, 'null'], format: date, description: Latest validated confirmation date, retained after a failed purchase attempt. }
+        purchase_id: { type: [integer, 'null'] }
+        failure_code: { type: [string, 'null'], description: Privacy-safe retry/repair hint. }
+        recorded_at: { type: [string, 'null'], format: date-time }
+        dismissed_at: { type: [string, 'null'], format: date-time }
+    ConfirmOccurrence:
+      type: object
+      additionalProperties: false
+      properties:
+        actual_amount_centavos: { type: integer, minimum: 1, maximum: 99999999999, description: Confirmation-mode only; defaults to retained choice on retry or scheduled amount initially. }
+        actual_purchase_date: { $ref: '#/components/schemas/DateInput', description: Confirmation-mode only; defaults to retained choice on retry or scheduled date initially and must be no later than current São Paulo business date. }
+        credit_card_id: { type: integer, minimum: 1, description: Confirmation-mode one-occurrence replacement only; omitted retry reuses a retained override. }
+        category_id: { type: integer, minimum: 1, description: Confirmation-mode one-occurrence replacement only; omitted retry reuses a retained override. }
+        confirm_over_limit: { type: boolean, default: false, description: Explicit owner approval only, with a fresh Idempotency-Key. }
+        expected_available_credit_centavos: { type: integer, description: Optional stale-confirmation guard from the over-limit response. }
+    Error:
+      type: object
+      required: [message]
+      properties: { message: { type: string }, code: { type: string } }
+    ValidationError:
+      type: object
+      required: [message, errors]
+      properties:
+        message: { type: string }
+        errors: { type: object, additionalProperties: { type: array, items: { type: string } } }
+    Conflict:
+      type: object
+      required: [message, code]
+      properties:
+        message: { type: string }
+        code:
+          type: string
+          enum: [idempotency_key_reused, recurrence_not_active, recurrence_not_paused, recurrence_ended, recurrence_association_unavailable, occurrence_already_recorded, occurrence_dismissed, occurrence_not_actionable, stale_over_limit_confirmation, OVER_LIMIT_CONFIRMATION_REQUIRED]
+        resulting_available_credit: { type: object, description: Existing Money response for over-limit warning. }
+        is_over_limit: { type: boolean }
+  responses:
+    RuleCreated:
+      description: Created rule
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Rule' } } } } }
+    RuleOk:
+      description: Owned rule
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Rule' } } } } }
+    OccurrenceOk:
+      description: Owned card occurrence after action
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/CardOccurrence' } } } } }
+    Error:
+      description: Authentication or privacy-safe not-found error
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    ValidationError:
+      description: Invalid request or association
+      content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+    Conflict:
+      description: Lifecycle, idempotency, already-handled occurrence, or over-limit conflict
+      content: { application/json: { schema: { $ref: '#/components/schemas/Conflict' } } }
