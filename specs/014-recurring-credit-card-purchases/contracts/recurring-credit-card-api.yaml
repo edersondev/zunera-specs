@@ -54,7 +54,11 @@ paths:
       description: >-
         destination_type cannot change. Account rules retain current update
         behavior. Card, category, mode, amount, and schedule changes leave
-        represented occurrences and purchases untouched.
+        represented occurrences and purchases untouched. Before a card edit,
+        all eligible already-due dates are represented under the old rule.
+        If a date cannot be durably represented, the edit returns a retryable
+        recurrence_due_processing_incomplete conflict and leaves the rule
+        unchanged; earlier committed due purchases remain valid.
       parameters:
         - { $ref: '#/components/parameters/RuleId' }
         - { $ref: '#/components/parameters/IdempotencyKey' }
@@ -106,10 +110,16 @@ paths:
       description: >-
         Confirmation mode accepts a one-occurrence amount/date/card/category,
         including when retrying a failed confirmation. Validated choices are
-        retained on the occurrence before purchase creation. If recording
-        fails, no financial record is committed; omitted fields on the next
-        confirmation reuse retained choices, and explicit revisions are
-        revalidated. The failed occurrence remains actionable.
+        retained on the occurrence under one active action claim before
+        purchase creation. A competing distinct action returns a retryable
+        occurrence_action_in_progress conflict and cannot overwrite those
+        choices. Purchase creation uses that claimed choice version; the
+        recorded occurrence and purchase carry the same actual values. If
+        recording fails, no financial record is committed; omitted fields on
+        the next confirmation reuse retained choices, and explicit revisions
+        are revalidated. An interrupted claim is recovered only after checking
+        that no source-linked purchase was committed. The failed occurrence
+        remains actionable.
         Automatic mode awaiting_over_limit retains its scheduled amount/date;
         confirm_over_limit is an explicit owner decision. Current credit is
         rechecked. One purchase and recorded state commit atomically. Exact
@@ -134,7 +144,7 @@ paths:
   /recurring-transactions/{recurring_transaction_id}/occurrences/{occurrence_id}/dismiss:
     post:
       summary: Dismiss an expected, failed confirmation, or awaiting-approval card occurrence
-      description: No purchase is created; the scheduled date remains reserved against regeneration and later cycles are unaffected.
+      description: No purchase is created; the scheduled date remains reserved against regeneration and later cycles are unaffected. An active confirmation claim returns occurrence_action_in_progress until its outcome or safe recovery is known.
       parameters:
         - { $ref: '#/components/parameters/RuleId' }
         - { $ref: '#/components/parameters/OccurrenceId' }
@@ -165,7 +175,7 @@ paths:
   /recurring-transactions/{recurring_transaction_id}/pause:
     post:
       summary: Existing pause action also applies to card rules
-      description: Future dates are skipped; already due card occurrences remain actionable.
+      description: Eligible dates already due while the card rule was active are first represented under its old definition; future dates are skipped and already due card occurrences remain actionable. An unrepresentable due date returns recurrence_due_processing_incomplete without pausing the rule.
       parameters:
         - { $ref: '#/components/parameters/RuleId' }
         - { $ref: '#/components/parameters/IdempotencyKey' }
@@ -189,7 +199,7 @@ paths:
   /recurring-transactions/{recurring_transaction_id}/end:
     post:
       summary: Existing permanent end action also applies to card rules
-      description: Stops future dates; historical purchases and already due occurrences remain.
+      description: Eligible dates already due while the card rule was active are first represented under its old definition; future dates stop and historical purchases and already due occurrences remain. An unrepresentable due date returns recurrence_due_processing_incomplete without ending the rule.
       parameters:
         - { $ref: '#/components/parameters/RuleId' }
         - { $ref: '#/components/parameters/IdempotencyKey' }
@@ -420,7 +430,7 @@ components:
         message: { type: string }
         code:
           type: string
-          enum: [idempotency_key_reused, recurrence_not_active, recurrence_not_paused, recurrence_ended, recurrence_association_unavailable, occurrence_already_recorded, occurrence_dismissed, occurrence_not_actionable, stale_over_limit_confirmation, OVER_LIMIT_CONFIRMATION_REQUIRED]
+          enum: [idempotency_key_reused, recurrence_not_active, recurrence_not_paused, recurrence_ended, recurrence_association_unavailable, recurrence_due_processing_incomplete, occurrence_already_recorded, occurrence_dismissed, occurrence_not_actionable, occurrence_action_in_progress, stale_over_limit_confirmation, OVER_LIMIT_CONFIRMATION_REQUIRED]
         resulting_available_credit: { type: object, description: Existing Money response for over-limit warning. }
         is_over_limit: { type: boolean }
   responses:

@@ -71,26 +71,37 @@ validation, and tests pass.
    controllers, filters, and Resources. Enforce immutable destination type,
    active owned associations, card expense-only rules, and automatic default.
 3. **Backend occurrence processing:** Branch the current due service by
-   destination. Use the existing schedule calculator and daily job; commit each
-   card date and source-aware purchase atomically, with unique constraints and
-   consistent lock order. Surface expected, awaiting_over_limit, failed, dismissed, and
-   recorded workflow without new financial states.
+   destination. Use the existing schedule calculator and daily job, but remove
+   the card backlog from the existing rule-wide transaction. Commit each card
+   date, source-aware purchase, and cursor progress independently under a
+   consistent rule/occurrence/card lock order. Persist recoverable failure
+   identity separately after purchase rollback and continue later dates; stop
+   a rule if even failure identity cannot be saved. Surface expected,
+   awaiting_over_limit, failed, dismissed, and recorded workflow without new
+   financial states.
 4. **Backend financial integration:** Reuse existing card purchase allocation,
    over-limit confirmation, statement reconciliation, credit calculation,
    refunds/corrections, and installment recognition. Extend Budget, Dashboard,
    upcoming/recent activity, and history where needed so one installment is
    counted once and an unconfirmed schedule stays a forecast.
-5. **Backend verification gate:** Prove owner isolation, validation, account
+5. **Backend lifecycle and confirmation safety:** Catch up eligible due dates
+   under the pre-edit rule before an owner-initiated edit, pause, or end; reject the mutation if
+   any due date remains unrepresented. Serialize confirmation attempts with a
+   durable claim/version so competing choices cannot overwrite the values of
+   the winning purchase; recover interrupted claims only after checking source
+   uniqueness and purchase existence.
+6. **Backend verification gate:** Prove owner isolation, validation, account
    compatibility, dates and closing boundaries, late closed/paid statement
-   restatement, retry/concurrency uniqueness, lifecycle, over-limit, and report
+   restatement, partial-backlog failure recovery, pre-edit catch-up, competing
+   confirmation choice consistency, lifecycle, over-limit, and report
    integrity. Check representative 1,000-rule query performance and the
    documented API before any frontend work. Unit and feature suites must both pass.
-6. **Frontend integration:** Extend the existing recurrence form/list/detail and
+7. **Frontend integration:** Extend the existing recurrence form/list/detail and
    occurrence review using the verified API. Show card identity, mode, source,
    current status, single-occurrence overrides, and actionable conflict text.
    Replace the card-exclusion copy. Preserve responsive Light/Dark/System design,
    keyboard use, 200% zoom, and PT/EN labels.
-7. **Frontend verification:** Cover service/store and component behavior, then
+8. **Frontend verification:** Cover service/store and component behavior, then
    end-to-end creation, due expectation, confirmation, over-limit, navigation,
   and regression journeys. Check browser list/detail usability with 1,000 owned
   rules and the specification's configuration-time and status-understanding
