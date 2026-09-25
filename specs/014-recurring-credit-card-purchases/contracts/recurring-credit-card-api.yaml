@@ -313,7 +313,7 @@ components:
             - { type: 'null' }
     Rule:
       type: object
-      required: [id, type, destination_type, financial_account, credit_card, generation_mode, amount_centavos, currency_code, description, category, frequency, start_date, state, next_expected_occurrence, generated_occurrence_count]
+      required: [id, type, destination_type, financial_account, credit_card, generation_mode, amount_centavos, currency_code, description, category, frequency, start_date, state, next_expected_occurrence, generated_occurrence_count, reviewable_occurrence_count]
       properties:
         id: { type: integer }
         type: { type: string, enum: [income, expense] }
@@ -333,6 +333,7 @@ components:
         paused_reason: { type: [string, 'null'] }
         next_expected_occurrence: { type: [string, 'null'], format: date }
         generated_occurrence_count: { type: integer, minimum: 0, description: Account transaction or represented card occurrence count, according to destination. }
+        reviewable_occurrence_count: { type: integer, minimum: 0, description: Expected, awaiting-over-limit, or failed card occurrences requiring review; zero for account rules. }
     CreateRule:
       type: object
       additionalProperties: false
