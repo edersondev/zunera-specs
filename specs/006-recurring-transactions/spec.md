@@ -157,6 +157,13 @@ filters and identify the next expected occurrence of every matching rule.
 2. **Given** a mixed rule list, **When** it is viewed, **Then** every entry
    communicates type, amount, frequency, account, category, state, and next
    expected occurrence when one remains.
+3. **Given** recurring rules on desktop or mobile, **When** the owner scans or
+   expands the list, **Then** each compact item shows description, destination,
+   category, signed amount, frequency, next occurrence, and lifecycle state;
+   expansion reveals existing rule details and a route to occurrence history.
+4. **Given** applied filters, **When** the filter panel is collapsed, **Then**
+   its header shows the number of active criteria while the recurrence list
+   retains priority on the page.
 
 ### Edge Cases
 
