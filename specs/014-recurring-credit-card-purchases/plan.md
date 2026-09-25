@@ -99,6 +99,9 @@ validation, and tests pass.
 7. **Frontend integration:** Extend the existing recurrence form/list/detail and
    occurrence review using the verified API. Show card identity, mode, source,
    current status, single-occurrence overrides, and actionable conflict text.
+   Project the count of actionable card occurrences in the backend list/detail
+   contract, then mark list rows requiring review with warning color and text.
+   Refresh the affected row from rule detail after an occurrence action.
    Replace the card-exclusion copy. Preserve responsive Light/Dark/System design,
    keyboard use, 200% zoom, and PT/EN labels.
 8. **Frontend verification:** Cover service/store and component behavior, then
