@@ -89,6 +89,8 @@ As an authenticated user, I want to review a due card charge before recording it
 8. **Given** two confirmations for the same occurrence submit different actual values concurrently, **When** one attempt has claimed the occurrence, **Then** the other cannot overwrite its choices and receives a retryable conflict; the eventual purchase and recorded occurrence show the same winning amount, date, card, and category.
 9. **Given** a confirmation worker stops after claiming an occurrence, **When** the owner retries after safe recovery, **Then** Zunera first checks whether a purchase was committed and records no second purchase or conflicting actual values.
 10. **Given** a card rule has at least one expected, awaiting-over-limit, or failed occurrence, **When** the owner views the recurrence list, **Then** that rule is visibly marked for review; after its last such occurrence is recorded or dismissed, the mark disappears. Recorded and dismissed occurrences alone do not mark a rule.
+11. **Given** a card rule has actionable occurrences, **When** its compact list item is viewed, **Then** a subtle warning accent, explicit review badge and count, and direct Review occurrence action distinguish occurrence attention from the rule's lifecycle state and signed amount.
+12. **Given** multiple actionable occurrences, **When** the owner chooses Review occurrence from the list, **Then** the newest actionable occurrence opens in the existing review dialog; the expanded item previews its scheduled date, expected amount, and occurrence state using existing data.
 
 ---
 

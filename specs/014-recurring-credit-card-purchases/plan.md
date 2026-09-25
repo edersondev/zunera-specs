@@ -100,7 +100,9 @@ validation, and tests pass.
    occurrence review using the verified API. Show card identity, mode, source,
    current status, single-occurrence overrides, and actionable conflict text.
    Project the count of actionable card occurrences in the backend list/detail
-   contract, then mark list rows requiring review with warning color and text.
+   contract, then mark compact list items requiring review with a subtle warning
+   accent, explicit badge/count, and direct action. Preserve the occurrence
+   drawer for full history while an inline expanded item previews existing data.
    Refresh the affected row from rule detail after an occurrence action.
    Replace the card-exclusion copy. Preserve responsive Light/Dark/System design,
    keyboard use, 200% zoom, and PT/EN labels.

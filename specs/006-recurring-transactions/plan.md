@@ -41,7 +41,9 @@ installment, import, reminder, external billing.
    `../zunera-backend`.
 2. **Frontend** — Service, Pinia store, route/navigation, recurrence components,
    history-source display, translations, unit tests, and Playwright in
-   `../zunera-frontend`.
+   `../zunera-frontend`. Present rules as a compact expandable list with
+   applied-filter count in the collapsed filter header; keep the existing
+   occurrence history drawer for deeper inspection.
 
 Frontend starts only after backend contract, authorization, validation, and tests.
 
