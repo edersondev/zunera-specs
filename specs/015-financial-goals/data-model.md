@@ -62,6 +62,7 @@ The request claim, goal/activity write, and final response snapshot commit atomi
 | `suggested_monthly_centavos` | For active underfunded future-dated goals only: ceil of remaining centavos divided by inclusive calendar-month opportunities from current through target month. Otherwise null. |
 | `account_backing` | `unverified` when unlinked; `available`, `shortfall`, or `inactive_or_unavailable` when linked. This is presentation context, not lifecycle status. |
 | Overview totals | Sum active goals' target, allocated, and each goal's nonnegative remaining; report active unlinked allocation separately as unverified. Completed/archived goals are not in those totals. |
+| Overview attention counts | Count overdue, underfunded active goals; count active and completed goals linked to shortfall accounts; count active and completed goals linked to inactive or unavailable accounts. Counts are independent, so one goal may appear in more than one. Per-goal warnings remain on goal reads. |
 | Dashboard selection | At most three active goals, overdue dates first, then nearest future dates, then undated; stable name ordering for ties. |
 
 Backend computes these fields from owned data. Frontend formats and renders them but does not recalculate financial values. For a negative account balance, unallocated may be negative even without a positive goal allocation; the account balance must not be normalized to zero.

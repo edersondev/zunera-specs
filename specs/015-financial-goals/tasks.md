@@ -149,14 +149,14 @@
 
 ### Backend tests first
 
-- [ ] T041 [P] [US6] Write active-only summary, separate unverified subtotal, completed designation in account capacity, pagination, and three-goal ordering contract tests in `../zunera-backend/tests/Feature/FinancialGoals/GoalOverviewDashboardContractTest.php`.
+- [ ] T041 [P] [US6] Write active-only summary, separate unverified subtotal, independent overdue-underfunded/shortfall/inactive-or-unavailable attention counts, completed designation in account capacity, pagination, and three-goal ordering contract tests in `../zunera-backend/tests/Feature/FinancialGoals/GoalOverviewDashboardContractTest.php`.
 - [ ] T042 [P] [US6] Write regression tests across account totals, transaction/transfer history, budget utilization, Dashboard realized/expected cash flow, credit-card purchases/payments, and recurring card recognition in `../zunera-backend/tests/Feature/FinancialGoals/GoalFinancialIntegrityTest.php`.
 
 ### Backend implementation and gate
 
-- [ ] T043 [US6] Implement active-only target/allocated/per-goal remaining totals, unverified subtotal, attention counts, and bounded three-goal selection in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalQueryService.php`.
+- [ ] T043 [US6] Implement active-only target/allocated/per-goal remaining totals, unverified subtotal, independent attention counts for overdue underfunded active goals and active/completed goals linked to shortfall or inactive/unavailable accounts, and bounded three-goal selection in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalQueryService.php`.
 - [ ] T044 [US6] Expose protected `/financial-goals/summary` and `/financial-dashboard/goals` using `../zunera-backend/app/Http/Controllers/Api/V1/FinancialGoalDashboardController.php`, `../zunera-backend/app/Http/Resources/FinancialGoals/FinancialGoalSummaryResource.php`, and `../zunera-backend/routes/api.php`.
-- [ ] T045 [US6] Run the complete backend test suite using `../zunera-backend/phpunit.xml` and run Pint; include all FinancialGoals contract/concurrency and existing Dashboard/Budget/CreditCard/Recurring tests, verify SQLite and MySQL migration/capacity behavior, then check the published API contract at `specs/015-financial-goals/contracts/financial-goals-api.yaml` before any frontend work.
+- [ ] T045 [US6] Run the complete backend test suite using `../zunera-backend/phpunit.xml` and run Pint; include all FinancialGoals contract/concurrency and existing Dashboard/Budget/CreditCard/Recurring tests, verify SQLite and MySQL migration/capacity behavior, then lint the published API contract without warnings at `specs/015-financial-goals/contracts/financial-goals-api.yaml` before any frontend work.
 
 **Backend checkpoint**: US6 contract, authorization, validation, and tests pass.
 
@@ -223,8 +223,8 @@
 
 **Prerequisite**: T045 complete; use the verified backend contract and the independent test in the matching backend story phase.
 
-- [ ] T064 [P] [US6] Test overview totals/filters, loading and unavailable states without unknown-as-zero values, safe rendering of hostile goal names/notes, and independent Dashboard loading/error/retry behavior in `../zunera-frontend/src/views/goals/__tests__/GoalOverviewView.spec.js` and `../zunera-frontend/src/components/dashboard/__tests__/DashboardGoalsCard.spec.js`.
-- [ ] T065 [US6] Render active totals, completed/archived sections, unverified subtotal, attention, empty, loading, and unavailable states without showing unknown values as zero; escape goal names/notes in `../zunera-frontend/src/views/goals/GoalOverviewView.vue` and `../zunera-frontend/src/components/goals/GoalCard.vue`.
+- [ ] T064 [P] [US6] Test overview totals/filters, the three independent attention counts and their per-goal warnings, loading and unavailable states without unknown-as-zero values, safe rendering of hostile goal names/notes, and independent Dashboard loading/error/retry behavior in `../zunera-frontend/src/views/goals/__tests__/GoalOverviewView.spec.js` and `../zunera-frontend/src/components/dashboard/__tests__/DashboardGoalsCard.spec.js`.
+- [ ] T065 [US6] Render active totals, completed/archived sections, unverified subtotal, all three independent attention counts with per-goal warnings, and empty/loading/unavailable states without showing unknown values as zero; escape goal names/notes in `../zunera-frontend/src/views/goals/GoalOverviewView.vue` and `../zunera-frontend/src/components/goals/GoalCard.vue`.
 - [ ] T066 [US6] Extend the basic Goals navigation with completed/archived history access and navigation-state tests in `../zunera-frontend/src/components/navigation/AppNavigation.vue`, `../zunera-frontend/src/layouts/AppShell.vue`, and `../zunera-frontend/src/router/index.js`.
 - [ ] T067 [US6] Add independently fetched compact goals card without changing existing Dashboard financial selectors/totals in `../zunera-frontend/src/components/dashboard/DashboardGoalsCard.vue` and `../zunera-frontend/src/views/dashboard/FinancialDashboardView.vue`.
 - [ ] T068 [US6] Complete PT-BR/English strings, visible status/shortfall wording, hostile-content rendering checks, and navigation/dashboard regression journeys in `../zunera-frontend/src/i18n/messages.js`, `../zunera-frontend/e2e/financial-goals.spec.js`, and `../zunera-frontend/e2e/financial-dashboard.spec.js`.
