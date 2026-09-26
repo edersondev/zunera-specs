@@ -11,4 +11,4 @@ The browser check uses a fixture of 100 goals and 1,000 activity records with pa
 | 1280 px | 255 ms | 234 ms | 20 |
 | 320 px | 214 ms | 229 ms | 20 |
 
-Both are below the 2,000 ms target. Browser timings measure the UI with mocked API latency; they do not measure a deployed MySQL service or network latency. The backend test separately bounds SQL query growth. Repeat in a deployed representative environment before treating these figures as a production service-level result.
+Both browser fixture timings are below 2,000 ms. They measure the UI with mocked API latency; they do not measure a deployed MySQL service or network latency. The backend test separately bounds SQL query growth. **SC-005 and T071 remain pending** until overview and detail p95 are measured through a representative MySQL-backed API and network path with 100 owned goals and 1,000 activities.
