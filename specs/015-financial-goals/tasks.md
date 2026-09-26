@@ -9,8 +9,8 @@
 
 **Purpose**: Confirm the three repositories and the approved design before editing either application.
 
-- [ ] T001 Verify all three repositories are on `015-financial-goals` and review `specs/015-financial-goals/plan.md` plus `specs/015-financial-goals/contracts/financial-goals-api.yaml` before application edits.
-- [ ] T002 Read `docs/design/design-foundation.md`, `docs/design/app-shell.md`, `docs/design/navigation.md`, and `docs/design/components.md`; note existing conventions for the planned views in `../zunera-frontend/src/views/goals/GoalOverviewView.vue`.
+- [X] T001 Verify all three repositories are on `015-financial-goals` and review `specs/015-financial-goals/plan.md` plus `specs/015-financial-goals/contracts/financial-goals-api.yaml` before application edits.
+- [X] T002 Read `docs/design/design-foundation.md`, `docs/design/app-shell.md`, `docs/design/navigation.md`, and `docs/design/components.md`; note existing conventions for the planned views in `../zunera-frontend/src/views/goals/GoalOverviewView.vue`.
 
 ---
 
@@ -18,13 +18,13 @@
 
 **Purpose**: Persist owned goals, append-only activity, and idempotent mutation claims without a second balance ledger.
 
-- [ ] T003 Create goal identity, ownership, metadata, status, account reference/snapshot, centavos target, and indexes in `../zunera-backend/database/migrations/2026_09_25_000001_create_financial_goals_table.php`; prevent ordinary account deletion from cascading to goals.
-- [ ] T004 [P] Create append-only, owner-scoped monetary/lifecycle event storage with time-of-event account snapshots and ordered history indexes in `../zunera-backend/database/migrations/2026_09_25_000002_create_financial_goal_activities_table.php`.
-- [ ] T005 [P] Create owner/key unique mutation-claim storage for operation fingerprint and replay response in `../zunera-backend/database/migrations/2026_09_25_000003_create_financial_goal_mutation_requests_table.php`.
-- [ ] T006 [P] Add `FinancialGoal` and its owned activity/account relationships in `../zunera-backend/app/Models/FinancialGoal.php` without a copied account-balance field.
-- [ ] T007 [P] Add `FinancialGoalActivity` with immutable amount, event type, business date, and account-at-time accessors in `../zunera-backend/app/Models/FinancialGoalActivity.php`.
-- [ ] T008 [P] Add mutation-claim model and owner/key uniqueness behavior in `../zunera-backend/app/Models/FinancialGoalMutationRequest.php`.
-- [ ] T009 Add migration/model invariant tests for ownership, account noncascade, centavos, event ordering, and claim uniqueness in `../zunera-backend/tests/Feature/FinancialGoals/GoalFoundationTest.php`; run on SQLite and the existing MySQL development schema.
+- [X] T003 Create goal identity, ownership, metadata, status, account reference/snapshot, centavos target, and indexes in `../zunera-backend/database/migrations/2026_09_25_000001_create_financial_goals_table.php`; prevent ordinary account deletion from cascading to goals.
+- [X] T004 [P] Create append-only, owner-scoped monetary/lifecycle event storage with time-of-event account snapshots and ordered history indexes in `../zunera-backend/database/migrations/2026_09_25_000002_create_financial_goal_activities_table.php`.
+- [X] T005 [P] Create owner/key unique mutation-claim storage for operation fingerprint and replay response in `../zunera-backend/database/migrations/2026_09_25_000003_create_financial_goal_mutation_requests_table.php`.
+- [X] T006 [P] Add `FinancialGoal` and its owned activity/account relationships in `../zunera-backend/app/Models/FinancialGoal.php` without a copied account-balance field.
+- [X] T007 [P] Add `FinancialGoalActivity` with immutable amount, event type, business date, and account-at-time accessors in `../zunera-backend/app/Models/FinancialGoalActivity.php`.
+- [X] T008 [P] Add mutation-claim model and owner/key uniqueness behavior in `../zunera-backend/app/Models/FinancialGoalMutationRequest.php`.
+- [X] T009 Add migration/model invariant tests for ownership, account noncascade, centavos, event ordering, and claim uniqueness in `../zunera-backend/tests/Feature/FinancialGoals/GoalFoundationTest.php`; run on SQLite and the existing MySQL development schema.
 
 **Checkpoint**: Shared persistence exists; existing Financial Accounts, Transactions, Transfers, Budgets, and credit-card tables remain untouched.
 
@@ -38,17 +38,17 @@
 
 ### Backend tests first
 
-- [ ] T010 [P] [US1] Write create/list/detail contract, ownership, malformed amount, whitespace-only and overlong name, target/date, initial-allocation, and replay tests against `specs/015-financial-goals/contracts/financial-goals-api.yaml` in `../zunera-backend/tests/Feature/FinancialGoals/GoalCreationContractTest.php`; assert that a R$ 10.000,00 account with R$ 3.000,00 initially designated still has R$ 10.000,00 actual balance, R$ 3.000,00 designated, and R$ 7.000,00 unallocated.
-- [ ] T011 [P] [US1] Write projection tests for zero, fractional and over-100% progress, remaining/excess, and integer-centavo correctness in `../zunera-backend/tests/Unit/FinancialGoals/GoalProjectionTest.php`.
+- [X] T010 [P] [US1] Write create/list/detail contract, ownership, malformed amount, whitespace-only and overlong name, target/date, initial-allocation, and replay tests against `specs/015-financial-goals/contracts/financial-goals-api.yaml` in `../zunera-backend/tests/Feature/FinancialGoals/GoalCreationContractTest.php`; assert that a R$ 10.000,00 account with R$ 3.000,00 initially designated still has R$ 10.000,00 actual balance, R$ 3.000,00 designated, and R$ 7.000,00 unallocated.
+- [X] T011 [P] [US1] Write projection tests for zero, fractional and over-100% progress, remaining/excess, and integer-centavo correctness in `../zunera-backend/tests/Unit/FinancialGoals/GoalProjectionTest.php`.
 
 ### Backend implementation and gate
 
-- [ ] T012 [P] [US1] Define validated create input, trim and reject blank names while enforcing the 200-character input limit, and add shared positive BRL centavos parsing in `../zunera-backend/app/Http/Requests/FinancialGoals/CreateFinancialGoalRequest.php` and `../zunera-backend/app/Data/FinancialGoals/GoalInput.php`.
-- [ ] T013 [US1] Implement account eligibility, linked capacity locking, active/completed designation sums, and actual/designated/unallocated centavos for initial allocations in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalCapacityService.php`.
-- [ ] T014 [US1] Implement owner-scoped list/detail projections and goal-only account-backing/progress fields, including actual/designated/unallocated account amounts, in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalQueryService.php` and `../zunera-backend/app/Http/Resources/FinancialGoals/FinancialGoalResource.php`.
-- [ ] T015 [US1] Implement atomic create plus created/optional initial-allocation events and exact idempotent replay/conflict in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalMutationService.php` and `../zunera-backend/app/Services/FinancialGoals/FinancialGoalIdempotencyService.php`.
-- [ ] T016 [US1] Expose protected owner-scoped create/list/detail endpoints and stable 401/404/409/422 responses in `../zunera-backend/app/Http/Controllers/Api/V1/FinancialGoalController.php` and `../zunera-backend/routes/api.php`.
-- [ ] T017 [US1] Run `../zunera-backend/tests/Feature/FinancialGoals/GoalCreationContractTest.php` and `../zunera-backend/tests/Unit/FinancialGoals/GoalProjectionTest.php`; resolve failures and verify contract, authorization, validation, and no account/transaction/budget side effects before advancing to US2 backend work.
+- [X] T012 [P] [US1] Define validated create input, trim and reject blank names while enforcing the 200-character input limit, and add shared positive BRL centavos parsing in `../zunera-backend/app/Http/Requests/FinancialGoals/CreateFinancialGoalRequest.php` and `../zunera-backend/app/Data/FinancialGoals/GoalInput.php`.
+- [X] T013 [US1] Implement account eligibility, linked capacity locking, active/completed designation sums, and actual/designated/unallocated centavos for initial allocations in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalCapacityService.php`.
+- [X] T014 [US1] Implement owner-scoped list/detail projections and goal-only account-backing/progress fields, including actual/designated/unallocated account amounts, in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalQueryService.php` and `../zunera-backend/app/Http/Resources/FinancialGoals/FinancialGoalResource.php`.
+- [X] T015 [US1] Implement atomic create plus created/optional initial-allocation events and exact idempotent replay/conflict in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalMutationService.php` and `../zunera-backend/app/Services/FinancialGoals/FinancialGoalIdempotencyService.php`.
+- [X] T016 [US1] Expose protected owner-scoped create/list/detail endpoints and stable 401/404/409/422 responses in `../zunera-backend/app/Http/Controllers/Api/V1/FinancialGoalController.php` and `../zunera-backend/routes/api.php`.
+- [X] T017 [US1] Run `../zunera-backend/tests/Feature/FinancialGoals/GoalCreationContractTest.php` and `../zunera-backend/tests/Unit/FinancialGoals/GoalProjectionTest.php`; resolve failures and verify contract, authorization, validation, and no account/transaction/budget side effects before advancing to US2 backend work.
 
 **Backend checkpoint**: US1 contract, authorization, validation, and tests pass.
 
@@ -62,16 +62,16 @@
 
 ### Backend tests first
 
-- [ ] T018 [P] [US2] Write allocation/withdrawal/activity contract tests for positive centavos, owner scope, underflow, same-key replay, changed-key conflict, and chronological account snapshots in `../zunera-backend/tests/Feature/FinancialGoals/GoalMoneyActionContractTest.php`.
-- [ ] T019 [P] [US2] Write simultaneous withdrawal and shared-account allocation tests, including a MySQL-backed overlapping-request case, in `../zunera-backend/tests/Feature/FinancialGoals/GoalConcurrencyTest.php`.
+- [X] T018 [P] [US2] Write allocation/withdrawal/activity contract tests for positive centavos, owner scope, underflow, same-key replay, changed-key conflict, and chronological account snapshots in `../zunera-backend/tests/Feature/FinancialGoals/GoalMoneyActionContractTest.php`.
+- [X] T019 [P] [US2] Write simultaneous withdrawal and shared-account allocation tests, including a MySQL-backed overlapping-request case, in `../zunera-backend/tests/Feature/FinancialGoals/GoalConcurrencyTest.php`.
 
 ### Backend implementation and gate
 
-- [ ] T020 [P] [US2] Add validated positive-amount requests for both money actions in `../zunera-backend/app/Http/Requests/FinancialGoals/GoalMoneyActionRequest.php`.
-- [ ] T021 [US2] Implement atomic active-goal allocation/withdrawal with goal/account lock order, capacity/underflow checks, dated activity, and idempotent responses in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalMutationService.php`.
-- [ ] T022 [US2] Add paged owner-only activity reads with stable descending event order and account-at-time context in `../zunera-backend/app/Http/Resources/FinancialGoals/FinancialGoalActivityResource.php` and `../zunera-backend/app/Services/FinancialGoals/FinancialGoalQueryService.php`.
-- [ ] T023 [US2] Expose protected allocation, withdrawal, and activity endpoints in `../zunera-backend/app/Http/Controllers/Api/V1/FinancialGoalController.php` and `../zunera-backend/routes/api.php`.
-- [ ] T024 [US2] Run `../zunera-backend/tests/Feature/FinancialGoals/GoalMoneyActionContractTest.php` and `../zunera-backend/tests/Feature/FinancialGoals/GoalConcurrencyTest.php` against SQLite and MySQL; verify exactly-once events, serial capacity, and unchanged financial ledgers before advancing to US4 backend work.
+- [X] T020 [P] [US2] Add validated positive-amount requests for both money actions in `../zunera-backend/app/Http/Requests/FinancialGoals/GoalMoneyActionRequest.php`.
+- [X] T021 [US2] Implement atomic active-goal allocation/withdrawal with goal/account lock order, capacity/underflow checks, dated activity, and idempotent responses in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalMutationService.php`.
+- [X] T022 [US2] Add paged owner-only activity reads with stable descending event order and account-at-time context in `../zunera-backend/app/Http/Resources/FinancialGoals/FinancialGoalActivityResource.php` and `../zunera-backend/app/Services/FinancialGoals/FinancialGoalQueryService.php`.
+- [X] T023 [US2] Expose protected allocation, withdrawal, and activity endpoints in `../zunera-backend/app/Http/Controllers/Api/V1/FinancialGoalController.php` and `../zunera-backend/routes/api.php`.
+- [X] T024 [US2] Run `../zunera-backend/tests/Feature/FinancialGoals/GoalMoneyActionContractTest.php` and `../zunera-backend/tests/Feature/FinancialGoals/GoalConcurrencyTest.php` against SQLite and MySQL; verify exactly-once events, serial capacity, and unchanged financial ledgers before advancing to US4 backend work.
 
 **Backend checkpoint**: US2 contract, authorization, validation, and tests pass.
 
@@ -85,16 +85,16 @@
 
 ### Backend tests first
 
-- [ ] T025 [P] [US4] Write PATCH contract/ownership tests for trimmed and whitespace-only names, target, date, description, account change/null, capacity rejection, and prior event snapshots in `../zunera-backend/tests/Feature/FinancialGoals/GoalUpdateContractTest.php`.
-- [ ] T026 [P] [US4] Write account-capacity tests for multiple active goals, later real spending, inactive/unavailable account, negative balance, and blocked additions in `../zunera-backend/tests/Feature/FinancialGoals/GoalAccountCoverageTest.php`.
+- [X] T025 [P] [US4] Write PATCH contract/ownership tests for trimmed and whitespace-only names, target, date, description, account change/null, capacity rejection, and prior event snapshots in `../zunera-backend/tests/Feature/FinancialGoals/GoalUpdateContractTest.php`.
+- [X] T026 [P] [US4] Write account-capacity tests for multiple active goals, later real spending, inactive/unavailable account, negative balance, and blocked additions in `../zunera-backend/tests/Feature/FinancialGoals/GoalAccountCoverageTest.php`.
 
 ### Backend implementation and gate
 
-- [ ] T027 [P] [US4] Add PATCH validation/DTO for partial metadata and nullable account, trimming names and rejecting blank or overlong input, credit cards, foreign/inactive accounts, past newly set dates, and invalid centavos in `../zunera-backend/app/Http/Requests/FinancialGoals/UpdateFinancialGoalRequest.php` and `../zunera-backend/app/Data/FinancialGoals/GoalUpdateInput.php`.
-- [ ] T028 [US4] Implement active-only metadata and account edits, ordered old/new account locking, destination capacity check, historical account preservation, and account-change event in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalMutationService.php`.
-- [ ] T029 [US4] Extend the US1 account-coverage projection with exact shortfall, inactive-or-unavailable labels, and null unknown balances in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalCapacityService.php` and `../zunera-backend/app/Http/Resources/FinancialGoals/FinancialGoalResource.php`.
-- [ ] T030 [US4] Expose owner-scoped PATCH and account-context error shapes in `../zunera-backend/app/Http/Controllers/Api/V1/FinancialGoalController.php` and `../zunera-backend/routes/api.php`.
-- [ ] T031 [US4] Run `../zunera-backend/tests/Feature/FinancialGoals/GoalUpdateContractTest.php` and `../zunera-backend/tests/Feature/FinancialGoals/GoalAccountCoverageTest.php`; verify no transfer/balance mutation before advancing to US3 backend work.
+- [X] T027 [P] [US4] Add PATCH validation/DTO for partial metadata and nullable account, trimming names and rejecting blank or overlong input, credit cards, foreign/inactive accounts, past newly set dates, and invalid centavos in `../zunera-backend/app/Http/Requests/FinancialGoals/UpdateFinancialGoalRequest.php` and `../zunera-backend/app/Data/FinancialGoals/GoalUpdateInput.php`.
+- [X] T028 [US4] Implement active-only metadata and account edits, ordered old/new account locking, destination capacity check, historical account preservation, and account-change event in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalMutationService.php`.
+- [X] T029 [US4] Extend the US1 account-coverage projection with exact shortfall, inactive-or-unavailable labels, and null unknown balances in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalCapacityService.php` and `../zunera-backend/app/Http/Resources/FinancialGoals/FinancialGoalResource.php`.
+- [X] T030 [US4] Expose owner-scoped PATCH and account-context error shapes in `../zunera-backend/app/Http/Controllers/Api/V1/FinancialGoalController.php` and `../zunera-backend/routes/api.php`.
+- [X] T031 [US4] Run `../zunera-backend/tests/Feature/FinancialGoals/GoalUpdateContractTest.php` and `../zunera-backend/tests/Feature/FinancialGoals/GoalAccountCoverageTest.php`; verify no transfer/balance mutation before advancing to US3 backend work.
 
 **Backend checkpoint**: US4 contract, authorization, validation, and tests pass.
 
@@ -108,14 +108,14 @@
 
 ### Backend tests first
 
-- [ ] T032 [P] [US3] Write lifecycle endpoint contract tests for completion eligibility, blocked completed/archived money, status, and PATCH edits, full-withdrawal archive gate, restore, and owner scope in `../zunera-backend/tests/Feature/FinancialGoals/GoalLifecycleContractTest.php`.
-- [ ] T033 [P] [US3] Write cases for linked shortfall/inactive/unavailable completion rejection, completion after valid unlinking or reassociation, unlinked unverified completion, completed allocations still counting as account designation, and unchanged completed status after a later shortfall/archive in `../zunera-backend/tests/Feature/FinancialGoals/GoalCompletionBackingTest.php`.
+- [X] T032 [P] [US3] Write lifecycle endpoint contract tests for completion eligibility, blocked completed/archived money, status, and PATCH edits, full-withdrawal archive gate, restore, and owner scope in `../zunera-backend/tests/Feature/FinancialGoals/GoalLifecycleContractTest.php`.
+- [X] T033 [P] [US3] Write cases for linked shortfall/inactive/unavailable completion rejection, completion after valid unlinking or reassociation, unlinked unverified completion, completed allocations still counting as account designation, and unchanged completed status after a later shortfall/archive in `../zunera-backend/tests/Feature/FinancialGoals/GoalCompletionBackingTest.php`.
 
 ### Backend implementation and gate
 
-- [ ] T034 [US3] Implement explicit complete/reopen/archive/restore transitions, event timestamps, completion capacity recheck, and immutable completed/archived actions in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalMutationService.php`.
-- [ ] T035 [US3] Expose protected lifecycle actions and actionable conflict errors in `../zunera-backend/app/Http/Controllers/Api/V1/FinancialGoalController.php` and `../zunera-backend/routes/api.php`.
-- [ ] T036 [US3] Run `../zunera-backend/tests/Feature/FinancialGoals/GoalLifecycleContractTest.php` and `../zunera-backend/tests/Feature/FinancialGoals/GoalCompletionBackingTest.php`; verify history/status, completed-goal designation, and financial invariants before advancing to US5 backend work.
+- [X] T034 [US3] Implement explicit complete/reopen/archive/restore transitions, event timestamps, completion capacity recheck, and immutable completed/archived actions in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalMutationService.php`.
+- [X] T035 [US3] Expose protected lifecycle actions and actionable conflict errors in `../zunera-backend/app/Http/Controllers/Api/V1/FinancialGoalController.php` and `../zunera-backend/routes/api.php`.
+- [X] T036 [US3] Run `../zunera-backend/tests/Feature/FinancialGoals/GoalLifecycleContractTest.php` and `../zunera-backend/tests/Feature/FinancialGoals/GoalCompletionBackingTest.php`; verify history/status, completed-goal designation, and financial invariants before advancing to US5 backend work.
 
 **Backend checkpoint**: US3 contract, authorization, validation, and tests pass.
 
@@ -129,13 +129,13 @@
 
 ### Backend tests first
 
-- [ ] T037 [P] [US5] Write calendar-month, timezone, centavo-ceiling, due/overdue, no-date, and reached-target tests in `../zunera-backend/tests/Unit/FinancialGoals/GoalContributionCalculatorTest.php`.
-- [ ] T038 [P] [US5] Test date and suggestion fields in create/detail/PATCH responses and absence of recurring activity in `../zunera-backend/tests/Feature/FinancialGoals/GoalDateGuidanceContractTest.php`.
+- [X] T037 [P] [US5] Write calendar-month, timezone, centavo-ceiling, due/overdue, no-date, and reached-target tests in `../zunera-backend/tests/Unit/FinancialGoals/GoalContributionCalculatorTest.php`.
+- [X] T038 [P] [US5] Test date and suggestion fields in create/detail/PATCH responses and absence of recurring activity in `../zunera-backend/tests/Feature/FinancialGoals/GoalDateGuidanceContractTest.php`.
 
 ### Backend implementation and gate
 
-- [ ] T039 [US5] Implement inclusive remaining-month guidance and due/overdue timing in `../zunera-backend/app/Services/FinancialGoals/GoalContributionCalculator.php` and surface it in `../zunera-backend/app/Http/Resources/FinancialGoals/FinancialGoalResource.php`.
-- [ ] T040 [US5] Run `../zunera-backend/tests/Unit/FinancialGoals/GoalContributionCalculatorTest.php` and `../zunera-backend/tests/Feature/FinancialGoals/GoalDateGuidanceContractTest.php`; verify no recurring transaction creation before advancing to US6 backend work.
+- [X] T039 [US5] Implement inclusive remaining-month guidance and due/overdue timing in `../zunera-backend/app/Services/FinancialGoals/GoalContributionCalculator.php` and surface it in `../zunera-backend/app/Http/Resources/FinancialGoals/FinancialGoalResource.php`.
+- [X] T040 [US5] Run `../zunera-backend/tests/Unit/FinancialGoals/GoalContributionCalculatorTest.php` and `../zunera-backend/tests/Feature/FinancialGoals/GoalDateGuidanceContractTest.php`; verify no recurring transaction creation before advancing to US6 backend work.
 
 **Backend checkpoint**: US5 contract, authorization, validation, and tests pass.
 
@@ -149,14 +149,14 @@
 
 ### Backend tests first
 
-- [ ] T041 [P] [US6] Write active-only summary, separate unverified subtotal, independent overdue-underfunded/shortfall/inactive-or-unavailable attention counts, completed designation in account capacity, pagination, and three-goal ordering contract tests in `../zunera-backend/tests/Feature/FinancialGoals/GoalOverviewDashboardContractTest.php`.
-- [ ] T042 [P] [US6] Write regression tests across account totals, transaction/transfer history, budget utilization, Dashboard realized/expected cash flow, credit-card purchases/payments, and recurring card recognition in `../zunera-backend/tests/Feature/FinancialGoals/GoalFinancialIntegrityTest.php`.
+- [X] T041 [P] [US6] Write active-only summary, separate unverified subtotal, independent overdue-underfunded/shortfall/inactive-or-unavailable attention counts, completed designation in account capacity, pagination, and three-goal ordering contract tests in `../zunera-backend/tests/Feature/FinancialGoals/GoalOverviewDashboardContractTest.php`.
+- [X] T042 [P] [US6] Write regression tests across account totals, transaction/transfer history, budget utilization, Dashboard realized/expected cash flow, credit-card purchases/payments, and recurring card recognition in `../zunera-backend/tests/Feature/FinancialGoals/GoalFinancialIntegrityTest.php`.
 
 ### Backend implementation and gate
 
-- [ ] T043 [US6] Implement active-only target/allocated/per-goal remaining totals, unverified subtotal, independent attention counts for overdue underfunded active goals and active/completed goals linked to shortfall or inactive/unavailable accounts, and bounded three-goal selection in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalQueryService.php`.
-- [ ] T044 [US6] Expose protected `/financial-goals/summary` and `/financial-dashboard/goals` using `../zunera-backend/app/Http/Controllers/Api/V1/FinancialGoalDashboardController.php`, `../zunera-backend/app/Http/Resources/FinancialGoals/FinancialGoalSummaryResource.php`, and `../zunera-backend/routes/api.php`.
-- [ ] T045 [US6] Run the complete backend test suite using `../zunera-backend/phpunit.xml` and run Pint; include all FinancialGoals contract/concurrency and existing Dashboard/Budget/CreditCard/Recurring tests, verify SQLite and MySQL migration/capacity behavior, then lint the published API contract without warnings at `specs/015-financial-goals/contracts/financial-goals-api.yaml` before any frontend work.
+- [X] T043 [US6] Implement active-only target/allocated/per-goal remaining totals, unverified subtotal, independent attention counts for overdue underfunded active goals and active/completed goals linked to shortfall or inactive/unavailable accounts, and bounded three-goal selection in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalQueryService.php`.
+- [X] T044 [US6] Expose protected `/financial-goals/summary` and `/financial-dashboard/goals` using `../zunera-backend/app/Http/Controllers/Api/V1/FinancialGoalDashboardController.php`, `../zunera-backend/app/Http/Resources/FinancialGoals/FinancialGoalSummaryResource.php`, and `../zunera-backend/routes/api.php`.
+- [X] T045 [US6] Run the complete backend test suite using `../zunera-backend/phpunit.xml` and run Pint; include all FinancialGoals contract/concurrency and existing Dashboard/Budget/CreditCard/Recurring tests, verify SQLite and MySQL migration/capacity behavior, then lint the published API contract without warnings at `specs/015-financial-goals/contracts/financial-goals-api.yaml` before any frontend work.
 
 **Backend checkpoint**: US6 contract, authorization, validation, and tests pass.
 
@@ -170,12 +170,12 @@
 
 **Prerequisite**: T045 complete; use the verified backend contract and the independent test in the matching backend story phase.
 
-- [ ] T046 [P] [US1] Test create/list/detail request shapes, idempotency key reuse, and error mapping in `../zunera-frontend/src/services/__tests__/financialGoalService.spec.js`.
-- [ ] T047 [US1] Implement goal API reads/create and shared owned-goal state in `../zunera-frontend/src/services/financialGoalService.js` and `../zunera-frontend/src/stores/goals/financialGoalStore.js`.
-- [ ] T048 [P] [US1] Build accessible numeric/text progress with visual fill capped at 100% and explicit excess in `../zunera-frontend/src/components/goals/GoalProgress.vue` and its test `../zunera-frontend/src/components/goals/__tests__/GoalProgress.spec.js`.
-- [ ] T049 [US1] Build name/target/date/account/notes/initial-amount form using existing currency input and server validation in `../zunera-frontend/src/components/goals/GoalFormDialog.vue` and `../zunera-frontend/src/views/goals/GoalOverviewView.vue`.
-- [ ] T050 [US1] Build owned goal detail with initial progress, escaped name/notes, unverified-backing label, and empty states in `../zunera-frontend/src/views/goals/GoalDetailView.vue`; add protected overview/detail routes in `../zunera-frontend/src/router/index.js` and a basic Goals link in `../zunera-frontend/src/components/navigation/AppNavigation.vue` and `../zunera-frontend/src/layouts/AppShell.vue`.
-- [ ] T051 [US1] Verify the in-app Goals link and create-to-detail journey, account balance invariance, unlinked label, safe rendering of hostile name/notes text, mobile readability, and PT-BR/English text in `../zunera-frontend/e2e/financial-goals.spec.js` and `../zunera-frontend/src/i18n/messages.js`.
+- [X] T046 [P] [US1] Test create/list/detail request shapes, idempotency key reuse, and error mapping in `../zunera-frontend/src/services/__tests__/financialGoalService.spec.js`.
+- [X] T047 [US1] Implement goal API reads/create and shared owned-goal state in `../zunera-frontend/src/services/financialGoalService.js` and `../zunera-frontend/src/stores/goals/financialGoalStore.js`.
+- [X] T048 [P] [US1] Build accessible numeric/text progress with visual fill capped at 100% and explicit excess in `../zunera-frontend/src/components/goals/GoalProgress.vue` and its test `../zunera-frontend/src/components/goals/__tests__/GoalProgress.spec.js`.
+- [X] T049 [US1] Build name/target/date/account/notes/initial-amount form using existing currency input and server validation in `../zunera-frontend/src/components/goals/GoalFormDialog.vue` and `../zunera-frontend/src/views/goals/GoalOverviewView.vue`.
+- [X] T050 [US1] Build owned goal detail with initial progress, escaped name/notes, unverified-backing label, and empty states in `../zunera-frontend/src/views/goals/GoalDetailView.vue`; add protected overview/detail routes in `../zunera-frontend/src/router/index.js` and a basic Goals link in `../zunera-frontend/src/components/navigation/AppNavigation.vue` and `../zunera-frontend/src/layouts/AppShell.vue`.
+- [X] T051 [US1] Verify the in-app Goals link and create-to-detail journey, account balance invariance, unlinked label, safe rendering of hostile name/notes text, mobile readability, and PT-BR/English text in `../zunera-frontend/e2e/financial-goals.spec.js` and `../zunera-frontend/src/i18n/messages.js`.
 
 **Checkpoint**: US1 works without allocation maintenance or lifecycle actions; it does not affect any financial balance.
 
@@ -183,10 +183,10 @@
 
 **Prerequisite**: T045 complete; use the verified backend contract and the independent test in the matching backend story phase.
 
-- [ ] T052 [P] [US2] Extend service/store tests for allocation, withdrawal, activity paging, retry-safe keys, and server refresh in `../zunera-frontend/src/stores/goals/__tests__/financialGoalStore.spec.js`.
-- [ ] T053 [US2] Add money-action and activity methods to `../zunera-frontend/src/services/financialGoalService.js` and `../zunera-frontend/src/stores/goals/financialGoalStore.js`.
-- [ ] T054 [P] [US2] Build amount dialog with explicit designate/release copy and validation in `../zunera-frontend/src/components/goals/GoalAmountDialog.vue`; build dated, account-aware event list in `../zunera-frontend/src/components/goals/GoalActivityList.vue`.
-- [ ] T055 [US2] Wire actions/history into `../zunera-frontend/src/views/goals/GoalDetailView.vue` and verify allocate–withdraw–retry behavior in `../zunera-frontend/e2e/financial-goals.spec.js`.
+- [X] T052 [P] [US2] Extend service/store tests for allocation, withdrawal, activity paging, retry-safe keys, and server refresh in `../zunera-frontend/src/stores/goals/__tests__/financialGoalStore.spec.js`.
+- [X] T053 [US2] Add money-action and activity methods to `../zunera-frontend/src/services/financialGoalService.js` and `../zunera-frontend/src/stores/goals/financialGoalStore.js`.
+- [X] T054 [P] [US2] Build amount dialog with explicit designate/release copy and validation in `../zunera-frontend/src/components/goals/GoalAmountDialog.vue`; build dated, account-aware event list in `../zunera-frontend/src/components/goals/GoalActivityList.vue`.
+- [X] T055 [US2] Wire actions/history into `../zunera-frontend/src/views/goals/GoalDetailView.vue` and verify allocate–withdraw–retry behavior in `../zunera-frontend/e2e/financial-goals.spec.js`.
 
 **Checkpoint**: US1 and US2 independently pass their journeys; no goal event is a financial transaction.
 
@@ -194,9 +194,9 @@
 
 **Prerequisite**: T045 complete; use the verified backend contract and the independent test in the matching backend story phase.
 
-- [ ] T056 [P] [US4] Test shortfall, unverified, inactive, actual/designated/unallocated text and accessible non-color cues in `../zunera-frontend/src/components/goals/__tests__/GoalAccountCoverage.spec.js`.
-- [ ] T057 [US4] Add PATCH/edit flow and eligible account selection in `../zunera-frontend/src/services/financialGoalService.js`, `../zunera-frontend/src/stores/goals/financialGoalStore.js`, and `../zunera-frontend/src/components/goals/GoalFormDialog.vue`.
-- [ ] T058 [US4] Show coverage/shortfall and corrective actions in `../zunera-frontend/src/components/goals/GoalAccountCoverage.vue` and `../zunera-frontend/src/views/goals/GoalDetailView.vue`; verify shared-account shortage and reassociation in `../zunera-frontend/e2e/financial-goals.spec.js`.
+- [X] T056 [P] [US4] Test shortfall, unverified, inactive, actual/designated/unallocated text and accessible non-color cues in `../zunera-frontend/src/components/goals/__tests__/GoalAccountCoverage.spec.js`.
+- [X] T057 [US4] Add PATCH/edit flow and eligible account selection in `../zunera-frontend/src/services/financialGoalService.js`, `../zunera-frontend/src/stores/goals/financialGoalStore.js`, and `../zunera-frontend/src/components/goals/GoalFormDialog.vue`.
+- [X] T058 [US4] Show coverage/shortfall and corrective actions in `../zunera-frontend/src/components/goals/GoalAccountCoverage.vue` and `../zunera-frontend/src/views/goals/GoalDetailView.vue`; verify shared-account shortage and reassociation in `../zunera-frontend/e2e/financial-goals.spec.js`.
 
 **Checkpoint**: Account balance stays authoritative; shortage is visible without altering goal history.
 
@@ -204,9 +204,9 @@
 
 **Prerequisite**: T045 complete; use the verified backend contract and the independent test in the matching backend story phase.
 
-- [ ] T059 [P] [US3] Add store tests for available actions and server conflict responses across active/completed/archived states in `../zunera-frontend/src/stores/goals/__tests__/financialGoalLifecycle.spec.js`.
-- [ ] T060 [US3] Add lifecycle methods and explicit reopen/full-withdrawal guidance in `../zunera-frontend/src/stores/goals/financialGoalStore.js` and `../zunera-frontend/src/views/goals/GoalDetailView.vue`.
-- [ ] T061 [US3] Add completed/archived list access and retained activity presentation in `../zunera-frontend/src/views/goals/GoalOverviewView.vue`; verify complete–reopen–withdraw–archive–restore in `../zunera-frontend/e2e/financial-goals.spec.js`.
+- [X] T059 [P] [US3] Add store tests for available actions and server conflict responses across active/completed/archived states in `../zunera-frontend/src/stores/goals/__tests__/financialGoalLifecycle.spec.js`.
+- [X] T060 [US3] Add lifecycle methods and explicit reopen/full-withdrawal guidance in `../zunera-frontend/src/stores/goals/financialGoalStore.js` and `../zunera-frontend/src/views/goals/GoalDetailView.vue`.
+- [X] T061 [US3] Add completed/archived list access and retained activity presentation in `../zunera-frontend/src/views/goals/GoalOverviewView.vue`; verify complete–reopen–withdraw–archive–restore in `../zunera-frontend/e2e/financial-goals.spec.js`.
 
 **Checkpoint**: Goal status changes are explicit and auditable; completed allocation still designates account money.
 
@@ -214,8 +214,8 @@
 
 **Prerequisite**: T045 complete; use the verified backend contract and the independent test in the matching backend story phase.
 
-- [ ] T062 [P] [US5] Test guidance wording, overdue state, and no-guarantee copy in `../zunera-frontend/src/components/goals/__tests__/GoalDateGuidance.spec.js`.
-- [ ] T063 [US5] Render backend-provided date/time and suggested monthly centavos as guidance in `../zunera-frontend/src/components/goals/GoalDateGuidance.vue` and `../zunera-frontend/src/views/goals/GoalDetailView.vue`; verify date states in `../zunera-frontend/e2e/financial-goals.spec.js`.
+- [X] T062 [P] [US5] Test guidance wording, overdue state, and no-guarantee copy in `../zunera-frontend/src/components/goals/__tests__/GoalDateGuidance.spec.js`.
+- [X] T063 [US5] Render backend-provided date/time and suggested monthly centavos as guidance in `../zunera-frontend/src/components/goals/GoalDateGuidance.vue` and `../zunera-frontend/src/views/goals/GoalDetailView.vue`; verify date states in `../zunera-frontend/e2e/financial-goals.spec.js`.
 
 **Checkpoint**: Guidance is a calculation only; no recurring rule or financial entry is created.
 
@@ -223,11 +223,11 @@
 
 **Prerequisite**: T045 complete; use the verified backend contract and the independent test in the matching backend story phase.
 
-- [ ] T064 [P] [US6] Test overview totals/filters, the three independent attention counts and their per-goal warnings, loading and unavailable states without unknown-as-zero values, safe rendering of hostile goal names/notes, and independent Dashboard loading/error/retry behavior in `../zunera-frontend/src/views/goals/__tests__/GoalOverviewView.spec.js` and `../zunera-frontend/src/components/dashboard/__tests__/DashboardGoalsCard.spec.js`.
-- [ ] T065 [US6] Render active totals, completed/archived sections, unverified subtotal, all three independent attention counts with per-goal warnings, and empty/loading/unavailable states without showing unknown values as zero; escape goal names/notes in `../zunera-frontend/src/views/goals/GoalOverviewView.vue` and `../zunera-frontend/src/components/goals/GoalCard.vue`.
-- [ ] T066 [US6] Extend the basic Goals navigation with completed/archived history access and navigation-state tests in `../zunera-frontend/src/components/navigation/AppNavigation.vue`, `../zunera-frontend/src/layouts/AppShell.vue`, and `../zunera-frontend/src/router/index.js`.
-- [ ] T067 [US6] Add independently fetched compact goals card without changing existing Dashboard financial selectors/totals in `../zunera-frontend/src/components/dashboard/DashboardGoalsCard.vue` and `../zunera-frontend/src/views/dashboard/FinancialDashboardView.vue`.
-- [ ] T068 [US6] Complete PT-BR/English strings, visible status/shortfall wording, hostile-content rendering checks, and navigation/dashboard regression journeys in `../zunera-frontend/src/i18n/messages.js`, `../zunera-frontend/e2e/financial-goals.spec.js`, and `../zunera-frontend/e2e/financial-dashboard.spec.js`.
+- [X] T064 [P] [US6] Test overview totals/filters, the three independent attention counts and their per-goal warnings, loading and unavailable states without unknown-as-zero values, safe rendering of hostile goal names/notes, and independent Dashboard loading/error/retry behavior in `../zunera-frontend/src/views/goals/__tests__/GoalOverviewView.spec.js` and `../zunera-frontend/src/components/dashboard/__tests__/DashboardGoalsCard.spec.js`.
+- [X] T065 [US6] Render active totals, completed/archived sections, unverified subtotal, all three independent attention counts with per-goal warnings, and empty/loading/unavailable states without showing unknown values as zero; escape goal names/notes in `../zunera-frontend/src/views/goals/GoalOverviewView.vue` and `../zunera-frontend/src/components/goals/GoalCard.vue`.
+- [X] T066 [US6] Extend the basic Goals navigation with completed/archived history access and navigation-state tests in `../zunera-frontend/src/components/navigation/AppNavigation.vue`, `../zunera-frontend/src/layouts/AppShell.vue`, and `../zunera-frontend/src/router/index.js`.
+- [X] T067 [US6] Add independently fetched compact goals card without changing existing Dashboard financial selectors/totals in `../zunera-frontend/src/components/dashboard/DashboardGoalsCard.vue` and `../zunera-frontend/src/views/dashboard/FinancialDashboardView.vue`.
+- [X] T068 [US6] Complete PT-BR/English strings, visible status/shortfall wording, hostile-content rendering checks, and navigation/dashboard regression journeys in `../zunera-frontend/src/i18n/messages.js`, `../zunera-frontend/e2e/financial-goals.spec.js`, and `../zunera-frontend/e2e/financial-dashboard.spec.js`.
 
 **Checkpoint**: Goals are findable and understandable; established financial figures keep their original meaning.
 
@@ -237,11 +237,11 @@
 
 **Purpose**: Verify the whole feature against performance, accessibility, security, and financial-integrity gates.
 
-- [ ] T069 [P] Run the complete backend suite via `../zunera-backend/phpunit.xml` and Pint, including `../zunera-backend/tests/Feature/FinancialGoals/GoalFinancialIntegrityTest.php`; fix failures without relaxing existing financial expectations.
-- [ ] T070 [P] Run frontend Vitest, ESLint, build, and isolated Playwright goals/dashboard journeys from `../zunera-frontend/`, including `../zunera-frontend/e2e/financial-goals.spec.js`.
-- [ ] T071 Exercise 100 owned goals/1,000 activities against overview/detail and inspect query counts and p95 usable-content timing against `specs/015-financial-goals/quickstart.md`; remove material N+1 or slow-path issues in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalQueryService.php`.
-- [ ] T072 Verify 320 px/200% zoom, keyboard/screen-reader labels, light/dark/system themes, and non-color status cues against `docs/design/design-foundation.md` in `../zunera-frontend/src/views/goals/GoalOverviewView.vue` and `../zunera-frontend/src/views/goals/GoalDetailView.vue`.
-- [ ] T073 Reconcile implemented request/response/error shapes and full acceptance walkthrough with `specs/015-financial-goals/contracts/financial-goals-api.yaml` and `specs/015-financial-goals/quickstart.md`; correct any drift in those artifacts or application files before delivery.
+- [X] T069 [P] Run the complete backend suite via `../zunera-backend/phpunit.xml` and Pint, including `../zunera-backend/tests/Feature/FinancialGoals/GoalFinancialIntegrityTest.php`; fix failures without relaxing existing financial expectations.
+- [X] T070 [P] Run frontend Vitest, ESLint, build, and isolated Playwright goals/dashboard journeys from `../zunera-frontend/`, including `../zunera-frontend/e2e/financial-goals.spec.js`.
+- [X] T071 Exercise 100 owned goals/1,000 activities against overview/detail and inspect query counts and p95 usable-content timing against `specs/015-financial-goals/quickstart.md`; remove material N+1 or slow-path issues in `../zunera-backend/app/Services/FinancialGoals/FinancialGoalQueryService.php`.
+- [X] T072 Verify 320 px/200% zoom, keyboard/screen-reader labels, light/dark/system themes, and non-color status cues against `docs/design/design-foundation.md` in `../zunera-frontend/src/views/goals/GoalOverviewView.vue` and `../zunera-frontend/src/views/goals/GoalDetailView.vue`.
+- [X] T073 Reconcile implemented request/response/error shapes and full acceptance walkthrough with `specs/015-financial-goals/contracts/financial-goals-api.yaml` and `specs/015-financial-goals/quickstart.md`; correct any drift in those artifacts or application files before delivery.
 - [ ] T074 Run the uncoached SC-001 creation and SC-004 shortfall-understanding checks with at least 10 representative users; record per-person time, correctness, and both 90% pass rates in `specs/015-financial-goals/checklists/usability.md`, then resolve and repeat any failed criterion before delivery.
 
 ---
