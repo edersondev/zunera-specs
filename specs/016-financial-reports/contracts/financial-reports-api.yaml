@@ -1,0 +1,349 @@
+openapi: 3.1.0
+info:
+  title: Zunera Financial Reports API
+  version: 1.0.0
+  license: { name: Proprietary, identifier: LicenseRef-Proprietary }
+  description: Read-only, owner-scoped realized financial reports. Amounts are exact BRL centavos.
+servers: [{ url: /api/v1 }]
+paths:
+  /financial-reports:
+    get:
+      operationId: getFinancialReport
+      summary: Read one coherent realized report and its preceding comparison
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Preset' }
+        - { $ref: '#/components/parameters/Month' }
+        - { $ref: '#/components/parameters/From' }
+        - { $ref: '#/components/parameters/To' }
+        - { $ref: '#/components/parameters/AccountId' }
+        - { $ref: '#/components/parameters/CategoryId' }
+        - { $ref: '#/components/parameters/TransactionType' }
+      responses:
+        '200':
+          description: One scope shared by all report sections
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OverviewResponse' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/UnknownScopeIdentity' }
+        '422': { $ref: '#/components/responses/InvalidScope' }
+        '503': { $ref: '#/components/responses/ReportUnavailable' }
+  /financial-reports/contributions:
+    get:
+      operationId: getFinancialReportContributions
+      summary: Page through signed source contributions for one reported metric
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Preset' }
+        - { $ref: '#/components/parameters/Month' }
+        - { $ref: '#/components/parameters/From' }
+        - { $ref: '#/components/parameters/To' }
+        - { $ref: '#/components/parameters/AccountId' }
+        - { $ref: '#/components/parameters/CategoryId' }
+        - { $ref: '#/components/parameters/TransactionType' }
+        - { $ref: '#/components/parameters/Metric' }
+        - { $ref: '#/components/parameters/MetricId' }
+        - { $ref: '#/components/parameters/WhichPeriod' }
+        - { $ref: '#/components/parameters/Cursor' }
+        - { $ref: '#/components/parameters/Limit' }
+      responses:
+        '200':
+          description: Stable page and all-record total for the selected metric
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContributionsResponse' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/UnknownScopeIdentity' }
+        '422': { $ref: '#/components/responses/InvalidScope' }
+        '503': { $ref: '#/components/responses/ReportUnavailable' }
+components:
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: zunera_session }
+  parameters:
+    Preset:
+      name: preset
+      in: query
+      schema: { type: string, enum: [current_month, previous_month, historical_month, current_year, previous_year, custom], default: current_month }
+      description: Historical month requires month; custom requires from and to. Current presets end today; previous and historical calendar choices are complete.
+    Month:
+      name: month
+      in: query
+      schema: { type: string, pattern: '^[0-9]{4}-(0[1-9]|1[0-2])$' }
+      description: Required only for historical_month. Must identify a completed calendar month before the current Sao Paulo business month; its comparison is the full immediately preceding month. Rejected with other presets.
+    From:
+      name: from
+      in: query
+      schema: { type: string, format: date }
+      description: Inclusive custom start date. Rejected with non-custom preset. A full-month custom range retains equal-day preceding-range comparison.
+    To:
+      name: to
+      in: query
+      schema: { type: string, format: date }
+      description: Inclusive custom end date. Rejected with non-custom preset.
+    AccountId:
+      name: account_id
+      in: query
+      schema: { type: integer, minimum: 1 }
+      description: Owned financial account filter; historical archived account is valid.
+    CategoryId:
+      name: category_id
+      in: query
+      schema: { type: integer, minimum: 1 }
+      description: Owned category filter; historical archived category is valid. Transfer and card-settlement figures are zero under a category filter.
+    TransactionType:
+      name: transaction_type
+      in: query
+      schema: { type: string, enum: [income, expense] }
+      description: Income/expense filter; separately labelled transfer and card-settlement figures become zero under either selected type. No movement is reclassified.
+    Metric:
+      name: metric
+      in: query
+      required: true
+      schema:
+        type: string
+        enum: [realized_income, realized_expenses, financial_result, income_category, expense_category, account_income, account_expenses, account_net_flow, account_transfer_in, account_transfer_out, account_card_settlement]
+    MetricId:
+      name: metric_id
+      in: query
+      schema: { type: integer, minimum: 1 }
+      description: Required for category/account metrics; category or financial-account ID according to metric. Omit for summary metrics.
+    WhichPeriod:
+      name: which_period
+      in: query
+      schema: { type: string, enum: [current, previous], default: current }
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string }
+      description: Opaque cursor from preceding page. Invalid cursor returns 422.
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 50 }
+  responses:
+    Unauthenticated:
+      description: Authentication required
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    UnknownScopeIdentity:
+      description: Account, category, or metric target does not exist or is not owned
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    InvalidScope:
+      description: Invalid period, filter, metric, or cursor
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    ReportUnavailable:
+      description: Reliable financial figures cannot be produced; safe retry guidance
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+        errors: { type: object, additionalProperties: { type: array, items: { type: string } } }
+    Money:
+      type: object
+      required: [amount_centavos, currency_code]
+      properties:
+        amount_centavos: { type: integer }
+        currency_code: { type: string, const: BRL }
+    Period:
+      type: object
+      required: [from, to, day_count]
+      properties:
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+        day_count: { type: integer, minimum: 1 }
+    AppliedScope:
+      type: object
+      required: [preset, month, current_period, previous_period, filters, is_filtered]
+      properties:
+        preset: { type: string, enum: [current_month, previous_month, historical_month, current_year, previous_year, custom] }
+        month:
+          type: [string, 'null']
+          pattern: '^[0-9]{4}-(0[1-9]|1[0-2])$'
+          description: Selected YYYY-MM for historical_month; null for other presets.
+        current_period: { $ref: '#/components/schemas/Period' }
+        previous_period: { $ref: '#/components/schemas/Period' }
+        filters:
+          type: object
+          required: [account_id, category_id, transaction_type]
+          properties:
+            account_id: { type: [integer, 'null'] }
+            category_id: { type: [integer, 'null'] }
+            transaction_type: { type: [string, 'null'], enum: [income, expense, null] }
+        is_filtered: { type: boolean }
+    Summary:
+      type: object
+      required: [realized_income, realized_expenses, financial_result]
+      properties:
+        realized_income: { $ref: '#/components/schemas/Money' }
+        realized_expenses: { $ref: '#/components/schemas/Money' }
+        financial_result: { $ref: '#/components/schemas/Money' }
+    EvolutionInterval:
+      type: object
+      required: [from, to, is_partial, realized_income, realized_expenses, financial_result]
+      properties:
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+        is_partial: { type: boolean }
+        realized_income: { $ref: '#/components/schemas/Money' }
+        realized_expenses: { $ref: '#/components/schemas/Money' }
+        financial_result: { $ref: '#/components/schemas/Money' }
+    Category:
+      type: object
+      required: [id, name, classification, status]
+      properties:
+        id: { type: integer, minimum: 1 }
+        name: { type: string }
+        classification: { type: string, enum: [income, expense] }
+        status: { type: string, enum: [active, archived] }
+    CategoryAmount:
+      type: object
+      required: [category, total, share_percent]
+      properties:
+        category: { $ref: '#/components/schemas/Category' }
+        total: { $ref: '#/components/schemas/Money' }
+        share_percent: { type: [number, 'null'] }
+    Account:
+      type: object
+      required: [id, name, type, status]
+      properties:
+        id: { type: integer, minimum: 1 }
+        name: { type: string }
+        type: { type: string }
+        status: { type: string, enum: [active, archived] }
+    AccountActivity:
+      type: object
+      required: [account, realized_income, direct_expenses, net_financial_flow, transfer_in, transfer_out, card_settlement]
+      properties:
+        account: { $ref: '#/components/schemas/Account' }
+        realized_income: { $ref: '#/components/schemas/Money' }
+        direct_expenses: { $ref: '#/components/schemas/Money' }
+        net_financial_flow: { $ref: '#/components/schemas/Money' }
+        transfer_in: { $ref: '#/components/schemas/Money' }
+        transfer_out: { $ref: '#/components/schemas/Money' }
+        card_settlement: { $ref: '#/components/schemas/Money' }
+    MetricComparison:
+      type: object
+      required: [current, previous, difference, percent_change, percent_unavailable_reason]
+      properties:
+        current: { $ref: '#/components/schemas/Money' }
+        previous: { $ref: '#/components/schemas/Money' }
+        difference: { $ref: '#/components/schemas/Money' }
+        percent_change: { type: [number, 'null'] }
+        percent_unavailable_reason: { type: [string, 'null'], enum: [unequal_duration, previous_nonpositive, sign_crossing, null] }
+    CategoryComparison:
+      type: object
+      required: [category, amounts]
+      properties:
+        category: { $ref: '#/components/schemas/Category' }
+        amounts: { $ref: '#/components/schemas/MetricComparison' }
+    Comparison:
+      type: object
+      required: [realized_income, realized_expenses, financial_result, expense_categories]
+      properties:
+        realized_income: { $ref: '#/components/schemas/MetricComparison' }
+        realized_expenses: { $ref: '#/components/schemas/MetricComparison' }
+        financial_result: { $ref: '#/components/schemas/MetricComparison' }
+        expense_categories:
+          type: array
+          items: { $ref: '#/components/schemas/CategoryComparison' }
+    EmptyStates:
+      type: object
+      required: [no_activity, no_income, no_expenses, no_filter_matches, no_previous_activity]
+      properties:
+        no_activity: { type: boolean }
+        no_income: { type: boolean }
+        no_expenses: { type: boolean }
+        no_filter_matches: { type: boolean }
+        no_previous_activity: { type: boolean }
+    SectionState:
+      type: object
+      required: [status, message]
+      properties:
+        status: { type: string, enum: [available, unavailable] }
+        message: { type: [string, 'null'] }
+    SectionStates:
+      type: object
+      description: A section marked unavailable has null content, never a zero or empty value; all available sections use the same returned scope. Retry the overview for unavailable sections.
+      required: [summary, evolution, expense_categories, income_categories, accounts, comparison]
+      properties:
+        summary: { $ref: '#/components/schemas/SectionState' }
+        evolution: { $ref: '#/components/schemas/SectionState' }
+        expense_categories: { $ref: '#/components/schemas/SectionState' }
+        income_categories: { $ref: '#/components/schemas/SectionState' }
+        accounts: { $ref: '#/components/schemas/SectionState' }
+        comparison: { $ref: '#/components/schemas/SectionState' }
+    OverviewResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [scope, section_states, summary, evolution_granularity, evolution, expense_categories, income_categories, accounts, unattributed_card_expenses, comparison, empty_states]
+          properties:
+            scope: { $ref: '#/components/schemas/AppliedScope' }
+            section_states: { $ref: '#/components/schemas/SectionStates' }
+            summary: { oneOf: [{ $ref: '#/components/schemas/Summary' }, { type: 'null' }] }
+            evolution_granularity: { type: [string, 'null'], enum: [day, week, month, null] }
+            evolution:
+              type: [array, 'null']
+              items: { $ref: '#/components/schemas/EvolutionInterval' }
+            expense_categories:
+              type: [array, 'null']
+              items: { $ref: '#/components/schemas/CategoryAmount' }
+            income_categories:
+              type: [array, 'null']
+              items: { $ref: '#/components/schemas/CategoryAmount' }
+            accounts:
+              type: [array, 'null']
+              items: { $ref: '#/components/schemas/AccountActivity' }
+            unattributed_card_expenses:
+              oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }]
+              description: Net recognized card spending with no financial-account attribution. Zero under account filter.
+            comparison: { oneOf: [{ $ref: '#/components/schemas/Comparison' }, { type: 'null' }] }
+            empty_states: { oneOf: [{ $ref: '#/components/schemas/EmptyStates' }, { type: 'null' }] }
+    Contribution:
+      type: object
+      required: [source_kind, source_id, recognized_date, classification, signed_amount, description, category, account, related_purchase_id, related_statement_id, related_installment_id, related_credit_event_id]
+      properties:
+        source_kind: { type: string, enum: [ordinary_transaction, card_installment, card_credit_adjustment, transfer, card_statement_payment] }
+        source_id: { type: integer, minimum: 1 }
+        recognized_date: { type: string, format: date }
+        classification: { type: string, enum: [income, expense, transfer_in, transfer_out, card_settlement] }
+        signed_amount:
+          allOf: [{ $ref: '#/components/schemas/Money' }]
+          description: Signed contribution to selected metric. Expense is negative for result/net-flow metrics; an expense-reducing adjustment is then positive. All rows sum to total.
+        description: { type: string }
+        category: { oneOf: [{ $ref: '#/components/schemas/Category' }, { type: 'null' }] }
+        account: { oneOf: [{ $ref: '#/components/schemas/Account' }, { type: 'null' }] }
+        related_purchase_id: { type: [integer, 'null'] }
+        related_statement_id: { type: [integer, 'null'] }
+        related_installment_id: { type: [integer, 'null'] }
+        related_credit_event_id: { type: [integer, 'null'] }
+    ContributionsResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [scope, which_period, metric, metric_id, total, contributions, next_cursor]
+          properties:
+            scope: { $ref: '#/components/schemas/AppliedScope' }
+            which_period: { type: string, enum: [current, previous] }
+            metric: { $ref: '#/components/parameters/Metric/schema' }
+            metric_id: { type: [integer, 'null'] }
+            total: { $ref: '#/components/schemas/Money' }
+            contributions:
+              type: array
+              items: { $ref: '#/components/schemas/Contribution' }
+            next_cursor: { type: [string, 'null'] }
