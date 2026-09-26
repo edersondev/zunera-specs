@@ -1,6 +1,6 @@
 <!-- SPECKIT START -->
 For additional context about technologies, project structure, shell commands,
-and implementation order, read [specs/014-recurring-credit-card-purchases/plan.md](specs/014-recurring-credit-card-purchases/plan.md).
+and implementation order, read [specs/015-financial-goals/plan.md](specs/015-financial-goals/plan.md).
 <!-- SPECKIT END -->
 
 ## Zunera Workspace Layout

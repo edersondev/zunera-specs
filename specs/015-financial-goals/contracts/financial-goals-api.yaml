@@ -1,0 +1,439 @@
+openapi: 3.1.0
+info:
+  title: Zunera Financial Goals API
+  version: 1.0.0
+  license: { name: Proprietary, identifier: LicenseRef-Proprietary }
+  description: >-
+    Owner-scoped goal allocation and activity contract. Goal mutations designate
+    money and never create financial-account, transaction, transfer, budget,
+    credit-card, or recurring financial effects. All amounts are BRL centavos.
+servers:
+  - url: /api/v1
+security:
+  - cookieAuth: []
+paths:
+  /financial-goals:
+    get:
+      summary: List owned goals
+      operationId: listFinancialGoals
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [active, completed, archived, all], default: active }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+      responses:
+        '200': { $ref: '#/components/responses/GoalList' }
+        '401': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    post:
+      summary: Create a goal with optional initial allocation
+      operationId: createFinancialGoal
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateGoal' }
+      responses:
+        '201': { $ref: '#/components/responses/Goal' }
+        '401': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /financial-goals/summary:
+    get:
+      summary: Active goal totals and account capacity
+      operationId: getFinancialGoalsSummary
+      description: >-
+        Totals include active goals only; completed goal allocations still count
+        in each linked account's designated amount. Unlinked allocations are
+        identified separately as unverified. Attention counts identify overdue
+        underfunded active goals and linked account problems; per-goal warnings
+        remain available in goal reads. No goal amount adds to assets.
+      responses:
+        '200': { $ref: '#/components/responses/Summary' }
+        '401': { $ref: '#/components/responses/Error' }
+  /financial-goals/{goal_id}:
+    parameters: [{ $ref: '#/components/parameters/GoalId' }]
+    get:
+      summary: Read owned goal details
+      operationId: getFinancialGoal
+      responses:
+        '200': { $ref: '#/components/responses/Goal' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+    patch:
+      summary: Edit active goal metadata
+      operationId: updateFinancialGoal
+      description: >-
+        Omitted fields remain unchanged. Explicit null clears optional date,
+        description, or account. Funded account reassociation must pass current
+        capacity checks and creates no transfer. Completed and archived goals
+        must first be reopened or restored.
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateGoal' }
+      responses:
+        '200': { $ref: '#/components/responses/Goal' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /financial-goals/{goal_id}/activities:
+    get:
+      summary: Read goal-only activity; never financial history transactions
+      operationId: listFinancialGoalActivities
+      parameters:
+        - { $ref: '#/components/parameters/GoalId' }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+      responses:
+        '200': { $ref: '#/components/responses/ActivityList' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /financial-goals/{goal_id}/allocations:
+    post:
+      summary: Designate more money toward an active goal
+      operationId: allocateFinancialGoalMoney
+      description: >-
+        Linked goals check active account capacity under lock. Unlinked goal
+        allocations are user-declared and unverified. No financial account
+        balance changes. A later real account movement may create a shortfall.
+      parameters:
+        - { $ref: '#/components/parameters/GoalId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MoneyAction' }
+      responses:
+        '200': { $ref: '#/components/responses/Goal' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /financial-goals/{goal_id}/withdrawals:
+    post:
+      summary: Release designation from an active goal
+      operationId: withdrawFinancialGoalMoney
+      description: >-
+        Amount cannot exceed current allocation. No income, transfer, or
+        account-balance increase occurs. Completed goals must first be reopened.
+      parameters:
+        - { $ref: '#/components/parameters/GoalId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MoneyAction' }
+      responses:
+        '200': { $ref: '#/components/responses/Goal' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /financial-goals/{goal_id}/complete:
+    post:
+      summary: Mark an active goal completed after target is reached
+      operationId: completeFinancialGoal
+      description: >-
+        Linked goals also require an active available account with no current
+        shortfall. Unlinked goals may complete with their unverified-backing
+        label. A later shortfall or account archive does not reopen an already
+        completed goal.
+      parameters:
+        - { $ref: '#/components/parameters/GoalId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200': { $ref: '#/components/responses/Goal' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /financial-goals/{goal_id}/reopen:
+    post:
+      summary: Return a completed goal to active without changing allocation
+      operationId: reopenFinancialGoal
+      parameters:
+        - { $ref: '#/components/parameters/GoalId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200': { $ref: '#/components/responses/Goal' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /financial-goals/{goal_id}/archive:
+    post:
+      summary: Archive an active goal only after explicit full withdrawal
+      operationId: archiveFinancialGoal
+      parameters:
+        - { $ref: '#/components/parameters/GoalId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200': { $ref: '#/components/responses/Goal' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /financial-goals/{goal_id}/restore:
+    post:
+      summary: Restore an archived goal to active at zero allocation
+      operationId: restoreFinancialGoal
+      parameters:
+        - { $ref: '#/components/parameters/GoalId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200': { $ref: '#/components/responses/Goal' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /financial-dashboard/goals:
+    get:
+      summary: Independent compact goals section
+      operationId: getFinancialDashboardGoals
+      description: >-
+        Returns at most three active goals in spec order, regardless of the
+        selected cash-flow reporting period. Does not change existing Dashboard
+        endpoints or their financial totals.
+      responses:
+        '200': { $ref: '#/components/responses/DashboardGoals' }
+        '401': { $ref: '#/components/responses/Error' }
+components:
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: laravel_session }
+  parameters:
+    GoalId:
+      name: goal_id
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: >-
+        Unique per owner/logical mutation. Exact replay returns its original
+        status/body; reuse with different action or payload returns 409.
+      schema: { type: string, minLength: 1, maxLength: 255 }
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    PerPage:
+      name: per_page
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+  schemas:
+    CreateGoal:
+      type: object
+      additionalProperties: false
+      required: [name, target_centavos]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200, pattern: '\S', description: 'Trim before storage; reject whitespace-only input.' }
+        target_centavos: { $ref: '#/components/schemas/PositiveMoney' }
+        initial_allocated_centavos: { type: integer, minimum: 0, maximum: 999999999999, default: 0 }
+        target_date: { type: [string, 'null'], format: date, description: Today or later when supplied. }
+        financial_account_id: { type: [integer, 'null'], minimum: 1 }
+        description: { type: [string, 'null'], maxLength: 1000 }
+    UpdateGoal:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200, pattern: '\S', description: 'Trim before storage; reject whitespace-only input.' }
+        target_centavos: { $ref: '#/components/schemas/PositiveMoney' }
+        target_date: { type: [string, 'null'], format: date, description: Null clears date; a supplied date must be today or later. }
+        financial_account_id: { type: [integer, 'null'], minimum: 1, description: Null unlinks without transfer. }
+        description: { type: [string, 'null'], maxLength: 1000 }
+    PositiveMoney:
+      type: integer
+      minimum: 1
+      maximum: 999999999999
+    MoneyAction:
+      type: object
+      additionalProperties: false
+      required: [amount_centavos]
+      properties:
+        amount_centavos: { $ref: '#/components/schemas/PositiveMoney' }
+    Goal:
+      type: object
+      required: [id, name, status, target_centavos, allocated_centavos, remaining_centavos, excess_centavos, progress_percentage, currency_code, financial_account, account_backing, target_date, suggested_monthly_centavos, created_at, updated_at]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        status: { type: string, enum: [active, completed, archived] }
+        target_centavos: { type: integer, minimum: 1 }
+        allocated_centavos: { type: integer, minimum: 0 }
+        remaining_centavos: { type: integer, minimum: 0 }
+        excess_centavos: { type: integer, minimum: 0 }
+        progress_percentage: { type: number, minimum: 0, description: Actual value; may exceed 100. Visual track may clamp separately. }
+        currency_code: { type: string, const: BRL }
+        target_date: { type: [string, 'null'], format: date }
+        target_date_state: { type: [string, 'null'], enum: [future, due_today, overdue, met, null] }
+        remaining_calendar_days: { type: [integer, 'null'] }
+        contribution_periods_remaining: { type: [integer, 'null'], minimum: 1 }
+        suggested_monthly_centavos: { type: [integer, 'null'], minimum: 1 }
+        financial_account: { oneOf: [{ $ref: '#/components/schemas/GoalAccount' }, { type: 'null' }] }
+        account_backing: { type: string, enum: [unverified, available, shortfall, inactive_or_unavailable] }
+        description: { type: [string, 'null'] }
+        completed_at: { type: [string, 'null'], format: date-time }
+        archived_at: { type: [string, 'null'], format: date-time }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    GoalAccount:
+      type: object
+      required: [id, name, status, current_balance_centavos, designated_centavos, unallocated_centavos, shortfall_centavos]
+      properties:
+        id: { type: integer }
+        name: { type: string, description: Current account name or retained snapshot if unavailable. }
+        status: { type: string, enum: [active, archived, unavailable] }
+        current_balance_centavos: { type: [integer, 'null'] }
+        designated_centavos: { type: integer, minimum: 0 }
+        unallocated_centavos: { type: [integer, 'null'] }
+        shortfall_centavos: { type: [integer, 'null'], minimum: 0 }
+    GoalActivity:
+      type: object
+      required: [id, goal_id, type, amount_centavos, occurred_at, business_date, account_at_time]
+      properties:
+        id: { type: integer }
+        goal_id: { type: integer }
+        type: { type: string, enum: [created, initial_allocation, allocated, withdrawn, goal_updated, account_changed, completed, reopened, archived, restored] }
+        amount_centavos: { type: [integer, 'null'], minimum: 1 }
+        occurred_at: { type: string, format: date-time }
+        business_date: { type: string, format: date }
+        account_at_time: { oneOf: [{ $ref: '#/components/schemas/AccountIdentity' }, { type: 'null' }] }
+        details: { type: object, additionalProperties: true }
+    AccountIdentity:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+    Overview:
+      type: object
+      required: [active_count, completed_count, archived_count, active_target_centavos, active_allocated_centavos, active_remaining_centavos, active_excess_centavos, active_unverified_centavos, attention_counts, linked_accounts]
+      properties:
+        active_count: { type: integer, minimum: 0 }
+        completed_count: { type: integer, minimum: 0 }
+        archived_count: { type: integer, minimum: 0 }
+        active_target_centavos: { type: integer, minimum: 0 }
+        active_allocated_centavos: { type: integer, minimum: 0 }
+        active_remaining_centavos: { type: integer, minimum: 0 }
+        active_excess_centavos: { type: integer, minimum: 0 }
+        active_unverified_centavos: { type: integer, minimum: 0 }
+        attention_counts: { $ref: '#/components/schemas/OverviewAttentionCounts' }
+        linked_accounts:
+          type: array
+          items: { $ref: '#/components/schemas/GoalAccount' }
+    OverviewAttentionCounts:
+      type: object
+      description: >-
+        Independent counts of owned goals requiring attention. A goal can appear
+        in more than one count; do not sum these as a unique-goal total.
+      required: [overdue_underfunded_active_goals, shortfall_linked_goals, inactive_or_unavailable_linked_goals]
+      properties:
+        overdue_underfunded_active_goals:
+          type: integer
+          minimum: 0
+          description: Active goals with an overdue target date and remaining amount above zero.
+        shortfall_linked_goals:
+          type: integer
+          minimum: 0
+          description: Active or completed goals linked to an account with a current shortfall.
+        inactive_or_unavailable_linked_goals:
+          type: integer
+          minimum: 0
+          description: Active or completed goals linked to an inactive or unavailable account.
+    DashboardGoal:
+      type: object
+      required: [id, name, allocated_centavos, target_centavos, remaining_centavos, progress_percentage, target_date]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        allocated_centavos: { type: integer, minimum: 0 }
+        target_centavos: { type: integer, minimum: 1 }
+        remaining_centavos: { type: integer, minimum: 0 }
+        progress_percentage: { type: number, minimum: 0 }
+        target_date: { type: [string, 'null'], format: date }
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+        code: { type: string }
+        errors: { type: object, additionalProperties: { type: array, items: { type: string } } }
+  responses:
+    Goal:
+      description: Owner-scoped goal with authoritative derived values
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data: { $ref: '#/components/schemas/Goal' }
+    GoalList:
+      description: Paginated owned goals, newest first within status filter
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data, meta, links]
+            properties:
+              data: { type: array, items: { $ref: '#/components/schemas/Goal' } }
+              meta: { type: object }
+              links: { type: object }
+    ActivityList:
+      description: Paginated goal activity, newest first by timestamp and ID
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data, meta, links]
+            properties:
+              data: { type: array, items: { $ref: '#/components/schemas/GoalActivity' } }
+              meta: { type: object }
+              links: { type: object }
+    Summary:
+      description: Goal overview, never an asset-balance response
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data: { $ref: '#/components/schemas/Overview' }
+    DashboardGoals:
+      description: Zero to three active goals, independent of cash-flow period
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data: { type: array, maxItems: 3, items: { $ref: '#/components/schemas/DashboardGoal' } }
+    Error:
+      description: Authentication or not-found error; foreign IDs are not disclosed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: >-
+        409 goal_account_capacity_exceeded, goal_account_unavailable,
+        goal_completed_requires_reopen, goal_archived_requires_restore,
+        goal_target_not_reached, goal_account_shortfall,
+        goal_withdrawal_exceeds_allocation,
+        goal_archive_requires_zero_allocation, goal_invalid_transition,
+        or idempotency_key_reused. No partial mutation occurs.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ValidationError:
+      description: Missing/invalid fields, unsupported date/amount, or ineligible account
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
