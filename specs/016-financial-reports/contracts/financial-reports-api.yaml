@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Zunera Financial Reports API
-  version: 1.0.0
+  version: 1.1.0
   license: { name: Proprietary, identifier: LicenseRef-Proprietary }
   description: Read-only, owner-scoped realized financial reports. Amounts are exact BRL centavos.
 servers: [{ url: /api/v1 }]
@@ -65,7 +65,7 @@ components:
       name: preset
       in: query
       schema: { type: string, enum: [current_month, previous_month, historical_month, current_year, previous_year, custom], default: current_month }
-      description: Historical month requires month; custom requires from and to. Current presets end today; previous and historical calendar choices are complete.
+      description: Historical month requires month; custom requires from and to. Current presets end on the Sao Paulo business date. Previous_month is also the last completed month; it covers that full calendar month and needs no separate alias value.
     Month:
       name: month
       in: query
@@ -181,6 +181,10 @@ components:
             category_id: { type: [integer, 'null'] }
             transaction_type: { type: [string, 'null'], enum: [income, expense, null] }
         is_filtered: { type: boolean }
+    SourceRevision:
+      type: string
+      minLength: 1
+      description: Opaque revision of authoritative financial sources for the resolved report scope, including current and comparison periods and applicable account movements. It changes when a relevant contributor's identity, financial effect, or report-visible identifying/explanatory information changes, including offsetting changes or a description/identity-label edit with unchanged totals.
     Summary:
       type: object
       required: [realized_income, realized_expenses, financial_result]
@@ -190,6 +194,7 @@ components:
         financial_result: { $ref: '#/components/schemas/Money' }
     EvolutionInterval:
       type: object
+      description: One gap-free interval in the selected range, including intervals with zero income and expenses. Its result equals income minus expenses.
       required: [from, to, is_partial, realized_income, realized_expenses, financial_result]
       properties:
         from: { type: string, format: date }
@@ -289,9 +294,10 @@ components:
       properties:
         data:
           type: object
-          required: [scope, section_states, summary, evolution_granularity, evolution, expense_categories, income_categories, accounts, unattributed_card_expenses, comparison, empty_states]
+          required: [scope, source_revision, section_states, summary, evolution_granularity, evolution, expense_categories, income_categories, accounts, unattributed_card_expenses, comparison, empty_states]
           properties:
             scope: { $ref: '#/components/schemas/AppliedScope' }
+            source_revision: { $ref: '#/components/schemas/SourceRevision' }
             section_states: { $ref: '#/components/schemas/SectionStates' }
             summary: { oneOf: [{ $ref: '#/components/schemas/Summary' }, { type: 'null' }] }
             evolution_granularity: { type: [string, 'null'], enum: [day, week, month, null] }
@@ -332,13 +338,15 @@ components:
         related_credit_event_id: { type: [integer, 'null'] }
     ContributionsResponse:
       type: object
+      description: Detail is a later read and may reflect source changes since the overview. Within each response, contribution rows, all-record total, and source_revision describe one coherent source state. Compare source_revision under the same applied scope before showing overview and detail together and before combining later pages with earlier rows; the all-record total alone cannot detect offsetting or explanatory-field changes.
       required: [data]
       properties:
         data:
           type: object
-          required: [scope, which_period, metric, metric_id, total, contributions, next_cursor]
+          required: [scope, source_revision, which_period, metric, metric_id, total, contributions, next_cursor]
           properties:
             scope: { $ref: '#/components/schemas/AppliedScope' }
+            source_revision: { $ref: '#/components/schemas/SourceRevision' }
             which_period: { type: string, enum: [current, previous] }
             metric: { $ref: '#/components/parameters/Metric/schema' }
             metric_id: { type: [integer, 'null'] }

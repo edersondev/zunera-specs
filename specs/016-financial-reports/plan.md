@@ -1,13 +1,13 @@
 # Implementation Plan: Financial Reports
 
-**Branch**: `016-financial-reports` | **Date**: 2026-09-26 | **Spec**: [spec.md](spec.md)  
-**Input**: Clarified feature specification from `specs/016-financial-reports/spec.md`
+**Branch**: `017-financial-reports` | **Date**: 2026-09-27 | **Spec**: [spec.md](spec.md)
+**Input**: Revised functional specification and the existing Reports implementation in `specs/016-financial-reports/`
 
-**Branch Coordination**: `016-financial-reports` is active in `zunera-specs`, `../zunera-backend`, and `../zunera-frontend`. Recheck before editing either application.
+**Branch Coordination**: `017-financial-reports` is active in specs, backend, and frontend as of this revision. Recheck before editing either application. The established feature directory remains `016-financial-reports`; directory and branch names are independent.
 
 ## Summary
 
-Add a dedicated, read-only Reports area with realized summary, evolution, separate income/expense categories, account activity, previous-period comparison, consistent filters, and paged source-record drill-down. A single backend report scope drives all sections. Reuse the existing financial definitions and repair a discovered paid-card-refund recognition gap in shared card projections before Report calculations so Reports, Dashboard, Budgets, and card history reconcile.
+Financial Reports already has a read-only overview, period and filter controls, evolution with detailed numerical breakdown, separate income and expense categories, account activity, comparison, and paged contribution detail. The shared card-recognition repair and original backend-first gate are complete. This revision audits that implementation against the clarified specification and plans only confirmed gaps, preserving authoritative financial effects and source records.
 
 ## Technical Context
 
@@ -19,29 +19,29 @@ Add a dedicated, read-only Reports area with realized summary, evolution, separa
 **Project Type**: Full-stack feature across separate backend/frontend repositories  
 **Performance Goals**: At 10,000 owned financial records, 100 categories, and 50 accounts, summary and access to any contribution complete within 5 seconds in at least 95% of normal test attempts  
 **Constraints**: Owner-scoped reads, current financial-recognition rules, no expected panel, no duplicate card expense, no new balance model, exact centavos, no new secrets/uploads/packages  
-**Scale/Scope**: Five quick period choices plus completed historical-month navigation, one coherent overview, comparison, four filter dimensions including period, paged detail, two authenticated read interfaces
+**Scale/Scope**: Current/previous month and year shortcuts, completed historical-month navigation, inclusive custom dates, three optional financial filters, one coherent overview, and paged detail. “Last completed month” is the existing previous-month choice, not another period mode.
 
 ## Delivery Scope and Order
 
-1. **Backend** (`../zunera-backend`): First repair shared card spending recognition for paid-source refunds in line with Spec 010. Then define protected report contract, scope validation, owner-scoped recognized contributions, aggregates, comparison, account movements, paged detail, API Resources, and feature/unit/contract tests. Verify Dashboard/Budget/history parity before frontend starts.
-2. **Frontend** (`../zunera-frontend`): Consume the completed backend contract for Reports route/navigation, URL-backed period and filters, summary/trend/category/account/comparison sections, paged detail, localized formatting, accessible states, and service/store/component/browser tests.
+1. **Backend** (`../zunera-backend`): Audit the existing protected read contract, period resolution, recognition, interval completeness, contribution reconciliation, account attribution, and authorization against the revised spec. If a gap is confirmed, update the authoritative projection or report read contract with focused tests before frontend changes. The paid-source refund repair is already implemented.
+2. **Frontend** (`../zunera-frontend`): Audit the existing URL-backed scope, period naming, numerical breakdown, contribution context, and accessible states against verified backend behavior. Implement only confirmed gaps and add focused service, component, or browser coverage.
 
-Backend contract, authorization, validation, services, and tests must pass before frontend implementation begins.
+The original backend gate passed before the existing frontend implementation. Any new backend-dependent frontend work must repeat the relevant gate first.
 
 ## Constitution Check
 
-*Pre-research gate: PASS on 2026-09-26. Post-design gate: PASS on 2026-09-26.*
+*Revision pre-research gate: PASS on 2026-09-27. Revision post-design gate: PASS on 2026-09-27.*
 
 - [x] API boundary uses existing `auth:sanctum` and `session.lifetime`, owner-scoped resolution, Form Requests for all query inputs, API Resources for output, and safe validation/404 errors. No upload surface.
 - [x] Backend card-recognition correction and Report contract/tests precede frontend work; frontend consumes the documented response and error shapes.
-- [x] Identical `016-financial-reports` branch was verified in specs, backend, and frontend before planning.
+- [x] Identical `017-financial-reports` branch was verified in specs, backend, and frontend before revision planning. No application file is edited by this plan.
 - [x] Financial semantics live in `App\Services`; a scoped read repository is justified by shared cross-source aggregation and paged detail. Multi-field report scope uses a DTO/value object. No global service state.
 - [x] Vue plan uses Composition API with `<script setup>`, service-only API access, Pinia for shared report scope/read state, Element Plus controls, Tailwind/semantic tokens, and existing chart wrappers.
-- [x] Backend money, ownership, date, filter, contract, refund, and comparison cases plus frontend service/store/component and isolated Playwright journeys are planned.
-- [x] No new secrets, uploads, packages, reporting ledger, or unrelated refactor. Refund fix is required to satisfy existing Spec 010 and cross-view reconciliation.
+- [x] Existing backend money, ownership, date, filter, contract, refund, and comparison tests and frontend service/store/component and isolated Playwright journeys are preserved; any delta receives proportionate coverage.
+- [x] No new secrets, uploads, packages, reporting ledger, or unrelated refactor. The earlier refund fix remains the shared recognition authority.
 - [x] No constitution exception is needed.
 
-Post-design recheck: read-only contract keeps a single owner-scoped report context; detail reuses the same signed contribution semantics; frontend components only render server-derived money; backend verification gate still precedes frontend. Gates remain passed.
+Post-design recheck: the read-only contract keeps one owner-scoped report context; detail reuses signed source effects; frontend renders server-derived money; branch names match; backend verification still precedes any dependent frontend delta. Gates remain passed.
 
 ## Research and Design Decisions
 
@@ -49,9 +49,14 @@ Post-design recheck: read-only contract keeps a single owner-scoped report conte
 - [Data model](data-model.md) defines one validated report scope, comparison dates, virtual signed contributions, account movement, derived aggregates, and reconciliation invariants. No report table or report-persistence migration is planned; source-table indexes remain conditional on measured need.
 - [API contract](contracts/financial-reports-api.yaml) defines a protected overview and paged contributions read with explicit period/filter metadata, centavos, empty states, signed detail, validation, and ownership errors.
 - [Quickstart](quickstart.md) gives backend-first verification and an acceptance walkthrough.
-- Existing Dashboard recognition helpers must be made shared or delegated to the same domain projection rather than copied. `FinancialHistoryService::totals()` cannot back Report summary because it omits card installments.
+- `AGENTS.md` already points to `specs/016-financial-reports/plan.md` inside its Spec Kit markers. This repository has no agent-context update script, so the correct reference is retained without rewriting unrelated guidance.
+- The existing shared recognized-card projection is authoritative for Reports, Dashboard, Budgets, and card history. `FinancialHistoryService::totals()` remains unsuitable for Report summary because it omits card installments.
+- The revision audit confirms that previous month already means last completed month; daily/weekly/monthly evolution emits zero buckets; the frontend exposes complete numerical interval detail; and the protected detail read supports summary/category/account metrics. No second period mode, chart system, or reporting ledger is warranted.
+- [Research](research.md) records the remaining coherent-snapshot and cross-request freshness risk. The existing detail total detects changed amounts but misses offsetting contribution changes. Add a read-only source revision to both report responses, compare revisions before presenting overview and detail together, and verify a consistent overview under concurrent source changes.
 
-## Implementation Sequence
+## Original Implementation Sequence (delivered baseline)
+
+Steps 1–8 below describe the delivered feature and are retained as implementation history. [Baseline tasks](tasks-baseline-2026-09-26.md) records T001–T065 and T067 complete; the participant study T066 and the integrated performance outcome remain pending. [Revision tasks](tasks.md) tracks the remaining work.
 
 1. **Reconcile credit-event recognition**: Add a shared recognized-card allocation that assigns every accepted source-purchase credit-event centavo to original installments in sequence regardless of source statement payment state. Keep statement obligation and card-credit applications unchanged. Replace spending reads that currently equate `credit_adjustment_centavos` with full recognized refund effect. Prove paid, partial, unpaid, multi-installment, and cancellation cases against Spec 010 in card, Dashboard, Budget, and Financial History tests.
 2. **Backend scope and security**: Define `ReportScope` DTO and period resolver for the five quick choices plus selected completed historical-month navigation, prior period, day counts, timezone, filter ownership, type/category compatibility, and maximum valid date bounds consistent with existing transactions. A navigated historical month compares with its full preceding month; a custom range always compares with the preceding equal-day range. Add authenticated report routes, thin controller(s), query Form Requests, Resources, and domain errors. Reject foreign IDs without disclosure.
@@ -61,6 +66,15 @@ Post-design recheck: read-only contract keeps a single owner-scoped report conte
 6. **Complete backend gate**: Run feature/unit/contract tests for all spec acceptance cases, authentication, foreign IDs, invalid range/filter, period boundaries/leap cases, unequal-day percent suppression, zero/negative comparisons, pending/recurring/goal exclusions, archived history, refunds/corrections, and paged reconciliation. Run full suite and Pint inside development container; verify MySQL-specific recognition and report behavior. Frontend starts only when this gate passes.
 7. **Frontend Reports**: Add protected route/nav and i18n; establish the canonical URL-backed scope and request guards with the US1 route/store foundation before detail and filter integrations. Later add controls for every period mode and filter without replacing that scope model. Compose summary, evolution, separate category sections, account table, comparison, filters, period selector, and report-specific contribution drawer. Reuse existing formatters and chart/theme wrapper with visible numbers/text alternatives.
 8. **Frontend verification and outcomes**: Test URL restoration, rapid filter/period changes without mixed-context sections, no-data/no-income/no-expense/no-prior-data states, signed card adjustment detail, account movement labels, keyboard/screen-reader and color-independent meaning, 320 px/200% zoom, light/dark/system, PT-BR/English, and Playwright report-to-detail/filter/comparison journeys. Measure 10,000-record response/navigation target and uncoached SC-002/SC-003 tasks; record results for review.
+
+## Revision Implementation Sequence
+
+1. **Backend specification audit**: Re-run the protected overview and contribution contract fixtures against FR-003, FR-013, FR-025, FR-031–FR-037. Confirm previous-month alias, inclusive custom and future-effective behavior, zero intervals, signed refund contributions, category reconciliation, and owner isolation. Add a test only for a behavior or regression risk not already covered.
+2. **Coherent read and revision**: Exercise a financial record change while an overview is assembled and during one contribution-detail read. Make every overview and each detail response use a coherent financial source state without persisting a report model; keep section-level unavailable states distinct from valid zero. Each detail page's rows, all-record total, and source revision must describe that one state; later pages may observe a newer state but must expose a changed revision before their rows join the displayed set. Add an opaque source revision to overview and detail that changes when relevant source identity, recognition state, date, classification, amount, or report-visible identifying/explanatory information changes, including net-zero contributor substitutions and same-amount label edits. Include relevant current/prior-period sources and separate account movements. Verify in MySQL with focused tests. Keep account movements separate from consolidated income and expenses.
+3. **Backend gate for changed contract**: Update [data-model.md](data-model.md) and [the contract](contracts/financial-reports-api.yaml) for source revision. Test same-revision reads, changed-value and unchanged-total source changes, same-amount visible-information edits, ownership, period/filter scope, refund and transfer effects, concurrent detail reads, and bounded detail paging. Complete all backend story acceptance checks, then run focused report/card/Dashboard/Budget coverage, full backend suite, and Pint before any frontend edit.
+4. **Frontend consistency**: Preserve current scope through all sections and detail, including the zero-interval breakdown. Compare overview and detail source revisions; on mismatch, automatically refresh both under the same period and filters, show a brief notice, and display them only when revisions agree. Bound automatic retries and offer a recoverable retry state during continuing changes. Cover net-zero contributor changes and rapid filter changes in service/store/component/browser checks.
+5. **Outcome evidence**: Measure the complete live overview-to-first-detail journey at the 10,000-record/100-category/50-account scale in at least 20 attempts; update [performance.md](checklists/performance.md). Run the pending uncoached 10-participant study for SC-002/SC-003 and record anonymized outcomes in [usability.md](checklists/usability.md). These measurements are not inferred from isolated backend and mocked-browser timings. If SC-005, SC-002, or SC-003 misses its threshold, identify the observed cause, make a focused correction, and repeat the affected test or study; keep the outcome and final delivery gate open until the threshold is met.
+6. **Final verification**: Recheck critical report-to-detail, filter, comparison, period-boundary, and zero-activity journeys, along with responsive/theme/accessibility behavior. Confirm the spec, plan, contract, quickstart, and task status describe the same delivered behavior. Run relevant commands in [quickstart.md](quickstart.md).
 
 ## Project Structure
 
@@ -74,6 +88,8 @@ specs/016-financial-reports/
 ├── data-model.md
 ├── quickstart.md
 ├── contracts/financial-reports-api.yaml
+├── tasks.md
+├── tasks-baseline-2026-09-26.md
 └── checklists/requirements.md
 ```
 
@@ -105,32 +121,33 @@ specs/016-financial-reports/
 └── e2e/financial-reports.spec.js
 ```
 
-**Structure Decision**: Follow current folder and JavaScript conventions. Exact filenames may be refined in task breakdown; shared card recognition stays in the existing card/dashboard/budget domain rather than a Reports-only override. No new library or reporting table.
+**Structure Decision**: Retain the existing folders and JavaScript conventions. Shared card recognition remains in the card/dashboard/budget domain, with no Reports-only override, new library, or reporting table.
 
 ## Frontend Component Map
 
-### Reports dashboard presentation refinement
+### Existing Reports composition and revision boundary
 
-Keep the existing API and URL scope. `ReportsView` composes a compact period toolbar, filter bar, KPI summary, evolution, two-column categories, account accordions, and comparison. `ReportEvolution` owns the chart and delegates its complete collapsed table to `ReportDetailedBreakdown`. Category and comparison expansion stay local to their components; no new shared report state is needed. `useReportMotion` supplies the operating system reduced-motion preference to report charts. Existing contribution events remain unchanged. Verify the UI acceptance criteria in `spec.md` through component and Reports browser tests.
+Keep the existing API and URL scope. `ReportsView` composes period and filter controls, summary, evolution, categories, account activity, and comparison. `ReportEvolution` delegates the full numerical interval view to `ReportDetailedBreakdown`. Component-local disclosure remains local; shared fetched scope stays in Pinia. Preserve the existing contribution event contract. Verify FR-031–FR-036 and EX-001–EX-003 through focused component and browser checks.
 
 | Component | Single responsibility | Inputs / outputs |
 |---|---|---|
 | `ReportsView` | Compose sections and coordinate one resolved scope | URL scope/store state → child props; handles child events |
-| `ReportPeriodSelector` | Choose five quick period choices or navigate completed historical months | Scope in; period-change event out |
+| `ReportPeriodSelector` | Choose month/year shortcuts, completed historical month, or custom dates | Scope in; period-change event out |
 | `ReportFilterBar` | Choose account/category/type, show chips and reset | Filter options/active filters in; filter/reset events out |
 | `ReportSummary` | Show realized income, expenses, and signed result | Summary/scope in; metric-detail event out |
 | `ReportEvolution` | Present labelled interval trends with numeric alternative | Interval/granularity in; no domain calculation |
+| `ReportDetailedBreakdown` | Expose every interval's income, expenses, and result, including zero buckets | Intervals/locale in; no domain calculation |
 | `ReportCategoryBreakdown` | Present one classification's ranked categories and shares | Income or expense rows in; category-detail event out |
 | `ReportAccountActivity` | Show account income/direct expense/net plus separate movements | Account rows in; metric-detail event out |
 | `ReportComparison` | Show exact periods, absolute changes, and available percentages | Comparison/scope in; previous/current detail event out |
 | `ReportContributionDrawer` | Show paged signed source records and reconciliation | Metric/scope/page in; request-next/close events out |
 
-Pinia owns only state shared by route sections and detail. Pure formatting stays in existing utilities. A scope change invalidates stale overview/detail responses; computed values derive labels and visibility without client-side monetary recalculation. The report drawer handles card installments/credit events directly because the current Transactions detail click path skips `credit_card_expense` rows.
+Pinia owns only state shared by route sections and detail. Pure formatting stays in existing utilities. A scope change invalidates stale overview/detail responses; computed values derive labels and visibility without client-side monetary recalculation. Compare overview and detail source revisions, refresh both with the same scope on mismatch, and explain the change. The report drawer handles card installments/credit events directly because the Transactions detail click path skips `credit_card_expense` rows.
 
 ## Verification Gates and Risks
 
-- **Money integrity**: Paid-source refund mismatch is a confirmed existing implementation gap. Fix and cross-feature regression coverage are prerequisites; a Report-only workaround would violate the spec.
-- **Scope integrity**: One validated scope must cover all aggregates and drill-down; foreign IDs never reveal ownership; server returns effective dates/filters so stale client responses can be rejected.
-- **Volume**: Keep overview aggregated and detail paged. Measure actual fixture performance before optional index work; no speculative caching.
+- **Money integrity**: The paid-source refund correction is implemented in the shared recognized-card projection. Preserve its cross-feature tests; never create a Report-only override.
+- **Scope and source consistency**: One validated scope covers aggregates and drill-down, and foreign IDs reveal no ownership data. Audit whether one overview can mix source states under concurrent writes; correct any confirmed issue in the backend before frontend handling of changed detail totals.
+- **Volume**: Overview is aggregated and detail paged. Existing isolated backend and mocked-browser timings pass separately; the live combined SC-005 measurement is still pending. Do not add speculative caching.
 - **Accessibility**: Charts supplement, never replace, labelled values and reachable records. Follow four design documents and existing Element Plus theme behavior.
 - **Constitution**: No exceptions; the read repository is justified by complex cross-source aggregation and shared reconciliation.
