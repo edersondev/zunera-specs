@@ -1,5 +1,7 @@
 # Financial Reports performance evidence
 
+**SC-005 status: pending.** These separate measurements do not establish the full summary-to-contributions journey with a live API. Run at least 20 representative integrated attempts against the 10,000-record fixture and confirm at least 95% finish within 5 seconds before marking SC-005 met.
+
 Measured on 2026-09-26 (America/Sao_Paulo). The backend fixture creates 10,000 effective transactions across 100 expense categories and 50 accounts in the isolated MySQL test database. The frontend browser fixture supplies the corresponding 100 category and 50 account aggregates and 100-row cursor pages representing 10,000 contributions.
 
 | Check | Result | Target |
@@ -9,7 +11,7 @@ Measured on 2026-09-26 (America/Sao_Paulo). The backend fixture creates 10,000 e
 | Overview expense total | 1,000,000 centavos across 100 categories | Exact |
 | Account rows | 50 | 50 |
 | Source query plan | `transactions_owner_history_index` selected | Indexed |
-| Browser warm navigation plus first detail page, 20 attempts each in Chromium, Firefox, WebKit | 60/60 under 5 s (100%) | ≥ 57/60 (95%) |
+| Browser warm navigation plus first detail page with mocked API, 20 attempts each in Chromium, Firefox, WebKit | 60/60 under 5 s (100%) | Frontend-only check |
 | Browser timing overall median / 95th percentile / maximum | 1.148 s / 1.449 s / 1.597 s | < 5 s |
 
 Backend command: `docker exec zunera-backend-app-1 sh -c 'set -a; . ./.env.testing; set +a; REPORT_PERF_LOG=1 php artisan test --filter=FinancialReportPerformanceTest'`. Passed with 16 assertions. This also checked the all-record detail total, first and second cursor pages, and index use.

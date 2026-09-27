@@ -26,10 +26,11 @@
 
 - [x] All functional requirements have clear acceptance criteria
 - [x] User scenarios cover primary flows
-- [x] Feature meets measurable outcomes defined in Success Criteria
+- [ ] Feature meets measurable outcomes defined in Success Criteria
 - [x] No implementation details leak into specification
 
 ## Notes
 
 - Existing directory 011 is occupied. Sequential feature directory and branch 016 keep repository numbering intact.
 - Five business decisions were resolved in the 2026-09-26 clarification sessions: partial calendar comparison, account movement presentation, realized-only initial scope, post-payment card refund recognition, and type/category filter treatment of account movements.
+- SC-002 and SC-003 await participant results; SC-005 awaits integrated timing with a live API. See [usability.md](usability.md) and [performance.md](performance.md).
