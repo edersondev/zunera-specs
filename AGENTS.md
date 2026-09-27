@@ -1,6 +1,6 @@
 <!-- SPECKIT START -->
 For additional context about technologies, project structure, shell commands,
-and implementation order, read [specs/015-financial-goals/plan.md](specs/015-financial-goals/plan.md).
+and implementation order, read [specs/016-financial-reports/plan.md](specs/016-financial-reports/plan.md).
 <!-- SPECKIT END -->
 
 ## Zunera Workspace Layout
