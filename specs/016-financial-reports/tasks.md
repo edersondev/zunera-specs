@@ -13,8 +13,8 @@
 
 **Purpose**: Confirm working context and prepare reusable financial fixtures.
 
-- [ ] T001 Verify 016-financial-reports branches in specs, ../zunera-backend, and ../zunera-frontend; review specs/016-financial-reports/plan.md and specs/016-financial-reports/contracts/financial-reports-api.yaml before application edits.
-- [ ] T002 Create owned fixture builders for ordinary transactions, statement installments, paid refunds, transfers, goals, and recurring occurrences in ../zunera-backend/tests/Support/FinancialReports/FinancialReportFixtures.php.
+- [X] T001 Verify 016-financial-reports branches in specs, ../zunera-backend, and ../zunera-frontend; review specs/016-financial-reports/plan.md and specs/016-financial-reports/contracts/financial-reports-api.yaml before application edits.
+- [X] T002 Create owned fixture builders for ordinary transactions, statement installments, paid refunds, transfers, goals, and recurring occurrences in ../zunera-backend/tests/Support/FinancialReports/FinancialReportFixtures.php.
 
 **Checkpoint**: Existing application branches and contract context verified; no packages or report-persistence tables added.
 
@@ -28,32 +28,32 @@
 
 ### Shared card-recognition prerequisite
 
-- [ ] T003 [P] Write failing fully-paid, partly-paid, unpaid, multi-installment, cancellation, and replay refund-recognition cases in ../zunera-backend/tests/Feature/CreditCards/CreditEventRecognitionTest.php.
-- [ ] T004 [P] Write failing Dashboard, Budget, and Financial History paid-refund parity cases in ../zunera-backend/tests/Feature/FinancialReports/ReportRecognitionParityTest.php.
-- [ ] T005 Implement purchase-sequence allocation of accepted credit events to recognized installment expense, independent of statement payment state, in ../zunera-backend/app/Services/CreditCards/RecognizedCardExpenseProjection.php; preserve existing obligation and card-credit settlement effects.
-- [ ] T006 [P] Change ../zunera-backend/app/Services/FinancialDashboard/RecurringCardExpenseProjection.php to use the shared recognized net expense from T005 for summary, evolution, and distribution.
-- [ ] T007 [P] Change ../zunera-backend/app/Services/CreditCards/CreditCardBudgetProjectionService.php to use the shared recognized net expense from T005 without changing budget planning rules.
-- [ ] T008 Update card entries in ../zunera-backend/app/Services/FinancialHistory/FinancialHistoryService.php to display the same recognized net amount and retain source credit-event traceability; make T003–T004 pass.
-- [ ] T009 Run the focused card, Dashboard, Budget, and Financial History regressions from specs/016-financial-reports/quickstart.md and resolve all failures in ../zunera-backend/app/Services/CreditCards/RecognizedCardExpenseProjection.php.
+- [X] T003 [P] Write failing fully-paid, partly-paid, unpaid, multi-installment, cancellation, and replay refund-recognition cases in ../zunera-backend/tests/Feature/CreditCards/CreditEventRecognitionTest.php.
+- [X] T004 [P] Write failing Dashboard, Budget, and Financial History paid-refund parity cases in ../zunera-backend/tests/Feature/FinancialReports/ReportRecognitionParityTest.php.
+- [X] T005 Implement purchase-sequence allocation of accepted credit events to recognized installment expense, independent of statement payment state, in ../zunera-backend/app/Services/CreditCards/RecognizedCardExpenseProjection.php; preserve existing obligation and card-credit settlement effects.
+- [X] T006 [P] Change ../zunera-backend/app/Services/FinancialDashboard/RecurringCardExpenseProjection.php to use the shared recognized net expense from T005 for summary, evolution, and distribution.
+- [X] T007 [P] Change ../zunera-backend/app/Services/CreditCards/CreditCardBudgetProjectionService.php to use the shared recognized net expense from T005 without changing budget planning rules.
+- [X] T008 Update card entries in ../zunera-backend/app/Services/FinancialHistory/FinancialHistoryService.php to display the same recognized net amount and retain source credit-event traceability; make T003–T004 pass.
+- [X] T009 Run the focused card, Dashboard, Budget, and Financial History regressions from specs/016-financial-reports/quickstart.md and resolve all failures in ../zunera-backend/app/Services/CreditCards/RecognizedCardExpenseProjection.php.
 
 ### Scope, projections, and protected contract
 
-- [ ] T010 [P] Write failing quick-choice, completed historical-month (`month=YYYY-MM`), custom, Sao Paulo date, leap/short-month, full-prior-month versus equal-day custom comparison, and percentage-eligibility tests in ../zunera-backend/tests/Unit/FinancialReports/ReportPeriodResolverTest.php.
-- [ ] T011 Implement immutable period/filter scope and comparison resolver in ../zunera-backend/app/Data/FinancialReports/ReportScope.php and ../zunera-backend/app/Services/FinancialReports/ReportPeriodResolver.php.
-- [ ] T012 [P] Write failing authentication, foreign/archived account and category, malformed range, missing/malformed/current-or-future historical `month`, incompatible preset/date/month parameters, incompatible type/category, and unknown-filter tests in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportAuthorizationTest.php.
-- [ ] T013 Implement owner-scoped validation for overview and detail query parameters in ../zunera-backend/app/Http/Requests/FinancialReports/ReportScopeRequest.php and ../zunera-backend/app/Http/Requests/FinancialReports/ReportContributionRequest.php.
-- [ ] T014 [P] Write failing exact-centavo ordinary/card/credit-event contribution and exclusion tests in ../zunera-backend/tests/Unit/FinancialReports/RecognizedContributionRepositoryTest.php.
-- [ ] T015 Implement one owner-scoped ordinary/card/adjustment read model, shared filters, and archived-label resolution in ../zunera-backend/app/Repositories/FinancialReports/RecognizedContributionRepository.php.
-- [ ] T016 [P] Write failing account income/direct expense/net, transfer direction, card settlement, pending exclusion, and type/category suppression cases in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportAccountActivityTest.php.
-- [ ] T017 Implement account movement reads and account-filter attribution in ../zunera-backend/app/Repositories/FinancialReports/AccountMovementRepository.php.
-- [ ] T018 [P] Write failing overview contract and reconciliation tests for summary, intervals, income/expense categories, accounts, comparison, empty/partial-section states, recurrence, goals, and card payment exclusion in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportOverviewContractTest.php.
-- [ ] T019 Implement owner-scoped overview aggregation, shares, account-unattributed card amount, comparison, and explicit section availability in ../zunera-backend/app/Services/FinancialReports/FinancialReportService.php.
-- [ ] T020 Expose validated overview through thin controller, Resource, and protected route in ../zunera-backend/app/Http/Controllers/Api/V1/FinancialReportController.php, ../zunera-backend/app/Http/Resources/FinancialReports/FinancialReportResource.php, and ../zunera-backend/routes/api.php.
-- [ ] T021 [P] Write failing contract tests for metric IDs, current/prior scope, signed result/net contributions, paid-refund source links, cursor pages, all-record total, and foreign targets in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportContributionsContractTest.php.
-- [ ] T022 Implement stable bounded contribution paging and all-record metric reconciliation over the shared read models in ../zunera-backend/app/Services/FinancialReports/FinancialReportContributionService.php.
-- [ ] T023 Expose protected contribution detail and source links through ../zunera-backend/app/Http/Controllers/Api/V1/FinancialReportController.php, ../zunera-backend/app/Http/Resources/FinancialReports/FinancialReportContributionResource.php, and ../zunera-backend/routes/api.php.
-- [ ] T024 Add 10,000-record/100-category/50-account contract and query-plan fixture checks in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportPerformanceTest.php; add a source-table index migration only if measured plans need it.
-- [ ] T025 Complete backend gate: run focused and full Laravel tests plus Pint, validate response shapes against specs/016-financial-reports/contracts/financial-reports-api.yaml, and verify MySQL paid-refund and paged reconciliation using specs/016-financial-reports/quickstart.md.
+- [X] T010 [P] Write failing quick-choice, completed historical-month (`month=YYYY-MM`), custom, Sao Paulo date, leap/short-month, full-prior-month versus equal-day custom comparison, and percentage-eligibility tests in ../zunera-backend/tests/Unit/FinancialReports/ReportPeriodResolverTest.php.
+- [X] T011 Implement immutable period/filter scope and comparison resolver in ../zunera-backend/app/Data/FinancialReports/ReportScope.php and ../zunera-backend/app/Services/FinancialReports/ReportPeriodResolver.php.
+- [X] T012 [P] Write failing authentication, foreign/archived account and category, malformed range, missing/malformed/current-or-future historical `month`, incompatible preset/date/month parameters, incompatible type/category, and unknown-filter tests in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportAuthorizationTest.php.
+- [X] T013 Implement owner-scoped validation for overview and detail query parameters in ../zunera-backend/app/Http/Requests/FinancialReports/ReportScopeRequest.php and ../zunera-backend/app/Http/Requests/FinancialReports/ReportContributionRequest.php.
+- [X] T014 [P] Write failing exact-centavo ordinary/card/credit-event contribution and exclusion tests in ../zunera-backend/tests/Unit/FinancialReports/RecognizedContributionRepositoryTest.php.
+- [X] T015 Implement one owner-scoped ordinary/card/adjustment read model, shared filters, and archived-label resolution in ../zunera-backend/app/Repositories/FinancialReports/RecognizedContributionRepository.php.
+- [X] T016 [P] Write failing account income/direct expense/net, transfer direction, card settlement, pending exclusion, and type/category suppression cases in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportAccountActivityTest.php.
+- [X] T017 Implement account movement reads and account-filter attribution in ../zunera-backend/app/Repositories/FinancialReports/AccountMovementRepository.php.
+- [X] T018 [P] Write failing overview contract and reconciliation tests for summary, intervals, income/expense categories, accounts, comparison, empty/partial-section states, recurrence, goals, and card payment exclusion in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportOverviewContractTest.php.
+- [X] T019 Implement owner-scoped overview aggregation, shares, account-unattributed card amount, comparison, and explicit section availability in ../zunera-backend/app/Services/FinancialReports/FinancialReportService.php.
+- [X] T020 Expose validated overview through thin controller, Resource, and protected route in ../zunera-backend/app/Http/Controllers/Api/V1/FinancialReportController.php, ../zunera-backend/app/Http/Resources/FinancialReports/FinancialReportResource.php, and ../zunera-backend/routes/api.php.
+- [X] T021 [P] Write failing contract tests for metric IDs, current/prior scope, signed result/net contributions, paid-refund source links, cursor pages, all-record total, and foreign targets in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportContributionsContractTest.php.
+- [X] T022 Implement stable bounded contribution paging and all-record metric reconciliation over the shared read models in ../zunera-backend/app/Services/FinancialReports/FinancialReportContributionService.php.
+- [X] T023 Expose protected contribution detail and source links through ../zunera-backend/app/Http/Controllers/Api/V1/FinancialReportController.php, ../zunera-backend/app/Http/Resources/FinancialReports/FinancialReportContributionResource.php, and ../zunera-backend/routes/api.php.
+- [X] T024 Add 10,000-record/100-category/50-account contract and query-plan fixture checks in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportPerformanceTest.php; add a source-table index migration only if measured plans need it.
+- [X] T025 Complete backend gate: run focused and full Laravel tests plus Pint, validate response shapes against specs/016-financial-reports/contracts/financial-reports-api.yaml, and verify MySQL paid-refund and paged reconciliation using specs/016-financial-reports/quickstart.md.
 
 **Checkpoint**: T003–T025 pass; backend API contract, authorization, validation, recognition repair, account movement, comparison, and drill-down are complete. Frontend may now start.
 
@@ -67,16 +67,16 @@
 
 ### Tests for User Story 1
 
-- [ ] T026 [P] [US1] Write overview transport, applied-scope shape (including nullable historical month), and error-contract tests in ../zunera-frontend/src/services/__tests__/reportsService.spec.js.
-- [ ] T027 [P] [US1] Write initial canonical URL scope normalization/restoration and stale-response, loading, and retry tests in ../zunera-frontend/src/composables/reports/__tests__/useReportScope.spec.js and ../zunera-frontend/src/stores/reports/__tests__/reportsStore.spec.js.
-- [ ] T028 [P] [US1] Write signed-result, zero-side, and non-color summary tests in ../zunera-frontend/src/components/reports/__tests__/ReportSummary.spec.js.
+- [X] T026 [P] [US1] Write overview transport, applied-scope shape (including nullable historical month), and error-contract tests in ../zunera-frontend/src/services/__tests__/reportsService.spec.js.
+- [X] T027 [P] [US1] Write initial canonical URL scope normalization/restoration and stale-response, loading, and retry tests in ../zunera-frontend/src/composables/reports/__tests__/useReportScope.spec.js and ../zunera-frontend/src/stores/reports/__tests__/reportsStore.spec.js.
+- [X] T028 [P] [US1] Write signed-result, zero-side, and non-color summary tests in ../zunera-frontend/src/components/reports/__tests__/ReportSummary.spec.js.
 
 ### Frontend implementation (after T025)
 
-- [ ] T029 [US1] Implement overview transport in ../zunera-frontend/src/services/reportsService.js, canonical URL query normalization/restoration for all contract scope fields and stale-request guards in ../zunera-frontend/src/composables/reports/useReportScope.js, and scoped read state in ../zunera-frontend/src/stores/reports/reportsStore.js. This shared URL foundation precedes US3 detail and US5 filters.
-- [ ] T030 [US1] Add protected Reports route, primary navigation item, and PT-BR/English labels in ../zunera-frontend/src/router/index.js, ../zunera-frontend/src/layouts/AppShell.vue, and ../zunera-frontend/src/i18n/messages.js.
-- [ ] T031 [US1] Compose thin current-month Reports view and realized summary in ../zunera-frontend/src/views/reports/ReportsView.vue and ../zunera-frontend/src/components/reports/ReportSummary.vue using existing currency/result formatters.
-- [ ] T032 [US1] Add isolated current-month summary, income-only, expense-only, transfer/goal/pending exclusion, and unauthorized browser journeys in ../zunera-frontend/e2e/financial-reports.spec.js.
+- [X] T029 [US1] Implement overview transport in ../zunera-frontend/src/services/reportsService.js, canonical URL query normalization/restoration for all contract scope fields and stale-request guards in ../zunera-frontend/src/composables/reports/useReportScope.js, and scoped read state in ../zunera-frontend/src/stores/reports/reportsStore.js. This shared URL foundation precedes US3 detail and US5 filters.
+- [X] T030 [US1] Add protected Reports route, primary navigation item, and PT-BR/English labels in ../zunera-frontend/src/router/index.js, ../zunera-frontend/src/layouts/AppShell.vue, and ../zunera-frontend/src/i18n/messages.js.
+- [X] T031 [US1] Compose thin current-month Reports view and realized summary in ../zunera-frontend/src/views/reports/ReportsView.vue and ../zunera-frontend/src/components/reports/ReportSummary.vue using existing currency/result formatters.
+- [X] T032 [US1] Add isolated current-month summary, income-only, expense-only, transfer/goal/pending exclusion, and unauthorized browser journeys in ../zunera-frontend/e2e/financial-reports.spec.js.
 
 **Checkpoint**: Summary journey works independently against verified backend. This is minimum useful Reports release.
 
@@ -90,15 +90,15 @@
 
 ### Tests for User Story 2
 
-- [ ] T033 [P] [US2] Write interval labels, partial-boundary, numeric-alternative, and income/expense distinction tests in ../zunera-frontend/src/components/reports/__tests__/ReportEvolution.spec.js.
-- [ ] T034 [P] [US2] Write separate income/expense category, ranked share, archived category, and refund amount tests in ../zunera-frontend/src/components/reports/__tests__/ReportCategoryBreakdown.spec.js.
+- [X] T033 [P] [US2] Write interval labels, partial-boundary, numeric-alternative, and income/expense distinction tests in ../zunera-frontend/src/components/reports/__tests__/ReportEvolution.spec.js.
+- [X] T034 [P] [US2] Write separate income/expense category, ranked share, archived category, and refund amount tests in ../zunera-frontend/src/components/reports/__tests__/ReportCategoryBreakdown.spec.js.
 
 ### Frontend implementation (after T025)
 
-- [ ] T035 [P] [US2] Build readable interval visualization plus visible values using ../zunera-frontend/src/components/reports/ReportEvolution.vue and existing ../zunera-frontend/src/components/charts/BaseChart.vue.
-- [ ] T036 [P] [US2] Build reusable income/expense ranked category analysis in ../zunera-frontend/src/components/reports/ReportCategoryBreakdown.vue; keep zero-denominator share unavailable.
-- [ ] T037 [US2] Add both sections and correct empty states to ../zunera-frontend/src/views/reports/ReportsView.vue, reusing ../zunera-frontend/src/utils/dashboard/dashboardFormatters.js.
-- [ ] T038 [US2] Add trend, category, recurring-card, and paid-refund browser checks to ../zunera-frontend/e2e/financial-reports.spec.js.
+- [X] T035 [P] [US2] Build readable interval visualization plus visible values using ../zunera-frontend/src/components/reports/ReportEvolution.vue and existing ../zunera-frontend/src/components/charts/BaseChart.vue.
+- [X] T036 [P] [US2] Build reusable income/expense ranked category analysis in ../zunera-frontend/src/components/reports/ReportCategoryBreakdown.vue; keep zero-denominator share unavailable.
+- [X] T037 [US2] Add both sections and correct empty states to ../zunera-frontend/src/views/reports/ReportsView.vue, reusing ../zunera-frontend/src/utils/dashboard/dashboardFormatters.js.
+- [X] T038 [US2] Add trend, category, recurring-card, and paid-refund browser checks to ../zunera-frontend/e2e/financial-reports.spec.js.
 
 **Checkpoint**: Trends and both category distributions independently explain the verified summary.
 
@@ -112,15 +112,15 @@
 
 ### Tests for User Story 3
 
-- [ ] T039 [P] [US3] Write detail transport, metric/period/filter forwarding, and cursor error tests in ../zunera-frontend/src/services/__tests__/reportsContributionService.spec.js.
-- [ ] T040 [P] [US3] Write signed card-adjustment, original-source identity, paging, all-record total, and keyboard-close tests in ../zunera-frontend/src/components/reports/__tests__/ReportContributionDrawer.spec.js.
+- [X] T039 [P] [US3] Write detail transport, metric/period/filter forwarding, and cursor error tests in ../zunera-frontend/src/services/__tests__/reportsContributionService.spec.js.
+- [X] T040 [P] [US3] Write signed card-adjustment, original-source identity, paging, all-record total, and keyboard-close tests in ../zunera-frontend/src/components/reports/__tests__/ReportContributionDrawer.spec.js.
 
 ### Frontend implementation (after T025)
 
-- [ ] T041 [US3] Add contribution read and stale-page guards to ../zunera-frontend/src/services/reportsService.js and ../zunera-frontend/src/stores/reports/reportsStore.js.
-- [ ] T042 [US3] Build paged report-specific source drawer in ../zunera-frontend/src/components/reports/ReportContributionDrawer.vue; show recognized date, signed metric contribution, refund source, and all-record total.
-- [ ] T043 [US3] Wire summary/category detail events using the canonical URL scope established in T029 in ../zunera-frontend/src/views/reports/ReportsView.vue and ../zunera-frontend/src/components/reports/ReportCategoryBreakdown.vue.
-- [ ] T044 [US3] Add summary/category drill-down, paid-refund trace, and multi-page centavo reconciliation journeys to ../zunera-frontend/e2e/financial-reports.spec.js.
+- [X] T041 [US3] Add contribution read and stale-page guards to ../zunera-frontend/src/services/reportsService.js and ../zunera-frontend/src/stores/reports/reportsStore.js.
+- [X] T042 [US3] Build paged report-specific source drawer in ../zunera-frontend/src/components/reports/ReportContributionDrawer.vue; show recognized date, signed metric contribution, refund source, and all-record total.
+- [X] T043 [US3] Wire summary/category detail events using the canonical URL scope established in T029 in ../zunera-frontend/src/views/reports/ReportsView.vue and ../zunera-frontend/src/components/reports/ReportCategoryBreakdown.vue.
+- [X] T044 [US3] Add summary/category drill-down, paid-refund trace, and multi-page centavo reconciliation journeys to ../zunera-frontend/e2e/financial-reports.spec.js.
 
 **Checkpoint**: Category amount is traceable without relying on Transactions card-row behavior.
 
@@ -134,13 +134,13 @@
 
 ### Tests for User Story 4
 
-- [ ] T045 [US4] Write prior/current date, zero/negative/sign-crossing, unequal-duration, category-change, and neutral-language tests in ../zunera-frontend/src/components/reports/__tests__/ReportComparison.spec.js.
+- [X] T045 [US4] Write prior/current date, zero/negative/sign-crossing, unequal-duration, category-change, and neutral-language tests in ../zunera-frontend/src/components/reports/__tests__/ReportComparison.spec.js.
 
 ### Frontend implementation (after T025)
 
-- [ ] T046 [US4] Render server-derived comparison values and percentage-unavailable reasons in ../zunera-frontend/src/components/reports/ReportComparison.vue without client monetary recalculation.
-- [ ] T047 [US4] Integrate comparison and current/prior metric drill-down in ../zunera-frontend/src/views/reports/ReportsView.vue and ../zunera-frontend/src/components/reports/ReportContributionDrawer.vue.
-- [ ] T048 [US4] Add completed/partial period, direct-URL historical-month versus full-month custom comparison fixtures, previous-zero, negative-result, and category comparison browser cases to ../zunera-frontend/e2e/financial-reports.spec.js; period controls arrive in US6.
+- [X] T046 [US4] Render server-derived comparison values and percentage-unavailable reasons in ../zunera-frontend/src/components/reports/ReportComparison.vue without client monetary recalculation.
+- [X] T047 [US4] Integrate comparison and current/prior metric drill-down in ../zunera-frontend/src/views/reports/ReportsView.vue and ../zunera-frontend/src/components/reports/ReportContributionDrawer.vue.
+- [X] T048 [US4] Add completed/partial period, direct-URL historical-month versus full-month custom comparison fixtures, previous-zero, negative-result, and category comparison browser cases to ../zunera-frontend/e2e/financial-reports.spec.js; period controls arrive in US6.
 
 **Checkpoint**: Comparison is testable with existing default period and direct fixture scopes before expanded period controls.
 
@@ -154,16 +154,16 @@
 
 ### Tests for User Story 5
 
-- [ ] T049 [P] [US5] Write account direct-flow, transfer direction, settlement, unattributed card expense, and archived-account tests in ../zunera-frontend/src/components/reports/__tests__/ReportAccountActivity.spec.js.
-- [ ] T050 [P] [US5] Write account/category/type chip, incompatible scope, reset, and movement-suppression tests in ../zunera-frontend/src/components/reports/__tests__/ReportFilterBar.spec.js.
+- [X] T049 [P] [US5] Write account direct-flow, transfer direction, settlement, unattributed card expense, and archived-account tests in ../zunera-frontend/src/components/reports/__tests__/ReportAccountActivity.spec.js.
+- [X] T050 [P] [US5] Write account/category/type chip, incompatible scope, reset, and movement-suppression tests in ../zunera-frontend/src/components/reports/__tests__/ReportFilterBar.spec.js.
 
 ### Frontend implementation (after T025)
 
-- [ ] T051 [P] [US5] Build account activity list with distinct direct flow, transfer, settlement, and unattributed-card explanation in ../zunera-frontend/src/components/reports/ReportAccountActivity.vue.
-- [ ] T052 [P] [US5] Build owned account/category/type controls and active filter chips with Element Plus in ../zunera-frontend/src/components/reports/ReportFilterBar.vue.
-- [ ] T053 [US5] Wire filters through the canonical route query established in T029 to store scope, comparison, all sections, and contribution detail in ../zunera-frontend/src/views/reports/ReportsView.vue and ../zunera-frontend/src/stores/reports/reportsStore.js.
-- [ ] T054 [US5] Add account metric drill-down and type/category suppression of transfer/settlement detail in ../zunera-frontend/src/components/reports/ReportContributionDrawer.vue.
-- [ ] T055 [US5] Add account, category, type, combined-filter, reset, archived identity, and foreign-ID rejection journeys to ../zunera-frontend/e2e/financial-reports.spec.js.
+- [X] T051 [P] [US5] Build account activity list with distinct direct flow, transfer, settlement, and unattributed-card explanation in ../zunera-frontend/src/components/reports/ReportAccountActivity.vue.
+- [X] T052 [P] [US5] Build owned account/category/type controls and active filter chips with Element Plus in ../zunera-frontend/src/components/reports/ReportFilterBar.vue.
+- [X] T053 [US5] Wire filters through the canonical route query established in T029 to store scope, comparison, all sections, and contribution detail in ../zunera-frontend/src/views/reports/ReportsView.vue and ../zunera-frontend/src/stores/reports/reportsStore.js.
+- [X] T054 [US5] Add account metric drill-down and type/category suppression of transfer/settlement detail in ../zunera-frontend/src/components/reports/ReportContributionDrawer.vue.
+- [X] T055 [US5] Add account, category, type, combined-filter, reset, archived identity, and foreign-ID rejection journeys to ../zunera-frontend/e2e/financial-reports.spec.js.
 
 **Checkpoint**: Filtered views never masquerade as workspace totals; account movement retains separate meaning.
 
@@ -177,16 +177,16 @@
 
 ### Tests for User Story 6
 
-- [ ] T056 [P] [US6] Write quick-choice/custom/completed historical-month navigation, inclusive boundary, and invalid-date tests in ../zunera-frontend/src/components/reports/__tests__/ReportPeriodSelector.spec.js.
-- [ ] T057 [P] [US6] Extend the T027 URL scope tests with historical-month/custom restore, rapid period/filter changes, and stale-response cancellation in ../zunera-frontend/src/composables/reports/__tests__/useReportScope.spec.js.
-- [ ] T058 [P] [US6] Write available-empty versus unavailable-section, retry, and filtered-empty tests in ../zunera-frontend/src/views/reports/__tests__/ReportsView.spec.js.
+- [X] T056 [P] [US6] Write quick-choice/custom/completed historical-month navigation, inclusive boundary, and invalid-date tests in ../zunera-frontend/src/components/reports/__tests__/ReportPeriodSelector.spec.js.
+- [X] T057 [P] [US6] Extend the T027 URL scope tests with historical-month/custom restore, rapid period/filter changes, and stale-response cancellation in ../zunera-frontend/src/composables/reports/__tests__/useReportScope.spec.js.
+- [X] T058 [P] [US6] Write available-empty versus unavailable-section, retry, and filtered-empty tests in ../zunera-frontend/src/views/reports/__tests__/ReportsView.spec.js.
 
 ### Frontend implementation (after T025)
 
-- [ ] T059 [P] [US6] Build five quick period choices, custom date selection, and completed historical-month navigation in ../zunera-frontend/src/components/reports/ReportPeriodSelector.vue.
-- [ ] T060 [P] [US6] Extend the T029 URL scope composable with selector-to-route transitions for custom and historical-month choices, returning to current month, and rapid-change cleanup in ../zunera-frontend/src/composables/reports/useReportScope.js.
-- [ ] T061 [US6] Integrate selector, resolved date labels, scope reset, section loading/empty/error/retry, and large-list readability in ../zunera-frontend/src/views/reports/ReportsView.vue.
-- [ ] T062 [US6] Add current/previous month/year, navigated historical month, inclusive custom date, rapid changes, empty states, and unavailable-section browser journeys to ../zunera-frontend/e2e/financial-reports.spec.js.
+- [X] T059 [P] [US6] Build five quick period choices, custom date selection, and completed historical-month navigation in ../zunera-frontend/src/components/reports/ReportPeriodSelector.vue.
+- [X] T060 [P] [US6] Extend the T029 URL scope composable with selector-to-route transitions for custom and historical-month choices, returning to current month, and rapid-change cleanup in ../zunera-frontend/src/composables/reports/useReportScope.js.
+- [X] T061 [US6] Integrate selector, resolved date labels, scope reset, section loading/empty/error/retry, and large-list readability in ../zunera-frontend/src/views/reports/ReportsView.vue.
+- [X] T062 [US6] Add current/previous month/year, navigated historical month, inclusive custom date, rapid changes, empty states, and unavailable-section browser journeys to ../zunera-frontend/e2e/financial-reports.spec.js.
 
 **Checkpoint**: Every Reports section and detail reflects one visible period/filter context, including error and empty states.
 
@@ -196,11 +196,11 @@
 
 **Purpose**: Close required quality, scale, localization, and outcome evidence after all six stories.
 
-- [ ] T063 [P] Verify PT-BR/English money/date/percentage copy, 320 px and 200% zoom, keyboard/assistive-technology access, light/dark/system themes, and chart text alternatives in ../zunera-frontend/e2e/financial-reports.spec.js.
-- [ ] T064 [P] Record backend 10,000-record/100-category/50-account query results and frontend navigation timing against SC-005 in specs/016-financial-reports/checklists/performance.md using ../zunera-backend/tests/Feature/FinancialReports/FinancialReportPerformanceTest.php.
-- [ ] T065 Run frontend unit suite, lint, build, and isolated Reports Playwright journeys from specs/016-financial-reports/quickstart.md; inspect auto-fix lint changes under ../zunera-frontend/src/ before completion.
+- [X] T063 [P] Verify PT-BR/English money/date/percentage copy, 320 px and 200% zoom, keyboard/assistive-technology access, light/dark/system themes, and chart text alternatives in ../zunera-frontend/e2e/financial-reports.spec.js.
+- [X] T064 [P] Record backend 10,000-record/100-category/50-account query results and frontend navigation timing against SC-005 in specs/016-financial-reports/checklists/performance.md using ../zunera-backend/tests/Feature/FinancialReports/FinancialReportPerformanceTest.php.
+- [X] T065 Run frontend unit suite, lint, build, and isolated Reports Playwright journeys from specs/016-financial-reports/quickstart.md; inspect auto-fix lint changes under ../zunera-frontend/src/ before completion.
 - [ ] T066 Record at least 10 uncoached participant outcomes for SC-002/SC-003 without credentials or private transaction contents in specs/016-financial-reports/checklists/usability.md.
-- [ ] T067 Reconcile acceptance fixtures, exact contract shapes, branch alignment, and every completed task against specs/016-financial-reports/spec.md, specs/016-financial-reports/contracts/financial-reports-api.yaml, and specs/016-financial-reports/tasks.md.
+- [X] T067 Reconcile acceptance fixtures, exact contract shapes, branch alignment, and every completed task against specs/016-financial-reports/spec.md, specs/016-financial-reports/contracts/financial-reports-api.yaml, and specs/016-financial-reports/tasks.md.
 
 **Checkpoint**: Full feature validated; no report-only accounting model or unverified backend/frontend boundary remains.
 
