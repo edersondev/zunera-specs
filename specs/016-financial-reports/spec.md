@@ -182,6 +182,16 @@ As an authorized user, I want reliable period selection and explanatory empty st
 - **FR-029**: Reports and Dashboard common realized metrics MUST reconcile exactly when workspace, period, filters, and recognition scope match. Any intentional difference in scope or included source MUST be labelled.
 - **FR-030**: Initial release excludes custom report builders, formulas, predictive AI, investment analytics, tax/regulatory statements, public links, scheduled delivery, goal analytics, advanced budget-versus-actual analysis, advice, and bank-data enrichment.
 
+### Reports dashboard presentation acceptance
+
+- **UI-001**: Keep PageHeader. Show selected date boundaries in a compact period toolbar with all six period choices, completed-month picker, and custom dates. Collapse filter fields initially; active filter chips and reset stay visible. URL-backed scope restoration remains intact.
+- **UI-002**: Show three equal summary cards with semantic amount colors, text result meaning, contribution actions, and authoritative comparison differences when available. Keep section-level unavailable and retry states independent.
+- **UI-003**: Give evolution chart primary space, use readable automatic date labels and a tooltip with interval, income, expenses, and server result. Label server-selected day/week/month granularity. Put every interval, including zero and partial intervals, in a collapsed Detailed breakdown table. Honor reduced-motion preference.
+- **UI-004**: Place expense and income categories side by side when space permits. For two or more categories, chart the first six in server order with matching readable rows and contribution actions; expansion reveals every remaining category. One category uses a compact amount and progress bar; zero uses an explanatory state.
+- **UI-005**: Make each account an expandable summary; keep direct income, direct expenses, net flow, transfers, and statement settlement distinct. Explain unattributed card expense in a small note.
+- **UI-006**: Show current, previous, signed difference, and available percentage for three comparison metrics in compact rows. Use `N/A*` when unavailable and one explanatory note covering unequal durations, nonpositive previous values, and sign changes. Collapse expense category comparison initially.
+- **UI-007**: PT-BR and English text, keyboard controls, text chart alternatives, 320px layout, 200% zoom, and system light/dark modes must remain usable. Keep existing API, financial rules, and contribution drawer.
+
 ### Security and Quality Requirements *(mandatory)*
 
 - **SQR-001**: Every report read, filter, comparison, and detail MUST enforce existing workspace authorization. Invalid ranges, inaccessible accounts/categories, and unsupported filters MUST receive clear feedback without foreign data disclosure.

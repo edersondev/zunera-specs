@@ -109,6 +109,10 @@ specs/016-financial-reports/
 
 ## Frontend Component Map
 
+### Reports dashboard presentation refinement
+
+Keep the existing API and URL scope. `ReportsView` composes a compact period toolbar, filter bar, KPI summary, evolution, two-column categories, account accordions, and comparison. `ReportEvolution` owns the chart and delegates its complete collapsed table to `ReportDetailedBreakdown`. Category and comparison expansion stay local to their components; no new shared report state is needed. `useReportMotion` supplies the operating system reduced-motion preference to report charts. Existing contribution events remain unchanged. Verify the UI acceptance criteria in `spec.md` through component and Reports browser tests.
+
 | Component | Single responsibility | Inputs / outputs |
 |---|---|---|
 | `ReportsView` | Compose sections and coordinate one resolved scope | URL scope/store state → child props; handles child events |
