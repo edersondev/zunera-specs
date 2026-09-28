@@ -342,7 +342,7 @@ components:
         related_credit_event_id: { type: [integer, 'null'] }
     ContributionsResponse:
       type: object
-      description: Detail is a later read and may reflect source changes since the overview. Within each response, contribution rows, all-record total, and source_revision describe one coherent source state. Compare source_revision under the same applied scope before showing overview and detail together and before combining later pages with earlier rows; the all-record total alone cannot detect offsetting or explanatory-field changes.
+      description: Detail is a later read and may reflect source changes since the overview. Within each response, contribution rows, all-record total, and source_revision describe one coherent source state. Compare source_revision under the same applied scope before showing overview and detail together and before combining later pages with earlier rows; the all-record total alone cannot detect offsetting or explanatory-field changes. On a later-page mismatch, discard the accumulated rows and restart at the first page under the retained scope.
       required: [data]
       properties:
         data:

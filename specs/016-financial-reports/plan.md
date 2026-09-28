@@ -7,7 +7,7 @@
 
 ## Summary
 
-Financial Reports already has a read-only overview, period and filter controls, evolution with detailed numerical breakdown, separate income and expense categories, account activity, comparison, and paged contribution detail. The shared card-recognition repair and original backend-first gate are complete. This revision audits that implementation against the clarified specification and plans only confirmed gaps, preserving authoritative financial effects and source records.
+Financial Reports has a read-only overview, period and filter controls, evolution with detailed numerical breakdown, separate income and expense categories, account activity, comparison, and paged contribution detail. This revision added a scope-bound source revision to both protected reads. Each response uses one database read snapshot; the browser refreshes the overview and first detail page under the same scope when revisions differ, with three bounded attempts and a recoverable retry state. The shared card-recognition repair and backend-first gate remain complete. SC-005 passed the live 10,000-record measurement; the uncoached participant outcomes remain open in [tasks.md](tasks.md).
 
 ## Technical Context
 
@@ -52,11 +52,11 @@ Post-design recheck: the read-only contract keeps one owner-scoped report contex
 - `AGENTS.md` already points to `specs/016-financial-reports/plan.md` inside its Spec Kit markers. This repository has no agent-context update script, so the correct reference is retained without rewriting unrelated guidance.
 - The existing shared recognized-card projection is authoritative for Reports, Dashboard, Budgets, and card history. `FinancialHistoryService::totals()` remains unsuitable for Report summary because it omits card installments.
 - The revision audit confirms that previous month already means last completed month; daily/weekly/monthly evolution emits zero buckets; the frontend exposes complete numerical interval detail; and the protected detail read supports summary/category/account metrics. No second period mode, chart system, or reporting ledger is warranted.
-- [Research](research.md) records the remaining coherent-snapshot and cross-request freshness risk. The existing detail total detects changed amounts but misses offsetting contribution changes. Add a read-only source revision to both report responses, compare revisions before presenting overview and detail together, and verify a consistent overview under concurrent source changes.
+- [Research](research.md) records the coherent-snapshot and cross-request freshness risk addressed by this revision. A read-only source revision now covers offsetting contribution and visible-label changes that an unchanged detail total cannot detect. MySQL concurrent-write tests verify each response's read snapshot; the browser compares revisions across responses.
 
 ## Original Implementation Sequence (delivered baseline)
 
-Steps 1–8 below describe the delivered feature and are retained as implementation history. [Baseline tasks](tasks-baseline-2026-09-26.md) records T001–T065 and T067 complete; the participant study T066 and the integrated performance outcome remain pending. [Revision tasks](tasks.md) tracks the remaining work.
+Steps 1–8 below describe the delivered feature and are retained as implementation history. [Baseline tasks](tasks-baseline-2026-09-26.md) records T001–T065 and T067 complete; its participant study T066 is carried into revision task T026. The integrated performance outcome passed in revision task T025. [Revision tasks](tasks.md) tracks the remaining work.
 
 1. **Reconcile credit-event recognition**: Add a shared recognized-card allocation that assigns every accepted source-purchase credit-event centavo to original installments in sequence regardless of source statement payment state. Keep statement obligation and card-credit applications unchanged. Replace spending reads that currently equate `credit_adjustment_centavos` with full recognized refund effect. Prove paid, partial, unpaid, multi-installment, and cancellation cases against Spec 010 in card, Dashboard, Budget, and Financial History tests.
 2. **Backend scope and security**: Define `ReportScope` DTO and period resolver for the five quick choices plus selected completed historical-month navigation, prior period, day counts, timezone, filter ownership, type/category compatibility, and maximum valid date bounds consistent with existing transactions. A navigated historical month compares with its full preceding month; a custom range always compares with the preceding equal-day range. Add authenticated report routes, thin controller(s), query Form Requests, Resources, and domain errors. Reject foreign IDs without disclosure.
@@ -90,7 +90,7 @@ specs/016-financial-reports/
 ├── contracts/financial-reports-api.yaml
 ├── tasks.md
 ├── tasks-baseline-2026-09-26.md
-└── checklists/requirements.md
+└── checklists/{requirements,revision-audit,revision-verification,performance,usability}.md
 ```
 
 ### Source Code (sibling repositories)
@@ -148,6 +148,6 @@ Pinia owns only state shared by route sections and detail. Pure formatting stays
 
 - **Money integrity**: The paid-source refund correction is implemented in the shared recognized-card projection. Preserve its cross-feature tests; never create a Report-only override.
 - **Scope and source consistency**: One validated scope covers aggregates and drill-down, and foreign IDs reveal no ownership data. Audit whether one overview can mix source states under concurrent writes; correct any confirmed issue in the backend before frontend handling of changed detail totals.
-- **Volume**: Overview is aggregated and detail paged. Existing isolated backend and mocked-browser timings pass separately; the live combined SC-005 measurement is still pending. Do not add speculative caching.
+- **Volume**: Overview is aggregated and detail paged. The live combined SC-005 measurement passed 260/260 browser/API/MySQL attempts across 13 paths; see [performance.md](checklists/performance.md). No cache was needed.
 - **Accessibility**: Charts supplement, never replace, labelled values and reachable records. Follow four design documents and existing Element Plus theme behavior.
 - **Constitution**: No exceptions; the read repository is justified by complex cross-source aggregation and shared reconciliation.

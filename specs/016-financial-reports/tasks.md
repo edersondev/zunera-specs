@@ -10,8 +10,8 @@
 
 **Purpose**: Establish the revision baseline without rebuilding the shipped feature.
 
-- [ ] T001 Verify `017-financial-reports` is active in specs, backend, and frontend; record branch and clean application starting states in specs/016-financial-reports/checklists/revision-audit.md.
-- [ ] T002 Map FR-003, FR-013, FR-025, FR-031–FR-037 and SC-001–SC-006 to existing code/tests and open gaps in specs/016-financial-reports/checklists/revision-audit.md, using specs/016-financial-reports/tasks-baseline-2026-09-26.md as delivered history.
+- [X] T001 Verify `017-financial-reports` is active in specs, backend, and frontend; record branch and clean application starting states in specs/016-financial-reports/checklists/revision-audit.md.
+- [X] T002 Map FR-003, FR-013, FR-025, FR-031–FR-037 and SC-001–SC-006 to existing code/tests and open gaps in specs/016-financial-reports/checklists/revision-audit.md, using specs/016-financial-reports/tasks-baseline-2026-09-26.md as delivered history.
 
 **Checkpoint**: Only confirmed gaps proceed to implementation; no package or reporting ledger is added.
 
@@ -21,17 +21,17 @@
 
 **Purpose**: Make an overview and a later contribution read identify the same authoritative source state. This blocks all frontend revision work.
 
-- [ ] T003 [P] Add a failing concurrent-source-change overview test that exposes mixed summary, interval, category, account, or comparison states in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportOverviewContractTest.php.
-- [ ] T004 [P] Add failing contract tests for matching and changed `source_revision`, including two offsetting contributor edits with an unchanged total, a report-visible description or identity-label edit with unchanged financial effect, a prior-period edit, foreign data isolation, a changed card refund, and a concurrent source change during one detail read in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportContributionsContractTest.php.
-- [ ] T005 Implement an opaque, scope-bound revision derived from relevant authoritative contribution and account-movement identities, financial effects, and report-visible explanatory fields in ../zunera-backend/app/Services/FinancialReports/ReportSourceRevisionService.php; include current and comparison periods and avoid a persisted report model.
-- [ ] T006 [P] Make overview sections and their `source_revision` come from one coherent source state in ../zunera-backend/app/Services/FinancialReports/FinancialReportService.php; retain null/unavailable section semantics and centavo reconciliation.
-- [ ] T007 [P] Return each bounded detail page's source rows, all-record total, and scope-bound `source_revision` from one coherent source state in ../zunera-backend/app/Services/FinancialReports/FinancialReportContributionService.php; ensure a source change between pages is detectable and verify the concurrent-detail-read case from T004.
-- [ ] T008 [US1] Add or verify a focused summary-to-contribution revision and Dashboard-parity assertion, including an effective future-dated transaction in a custom range, in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportOverviewContractTest.php.
-- [ ] T009 [US2] Add or verify zero-activity and partial-boundary interval, category-sum, and refund reconciliation cases under one overview revision in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportOverviewContractTest.php. Confirm current required-category behavior; if an authoritative uncategorized source is valid, also verify its null-identity distribution/comparison row and no-ID category contribution detail against specs/016-financial-reports/contracts/financial-reports-api.yaml.
-- [ ] T010 [US4] Add or verify previous-period source-revision and zero/negative/unequal-duration comparison assertions in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportOverviewContractTest.php.
-- [ ] T011 [US5] Add or verify account-attributed income/expense, transfer direction, settlement separation, and movement-only revision changes in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportAccountActivityTest.php.
-- [ ] T012 [US6] Add or verify current/previous/custom/historical boundaries, Sao Paulo business-date rollover, valid future-effective custom activity, and invalid range handling in ../zunera-backend/tests/Unit/FinancialReports/ReportPeriodResolverTest.php and ../zunera-backend/tests/Feature/FinancialReports/FinancialReportAuthorizationTest.php.
-- [ ] T013 Run the final backend gate for the 1.1.0 contract in specs/016-financial-reports/contracts/financial-reports-api.yaml after T003–T012: focused Reports/card/Dashboard/Budget tests, full Laravel suite, MySQL concurrent-change cases, and Pint; record commands and results in specs/016-financial-reports/checklists/revision-verification.md before any frontend edit.
+- [X] T003 [P] Add a failing concurrent-source-change overview test that exposes mixed summary, interval, category, account, or comparison states in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportConcurrentSnapshotTest.php.
+- [X] T004 [P] Add failing contract tests for matching and changed `source_revision`, including two offsetting contributor edits with an unchanged total, a report-visible description or identity-label edit with unchanged financial effect, a prior-period edit, foreign data isolation, a changed card refund, and a concurrent source change during one detail read in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportContributionsContractTest.php and FinancialReportConcurrentSnapshotTest.php.
+- [X] T005 Implement an opaque, scope-bound revision derived from relevant authoritative contribution and account-movement identities, financial effects, and report-visible explanatory fields in ../zunera-backend/app/Services/FinancialReports/ReportSourceRevisionService.php; include current and comparison periods and avoid a persisted report model.
+- [X] T006 [P] Make overview sections and their `source_revision` come from one coherent source state in ../zunera-backend/app/Services/FinancialReports/FinancialReportService.php; retain null/unavailable section semantics and centavo reconciliation.
+- [X] T007 [P] Return each bounded detail page's source rows, all-record total, and scope-bound `source_revision` from one coherent source state in ../zunera-backend/app/Services/FinancialReports/FinancialReportContributionService.php; ensure a source change between pages is detectable and verify the concurrent-detail-read case from T004.
+- [X] T008 [US1] Add or verify a focused summary-to-contribution revision and Dashboard-parity assertion, including an effective future-dated transaction in a custom range, in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportOverviewContractTest.php.
+- [X] T009 [US2] Add or verify zero-activity and partial-boundary interval, category-sum, and refund reconciliation cases under one overview revision in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportOverviewContractTest.php. Confirm current required-category behavior; if an authoritative uncategorized source is valid, also verify its null-identity distribution/comparison row and no-ID category contribution detail against specs/016-financial-reports/contracts/financial-reports-api.yaml.
+- [X] T010 [US4] Add or verify previous-period source-revision and zero/negative/unequal-duration comparison assertions in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportOverviewContractTest.php.
+- [X] T011 [US5] Add or verify account-attributed income/expense, transfer direction, settlement separation, and movement-only revision changes in ../zunera-backend/tests/Feature/FinancialReports/FinancialReportAccountActivityTest.php.
+- [X] T012 [US6] Add or verify current/previous/custom/historical boundaries, Sao Paulo business-date rollover, valid future-effective custom activity, and invalid range handling in ../zunera-backend/tests/Unit/FinancialReports/ReportPeriodResolverTest.php and ../zunera-backend/tests/Feature/FinancialReports/FinancialReportAuthorizationTest.php.
+- [X] T013 Run the final backend gate for the 1.1.0 contract in specs/016-financial-reports/contracts/financial-reports-api.yaml after T003–T012: focused Reports/card/Dashboard/Budget tests, full Laravel suite, MySQL concurrent-change cases, and Pint; record commands and results in specs/016-financial-reports/checklists/revision-verification.md before any frontend edit.
 
 **Checkpoint**: Protected report reads return a tested source revision; overview and each detail page are coherent; all backend story acceptance and recognition tests pass before frontend work.
 
@@ -43,7 +43,7 @@
 
 **Independent Test**: Effective ordinary and card fixtures reconcile three summary values to the cent, exclude transfers/goals/pending sources, and carry the same revision as their contribution detail.
 
-- [ ] T014 [US1] Verify the existing realized summary, signed result meaning, and summary contribution action consume the verified contract in ../zunera-frontend/src/components/reports/__tests__/ReportSummary.spec.js; change ../zunera-frontend/src/components/reports/ReportSummary.vue only if the acceptance check fails.
+- [X] T014 [US1] Verify the existing realized summary, signed result meaning, and summary contribution action consume the verified contract in ../zunera-frontend/src/components/reports/__tests__/ReportSummary.spec.js; change ../zunera-frontend/src/components/reports/ReportSummary.vue only if the acceptance check fails.
 
 **Checkpoint**: The revised contract still supports a complete, independently testable realized summary.
 
@@ -55,7 +55,7 @@
 
 **Independent Test**: Daily/weekly/monthly interval sums and income/expense category totals equal summary; zero intervals remain accessible and a refund adjusts its original expense category once.
 
-- [ ] T015 [US2] Verify that the full interval breakdown includes zero buckets and readable numeric values in ../zunera-frontend/src/components/reports/__tests__/ReportEvolution.spec.js and ../zunera-frontend/src/components/reports/ReportDetailedBreakdown.vue; edit the component only for a confirmed gap.
+- [X] T015 [US2] Verify that the full interval breakdown includes zero buckets and readable numeric values in ../zunera-frontend/src/components/reports/__tests__/ReportEvolution.spec.js and ../zunera-frontend/src/components/reports/ReportDetailedBreakdown.vue; edit the component only for a confirmed gap.
 
 **Checkpoint**: Users can explain the summary from interval and category values without relying on a chart.
 
@@ -67,12 +67,12 @@
 
 **Independent Test**: Open a category amount, make offsetting contributor edits, then open detail; a brief notice appears and both refreshed views retain the period/filters, share one revision, and reconcile across pages.
 
-- [ ] T016 [P] [US3] Test the new overview and detail `source_revision` response shapes and cancellation behavior in ../zunera-frontend/src/services/__tests__/reportsService.spec.js and ../zunera-frontend/src/services/__tests__/reportsContributionService.spec.js.
-- [ ] T017 [P] [US3] Write failing store tests for matching revisions, changed totals, net-zero contributor substitutions, report-visible label edits, scope changes during refresh, later-page revision changes, bounded retries, and recoverable failure in ../zunera-frontend/src/stores/reports/__tests__/reportsStore.spec.js.
-- [ ] T018 [US3] Implement revision comparison, automatic same-scope overview/detail refresh, bounded retry, and stale-page rejection in ../zunera-frontend/src/stores/reports/reportsStore.js after T016–T017 and the Phase 2 backend gate.
-- [ ] T019 [US3] Show the brief change notice while preserving the contribution target and active report context in ../zunera-frontend/src/views/reports/ReportsView.vue and ../zunera-frontend/src/i18n/messages.js; keep the drawer's existing signed source rows and paging in ../zunera-frontend/src/components/reports/ReportContributionDrawer.vue.
-- [ ] T020 [US3] Verify notice, preserved scope, reconciled detail, and bounded-retry error presentation in ../zunera-frontend/src/views/reports/__tests__/ReportsView.spec.js.
-- [ ] T021 [US3] Add a critical browser journey for changed-value and unchanged-total contributor edits, filter preservation, and source-revision agreement in ../zunera-frontend/e2e/financial-reports.spec.js.
+- [X] T016 [P] [US3] Test the new overview and detail `source_revision` response shapes and cancellation behavior in ../zunera-frontend/src/services/__tests__/reportsService.spec.js and ../zunera-frontend/src/services/__tests__/reportsContributionService.spec.js.
+- [X] T017 [P] [US3] Write failing store tests for matching revisions, changed totals, net-zero contributor substitutions, report-visible label edits, scope changes during refresh, later-page revision changes, bounded retries, and recoverable failure in ../zunera-frontend/src/stores/reports/__tests__/reportsStore.spec.js.
+- [X] T018 [US3] Implement revision comparison, automatic same-scope overview/detail refresh, bounded retry, and stale-page rejection in ../zunera-frontend/src/stores/reports/reportsStore.js after T016–T017 and the Phase 2 backend gate.
+- [X] T019 [US3] Show the brief change notice while preserving the contribution target and active report context in ../zunera-frontend/src/views/reports/ReportsView.vue and ../zunera-frontend/src/i18n/messages.js; keep the drawer's existing signed source rows and paging in ../zunera-frontend/src/components/reports/ReportContributionDrawer.vue.
+- [X] T020 [US3] Verify notice, preserved scope, reconciled detail, and bounded-retry error presentation in ../zunera-frontend/src/views/reports/__tests__/ReportsView.spec.js.
+- [X] T021 [US3] Add a critical browser journey for changed-value and unchanged-total contributor edits, filter preservation, and source-revision agreement in ../zunera-frontend/e2e/financial-reports.spec.js.
 
 **Checkpoint**: Contributions remain explainable after a source change; no stale overview/detail pair is presented as current.
 
@@ -84,7 +84,7 @@
 
 **Independent Test**: A prior-period edit changes the shared report revision and refreshes the comparison; exact ranges, absolute differences, and unavailable percentages remain correct.
 
-- [ ] T022 [US4] Verify current/prior labels and percentage-unavailable reasons after a revision refresh in ../zunera-frontend/src/components/reports/__tests__/ReportComparison.spec.js; edit ../zunera-frontend/src/components/reports/ReportComparison.vue only for a confirmed gap.
+- [X] T022 [US4] Verify current/prior labels and percentage-unavailable reasons after a revision refresh in ../zunera-frontend/src/components/reports/__tests__/ReportComparison.spec.js; edit ../zunera-frontend/src/components/reports/ReportComparison.vue only for a confirmed gap.
 
 **Checkpoint**: Comparison is independently testable with a changed prior period and an unchanged selected scope.
 
@@ -96,7 +96,7 @@
 
 **Independent Test**: An account movement edit changes the report revision without changing consolidated income/expense; filtered overview and account detail still agree.
 
-- [ ] T023 [US5] Verify account/category/type filters remain visible and unchanged through automatic refresh, while transfer and settlement detail stay suppressed under type/category filters, in ../zunera-frontend/src/components/reports/__tests__/ReportAccountActivity.spec.js and ../zunera-frontend/src/components/reports/__tests__/ReportFilterBar.spec.js.
+- [X] T023 [US5] Verify account/category/type filters remain visible and unchanged through automatic refresh, while transfer and settlement detail stay suppressed under type/category filters, in ../zunera-frontend/src/components/reports/__tests__/ReportAccountActivity.spec.js and ../zunera-frontend/src/components/reports/__tests__/ReportFilterBar.spec.js.
 
 **Checkpoint**: Account analysis explains cash movement without changing consolidated result.
 
@@ -108,7 +108,7 @@
 
 **Independent Test**: Previous month equals last completed month; a custom future range honors an already effective transaction; current presets stop today; empty and unavailable sections remain distinct after a refresh.
 
-- [ ] T024 [US6] Verify previous-month/last-completed-month wording, custom interval restoration, and empty versus unavailable state after automatic refresh in ../zunera-frontend/src/components/reports/__tests__/ReportPeriodSelector.spec.js and ../zunera-frontend/src/views/reports/__tests__/ReportsView.spec.js.
+- [X] T024 [US6] Verify previous-month/last-completed-month wording, custom interval restoration, and empty versus unavailable state after automatic refresh in ../zunera-frontend/src/components/reports/__tests__/ReportPeriodSelector.spec.js and ../zunera-frontend/src/views/reports/__tests__/ReportsView.spec.js.
 
 **Checkpoint**: Every section and contribution view retains one clearly labelled period/filter context.
 
@@ -118,9 +118,9 @@
 
 **Purpose**: Complete remaining measurable outcomes and final verification.
 
-- [ ] T025 With 10,000 records, 100 categories, and 50 accounts, measure at least 20 complete live attempts for each representative displayed-total class: summary income/expense/result, income/expense categories including a small contributor, account direct flow and separate movements, and current/prior comparison. Include first-page and deeper-page contribution paths. Record per-class and overall shares reaching the requested records within five seconds, plus revision-calculation cost, in specs/016-financial-reports/checklists/performance.md. If any sampled class misses 95% or a deeper page is unreachable, identify the bottleneck, make a focused fix in the affected application, rerun relevant tests and the same live measurement, and keep this task open until SC-005 is met.
+- [X] T025 With 10,000 records, 100 categories, and 50 accounts, measure at least 20 complete live attempts for each representative displayed-total class: summary income/expense/result, income/expense categories including a small contributor, account direct flow and separate movements, and current/prior comparison. Include first-page and deeper-page contribution paths. Record per-class and overall shares reaching the requested records within five seconds, plus revision-calculation cost, in specs/016-financial-reports/checklists/performance.md. If any sampled class misses 95% or a deeper page is unreachable, identify the bottleneck, make a focused fix in the affected application, rerun relevant tests and the same live measurement, and keep this task open until SC-005 is met.
 - [ ] T026 Run the pending uncoached study with at least 10 representative participants using fictional data, and record anonymized SC-002/SC-003 pass rates in specs/016-financial-reports/checklists/usability.md. If either outcome misses 90%, identify the observed usability obstacle, make a focused improvement in the affected experience, rerun relevant tests and an equivalent uncoached study, and keep this task open until both thresholds are met.
-- [ ] T027 Reconcile delivered source-revision behavior, response shape, and manual acceptance steps in specs/016-financial-reports/plan.md, specs/016-financial-reports/data-model.md, specs/016-financial-reports/contracts/financial-reports-api.yaml, and specs/016-financial-reports/quickstart.md.
+- [X] T027 Reconcile delivered source-revision behavior, response shape, and manual acceptance steps in specs/016-financial-reports/plan.md, specs/016-financial-reports/data-model.md, specs/016-financial-reports/contracts/financial-reports-api.yaml, and specs/016-financial-reports/quickstart.md.
 - [ ] T028 After T025–T026 meet their thresholds, run final backend/frontend test, style, build, and isolated Playwright commands from specs/016-financial-reports/quickstart.md; record results and spec/contract parity in specs/016-financial-reports/checklists/revision-verification.md.
 
 **Checkpoint**: Financial values, source records, and period/filter context agree; recorded evidence meets SC-002, SC-003, and SC-005. If an outcome remains unmet or its study cannot run, keep the corresponding task and final gate open and report the blocker without claiming completion.
@@ -173,7 +173,7 @@ Do not parallel-edit ../zunera-backend/app/Services/FinancialReports/FinancialRe
 ### Incremental delivery
 
 1. After the backend gate, close US2, US4, US5, and US6 frontend acceptance checks against the existing implementation; fix only demonstrated gaps.
-2. Meet SC-005 live latency and SC-002/SC-003 participant thresholds, then T027–T028 final parity checks.
+2. SC-005 live latency and T027 document parity are complete. Meet SC-002/SC-003 participant thresholds, then run T028 final parity checks.
 3. Keep the original feature task history in tasks-baseline-2026-09-26.md; mark only this revision's tasks complete here.
 
 ## Notes

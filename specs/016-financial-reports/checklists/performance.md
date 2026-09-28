@@ -1,6 +1,43 @@
 # Financial Reports performance evidence
 
-**SC-005 status: pending.** These separate measurements do not establish the full summary-to-contributions journey with a live API. Run at least 20 representative integrated attempts against the 10,000-record fixture and confirm at least 95% finish within 5 seconds before marking SC-005 met.
+**SC-005 status: met on the measured live fixture.** All 260/260 complete browser-to-API-to-MySQL attempts reached the requested source rows within five seconds. Every sampled class passed 20/20, above the 95% target.
+
+## Complete live journeys — 2026-09-27
+
+Chromium ran against the local Vue development server and the running Laravel API/MySQL stack. A disposable authenticated account owned 10,000 fictional effective transactions across 100 categories and 50 accounts, 100 effective transfers, and one effective card statement settlement. The current and prior periods both contained records; one expense category contained one contributor. Each attempt began before browser navigation to Reports and ended after the requested contribution rows appeared in the drawer. Each API detail revision was checked against its overview revision; the deeper-page attempt also checked the later page revision and visible appended rows. No API response was mocked. The disposable account and all its records were removed after measurement.
+
+| Requested displayed-total class/path | Attempts ≤ 5 s | Median | 95th sample | Maximum |
+|---|---:|---:|---:|---:|
+| Summary income | 20/20 | 1.304 s | 1.497 s | 1.664 s |
+| Summary expenses | 20/20 | 1.326 s | 1.482 s | 1.520 s |
+| Summary result | 20/20 | 1.343 s | 1.497 s | 1.503 s |
+| Expense category | 20/20 | 1.296 s | 1.458 s | 1.486 s |
+| Income category | 20/20 | 1.371 s | 1.493 s | 1.703 s |
+| One-contributor expense category | 20/20 | 1.468 s | 1.523 s | 1.535 s |
+| Account direct expense | 20/20 | 1.506 s | 1.580 s | 1.599 s |
+| Account transfer in | 20/20 | 1.430 s | 1.494 s | 1.498 s |
+| Account transfer out | 20/20 | 1.448 s | 1.484 s | 1.521 s |
+| Account card settlement | 20/20 | 1.371 s | 1.516 s | 1.722 s |
+| Current comparison expense | 20/20 | 1.471 s | 1.522 s | 1.532 s |
+| Prior comparison expense | 20/20 | 1.418 s | 1.478 s | 1.494 s |
+| Summary expense, second cursor page | 20/20 | 1.787 s | 1.852 s | 1.873 s |
+| **All classes** | **260/260 (100%)** | — | — | **1.873 s** |
+
+The first 240 attempts (all classes except settlement) had an overall median of 1.431 s and 95th sample of 1.784 s. The settlement's 20 attempts were measured separately after extending the same fixture. These are local development-stack measurements, not a production latency claim. Browser automation used Playwright with a temporary measurement script; the permanent backend fixture and command below provide revision-cost and scale checks.
+
+## Revision measurements — 2026-09-27
+
+The isolated MySQL test fixture contains 10,000 effective transactions, 100 categories, and 50 accounts. After one warm request, 20 consecutive backend request samples for each path and 20 direct source-revision calculations gave:
+
+| Backend operation | Median | 95th sample | Maximum | Samples under 5 s |
+|---|---:|---:|---:|---:|
+| Complete overview, including source revision | 0.416 s | 0.427 s | 0.429 s | 20/20 |
+| First 100-row expense contribution page, including source revision | 0.196 s | 0.201 s | 0.214 s | 20/20 |
+| Source-revision calculation alone | 0.122 s | 0.129 s | 0.142 s | 20/20 |
+
+The fixture test passed with 56 assertions and confirmed the second cursor page and `transactions_owner_history_index` use. Command: `docker exec zunera-backend-app-1 sh -c 'set -a; . ./.env.testing; set +a; REPORT_PERF_LOG=1 php artisan test --filter=FinancialReportPerformanceTest'`. These are in-process backend timings with a live MySQL source; the complete journey evidence is recorded above.
+
+## Baseline measurements — 2026-09-26
 
 Measured on 2026-09-26 (America/Sao_Paulo). The backend fixture creates 10,000 effective transactions across 100 expense categories and 50 accounts in the isolated MySQL test database. The frontend browser fixture supplies the corresponding 100 category and 50 account aggregates and 100-row cursor pages representing 10,000 contributions.
 

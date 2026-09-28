@@ -21,6 +21,8 @@ The validated scope is immutable during one report read. An inaccessible account
 
 Each overview and contribution-detail result also carries an opaque `source_revision` for its resolved scope. It represents authoritative source identities, financially relevant states/effects, and report-visible identifying or explanatory information used by the report, including current and comparison periods and separate account movements. A changed contributor description or displayed category/account identity changes the revision even when the financial effect and total stay unchanged. It is read-only metadata, not a persisted report record or monetary input. Within one detail response, source rows, all-record total, and revision come from one coherent source state. A later page may represent a newer state; its changed revision must be detected before those rows are combined with earlier pages.
 
+The delivered read calculates the revision from the resolved owner and scope, ordered recognized contribution rows for both periods, applicable account movement rows, and selected account/category labels. Overview and detail each use a database transaction so their independently queried parts see one repeatable-read snapshot in MySQL. Two separate requests can still see different revisions. The browser accepts their pair only when revisions and applied scopes agree; it retries the overview and first detail page up to three times, then offers a retry if sources continue changing.
+
 ## Reporting and comparison periods
 
 | Field | Meaning |
