@@ -84,7 +84,7 @@ Account analysis includes accounts with matching recognized activity or effectiv
 
 Every amount uses integer centavos until locale formatting at presentation. Percentage rounding is display-only and cannot change reconciliation. Summary, category, interval, account, and detail reads share one server-derived scope. Archived records remain readable; no current balances are calculated or stored by Reports.
 
-The authoritative Transaction and card purchase rules currently require an eligible category for their reportable income and expense records. If a valid uncategorized source becomes possible under those rules, category projections must retain an identifiable uncategorized row and reconcile with the matching summary; Reports must not silently discard that source. Do not invent an uncategorized category merely for the current required-category model.
+The authoritative Transaction and card purchase rules currently require an eligible category for their reportable income and expense records. If a valid uncategorized source becomes possible under those rules, category projections and comparisons use a null category identity for an identifiable uncategorized row and reconcile with the matching summary; its category contribution detail is selected without a category ID. Reports must not silently discard that source or invent a category record for the current required-category model. An omitted category metric ID remains invalid while no valid uncategorized source exists.
 
 ## Read lifecycle and error states
 

@@ -107,7 +107,7 @@ components:
       name: metric_id
       in: query
       schema: { type: integer, minimum: 1 }
-      description: Required for category/account metrics; category or financial-account ID according to metric. Omit for summary metrics.
+      description: Required for account metrics and named-category metrics; category or financial-account ID according to metric. For a category metric, omission targets the financially valid uncategorized grouping only if the authoritative model permits one; otherwise omission is invalid. Omit for summary metrics.
     WhichPeriod:
       name: which_period
       in: query
@@ -215,7 +215,9 @@ components:
       type: object
       required: [category, total, share_percent]
       properties:
-        category: { $ref: '#/components/schemas/Category' }
+        category:
+          description: Null only for financially valid uncategorized activity; no synthetic category ID is created. The containing income or expense distribution supplies its classification.
+          oneOf: [{ $ref: '#/components/schemas/Category' }, { type: 'null' }]
         total: { $ref: '#/components/schemas/Money' }
         share_percent: { type: [number, 'null'] }
     Account:
@@ -250,7 +252,9 @@ components:
       type: object
       required: [category, amounts]
       properties:
-        category: { $ref: '#/components/schemas/Category' }
+        category:
+          description: Null only when a financially valid uncategorized expense grouping contributes in either comparison period.
+          oneOf: [{ $ref: '#/components/schemas/Category' }, { type: 'null' }]
         amounts: { $ref: '#/components/schemas/MetricComparison' }
     Comparison:
       type: object
