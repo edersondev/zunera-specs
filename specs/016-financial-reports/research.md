@@ -2,6 +2,8 @@
 
 **Date**: 2026-09-26 | **Spec**: [spec.md](spec.md)
 
+**Revision audit**: 2026-09-27. The existing backend and frontend implement Decisions 1–8; this revision checks the clarified specification against that baseline. The four Zunera design documents and Vue Composition guidance were reviewed for the frontend audit. No new package or report accounting model is needed.
+
 ## Decision 1 — One recognized-contribution definition
 
 **Decision**: Build a shared read projection of signed, dated contributions for ordinary effective transactions and recognized card installments. Use the same contribution set for summary, evolution, categories, comparisons, and drill-down. Reuse established Dashboard/ Budget recognition rules rather than Financial History aggregate totals.
@@ -65,3 +67,19 @@
 **Rationale**: Financial integrity is the primary risk. Contract-first backend completion follows the constitution and lets frontend consume stable shapes. No uploads or new secrets are involved.
 
 **Alternatives considered**: UI-first delivery (hard to verify semantics); only unit tests (misses cross-feature and UI-to-API behavior).
+
+## Decision 9 — Reuse existing period and interval behavior
+
+**Decision**: Treat “last completed month” as the existing `previous_month` selection, with August 1–31 when the business date is in September. Keep the existing daily/weekly/monthly grouping and complete zero-valued buckets. `ReportDetailedBreakdown` already exposes the complete numerical interval set, so the revised spec does not require a new period mode or chart component.
+
+**Rationale**: The period resolver, evolution read, and detailed breakdown were inspected against FR-003, FR-013, and FR-031. Transactions and Dashboard already establish that an effective ordinary transaction redated into the future retains its state and appears in a custom range containing its stored date; current-period presets end today. Zunera currently uses the America/Sao_Paulo financial business date.
+
+**Alternatives considered**: Add a duplicate “last completed month” preset (same boundaries, unnecessary contract surface); fabricate another aggregation level; hide zero intervals in detail (misleading evolution).
+
+## Decision 10 — Audit source-state coherence before changing contracts
+
+**Decision**: Verify that one overview's independently aggregated sections cannot silently reflect different financial source states during a concurrent source change, and that one detail response's rows, all-record total, and source revision cannot straddle states. Use a consistent read boundary wherever the current reads can mix states, while preserving independently unavailable overview sections. Across separate overview and detail reads, expose an opaque source revision derived from relevant authoritative source identities, effects, and report-visible identifying/explanatory information. It must change for offsetting contributor edits and same-amount description or identity-label edits. Compare the revision on later detail pages before adding their rows to the displayed set. When revisions differ, automatically refresh overview and detail under the same scope, show a brief change notice, and present the pair only when their revisions agree. Use bounded retry and an explicit retry state if source activity continues.
+
+**Rationale**: The current overview computes sections in separate reads, and the detail endpoint reports an all-record total. Totals detect value changes but miss offsetting corrections or changed source identities whose net amount is unchanged. The user's 2026-09-27 clarification requires those changes to refresh too. A source-derived revision is read-only metadata, not a second accounting model. A separate HTTP request cannot share the earlier database snapshot indefinitely, so the frontend must reconcile revisions before presenting both reads together.
+
+**Alternatives considered**: Store a separate report snapshot (duplicate financial model and invalidation burden); compare totals alone (misses net-zero contributor changes); silently show mismatched detail (breaks explainability); retry without a bound during continuous source edits (poor recovery).

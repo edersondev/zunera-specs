@@ -1,11 +1,11 @@
 # Feature Specification: Financial Reports
 
-**Feature Branch**: `016-financial-reports`  
-**Backend Branch**: `016-financial-reports` (`../zunera-backend`)  
-**Frontend Branch**: `016-financial-reports` (`../zunera-frontend`)  
+**Feature Branch**: `017-financial-reports` (specification revision; feature directory remains `016-financial-reports`)
+**Backend Branch**: `017-financial-reports` (`../zunera-backend`)
+**Frontend Branch**: `017-financial-reports` (`../zunera-frontend`)
 **Created**: 2026-09-26  
-**Status**: Ready for implementation  
-**Input**: "Spec 011 — Financial Reports". Directory 011 already belongs to Transactions Month Navigator, so sequential Spec Kit directory 016 is used.
+**Status**: Revised functional specification
+**Input**: "Spec 011 — Financial Reports". Directory 011 belongs to Transactions Month Navigator; the existing Financial Reports feature, implementation, and design artifacts use directory 016. This revision consolidates their intended behavior without creating another report feature.
 
 ## Clarifications
 
@@ -17,6 +17,10 @@
 - Q: How should Reports handle a card refund after its source statement was fully paid, given current code differs from the Credit Cards specification? → A: Restore shared recognition to the established Credit Cards rule within this feature: reduce the source installment's recognized expense in its original period, while preserving separate card-credit and cash-settlement effects across Reports, Dashboard, and Budgets.
 - Q: Should separate account transfer and card-settlement figures remain visible under income, expense, or category filters? → A: No; those uncategorized, non-income/expense movements appear only when neither transaction-type nor category filter is active, and still remain separate from realized income and expenses.
 - Q: How should month navigation beyond the previous month compare periods? → A: A navigated completed historical month covers that full calendar month and compares with the full immediately preceding calendar month. Returning to the current month uses month-to-date rules. Custom ranges retain their equal-day preceding-range comparison even when their dates happen to span a full month.
+
+### Session 2026-09-27
+
+- Q: What should Reports do if a financial record changes between opening the overview and opening its contributions? → A: Automatically refresh the overview and contribution detail under the selected period and filters, and show a brief change notice, including when changed contributions leave the total unchanged.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -58,6 +62,8 @@ As an authorized user, I want income and expense trends and separate category di
 8. **Given** a recurring-card occurrence generates a purchase on an Open statement, **When** Reports opens before and after statement closing, **Then** the rule and generation event never count as expenses; the Open-statement installment is absent from Reports and becomes realized exactly once in its closing period.
 9. **Given** a R$ 1.000,00 recognized card installment is later partially refunded by R$ 200,00, **When** the affected period and category are viewed, **Then** recognized expense is R$ 800,00 and a later statement payment adds R$ 0,00 expense.
 10. **Given** a R$ 1.000,00 card installment was recognized and its statement fully paid before a R$ 200,00 refund, **When** the affected period and category are viewed, **Then** recognized expense is R$ 800,00, the refund remains traceable, and any resulting card credit or application does not create income or another expense.
+11. **Given** a selected month contains no activity on September 10, **When** the user inspects the complete interval breakdown, **Then** September 10 remains present with zero income, expenses, and result, and every interval sum reconciles with the summary.
+12. **Given** a financially valid expense has no category under existing rules, **When** category composition is viewed, **Then** its amount remains visible in an identifiable uncategorized grouping and the distribution still reconciles with total applicable expenses.
 
 ---
 
@@ -75,6 +81,9 @@ As an authorized user, I want the source records behind category and account fig
 2. **Given** a card refund restates an earlier installment, **When** the category is opened, **Then** the adjustment and source purchase are identifiable, and the refund is not ordinary income.
 3. **Given** an ordinary transaction is corrected, removed, or restored, **When** reports refresh, **Then** summary and detail show its current authoritative effect once, without stale copies.
 4. **Given** hundreds of contributing records, **When** detail opens, **Then** all records remain reachable and the full set reconciles with the displayed total.
+5. **Given** the summary reports R$ 1.250,00 realized expenses, **When** the user opens its contributions, **Then** all signed source effects behind that amount are identifiable under the same period and filters and reconcile to R$ 1.250,00.
+6. **Given** a user opens a contribution view after selecting a custom period and category, **When** the user returns to the report, **Then** the custom dates and category selection remain active.
+7. **Given** a source contribution changes after the overview opens, **When** the user opens that amount's detail, **Then** Reports refreshes overview and detail under the same period and filters, shows a brief change notice, and presents reconciled current records even if offsetting changes leave the total unchanged.
 
 ---
 
@@ -135,10 +144,13 @@ As an authorized user, I want reliable period selection and explanatory empty st
 4. **Given** unfiltered activity exists but selected filters match nothing, **When** report updates, **Then** it states no records match filters and offers reset.
 5. **Given** 100 categories, 50 accounts, and many transactions, **When** report opens, **Then** largest contributors remain findable, very small and large values remain legible, and all detail records remain accessible.
 6. **Given** the user navigates from the current month to a completed historical month and back, **When** reports update, **Then** the historical month uses full calendar boundaries, the current month ends on the current business date, and every section and drill-down shows the selected period.
+7. **Given** today is September 27 in Zunera's applicable business timezone, **When** current month and current year are selected, **Then** their end boundary is September 27, while previous month and last completed month both cover August 1–31.
+8. **Given** a custom start is missing, after its end, or outside supported financial dates, **When** the user applies it, **Then** Reports explains the invalid selection and does not display a misleading financial result.
+9. **Given** an effective transaction was redated into a future date under Transactions rules, **When** a custom range includes that date, **Then** its authoritative effect appears with its effective status and stored date clear; a current-month or current-year report still ends today.
 
 ### Edge Cases
 
-- An effective ordinary transaction redated into the future remains effective under Spec 004; Reports use its authoritative state and transaction date, never silently convert it to expected.
+- An effective ordinary transaction redated into the future remains effective under Spec 004; Reports use its authoritative state and stored transaction date, never silently convert it to expected. Current-month and current-year reports still end on the current business date, while a custom future range can include that effective record with its status and date clear.
 - An Open-statement installment stays expected in the source financial model even though its purchase exists. It is absent from first-release Reports; closing changes its existing installment effect to realized on closing date without adding another expense.
 - Archived accounts, categories, and cards remain identifiable in valid historical activity.
 - Empty categories and accounts need not dominate analysis. A zero denominator makes a share unavailable.
@@ -146,6 +158,9 @@ As an authorized user, I want reliable period selection and explanatory empty st
 - A current-month or current-year comparison uses partial periods with both exact ranges labelled.
 - One dominant category must not make smaller contributors unfindable. Negative and zero results must remain legible.
 - A section error identifies unavailable information and permits retry while other reliable sections remain usable.
+- A report opened near local midnight uses the applicable Zunera business date consistently across every section, including comparison and drill-down.
+- A filter or source-record change during an open report must not leave mixed-scope or stale figures presented as one coherent result.
+- A custom future date range may contain no realized activity; its zero values are valid only when no authoritative effective record falls within that range.
 
 ## Requirements *(mandatory)*
 
@@ -153,7 +168,7 @@ As an authorized user, I want reliable period selection and explanatory empty st
 
 - **FR-001**: Reports MUST have a dedicated area inside the authorized financial workspace. Every report, filter choice, comparison, and detail MUST obey the same workspace isolation rules as existing financial features.
 - **FR-002**: Reports MUST use established rules from Accounts, Categories, Transactions, Transfers, Recurring Transactions, Dashboard, Budgets, Credit Cards, Goals, and Recurring Credit Card Purchases. Reports MUST NOT establish independent balance, lifecycle, or recognition rules.
-- **FR-003**: Reports MUST offer current month, previous month, current year, previous year, and inclusive custom date range; clearly show effective boundaries; and permit convenient navigation to older completed months. Current month/year end at current business date; completed previous month/year and navigated historical months cover full calendar periods. Returning to the current month restores month-to-date boundaries.
+- **FR-003**: Reports MUST offer current month, previous month, current year, previous year, and an inclusive custom date range; clearly show effective boundaries; and permit convenient navigation to older completed months. The previous-month choice is also the last-completed-month choice: one selection covers the entire immediately preceding calendar month. Current month starts on its first calendar day and ends on the current Zunera business date; current year starts January 1 and ends on that date. Previous year covers the entire immediately preceding calendar year. Navigated historical months cover their full calendar periods. Returning to the current month restores month-to-date boundaries. Date boundaries MUST use Zunera's established financial business timezone, currently America/Sao_Paulo, consistently across all report sections when the date changes.
 - **FR-004**: A period or filter change MUST update summary, evolution, categories, accounts, comparison, and detail consistently. No section MAY silently retain another scope.
 - **FR-005**: Summary MUST show realized income, realized expenses, and result. Result MUST equal income minus expenses under the same scope, with positive, negative, and neutral meaning expressed without color alone.
 - **FR-006**: Realized totals MUST include only financially effective ordinary income/expense transactions dated in the period and recognized card installment net effects under existing rules. Pending transactions, expected installments, recurrence definitions, and ungenerated occurrences MUST NOT contribute.
@@ -163,7 +178,7 @@ As an authorized user, I want reliable period selection and explanatory empty st
 - **FR-010**: Each card installment MUST be attributed to calendar month containing its associated statement closing date, become realized on that closing date only after statement closes, and retain that date for reporting. Open-statement installments are expected. Purchase and payment dates MUST NOT replace this recognition date.
 - **FR-011**: Statement payments and card-credit applications MUST NOT create additional income or expense. Refunds, cancellations, and post-closing corrections MUST reduce the source purchase's recognized installment expenses in their original periods/categories by the established signed net effect exactly once, including when source statements were already fully paid. They MUST remain traceable to source purchase and MUST NOT be reinterpreted as ordinary income. Any resulting card credit or settlement retains its separate existing financial effect; Reports, Dashboard, and Budgets MUST agree on recognized spending.
 - **FR-012**: Effective ordinary transaction edits, removal, restoration, reclassification, and date changes MUST affect current reports according to existing lifecycle rules. Neither former nor corrected effect may be counted twice.
-- **FR-013**: Evolution MUST distinguish realized income and expenses in clearly labelled, gap-free, non-overlapping intervals and MAY show result. Interval sums MUST equal summary. Use daily intervals through 31 days, weekly intervals for 32–93 days, and monthly intervals for longer periods, matching Dashboard; identify partial boundary intervals.
+- **FR-013**: Evolution MUST distinguish realized income, realized expenses, and their financial result in clearly labelled, gap-free, non-overlapping intervals that cover the entire selected range. Interval sums MUST equal the corresponding summary values. Use the existing supported aggregation: daily intervals through 31 days, weekly intervals for 32–93 days, and monthly intervals for longer periods; identify partial boundary intervals. Intervals without activity MUST retain zero values in the underlying breakdown, even when visual labels are thinned.
 - **FR-014**: Expense categories MUST show identity, realized net amount, and share of all realized expenses in same scope, ordered so largest contributors are easy to identify. Zero denominators MUST show unavailable share. Zero-activity categories need not occupy primary view.
 - **FR-015**: Income categories MUST appear separately, using existing income classification, with amounts and shares of realized income. Income and expense distributions MUST NOT be merged.
 - **FR-016**: Archived category identities MUST remain readable in history. Card expense MUST use its authoritative purchase/installment category, not payment account or statement as a substitute.
@@ -175,33 +190,36 @@ As an authorized user, I want reliable period selection and explanatory empty st
 - **FR-022**: Period, financial-account, category, and applicable transaction-type filters MUST be combinable, visibly active, and resettable. All relevant sections and detail MUST share them. Filtered totals MUST be labelled as filtered.
 - **FR-023**: Account filter MUST include only income/direct expense authoritatively attributed to that account. When no type or category filter is active, it MUST show that account's effective transfers and card settlements separately as movement, not income/expense. A card installment MUST NOT enter account-filtered expenses solely through paying account.
 - **FR-024**: Category filter MUST use existing record classification in selected and comparison periods. Incompatible category/type combinations yield zero and matching explanation. When an income, expense, or category filter is active, uncategorized transfer and card-settlement figures and their drill-down MUST be absent from the filtered report; clearing type/category filters restores those separate figures. Filters MUST NOT reclassify transfers or settlements.
-- **FR-025**: Category and account amounts MUST offer source records with selected period, filters, recognized dates, and signed contributions preserved. Sum of all contributions MUST equal displayed total exactly, including adjustments. All contributing records MUST be reachable without creating a reporting copy of financial data.
+- **FR-025**: Reported income, expenses, category amounts, and supported account activity amounts MUST offer the authoritative source records that contributed to each value. Detail MUST preserve selected period and filters, identify recognized dates and signed contributions, and keep source purchases and adjustments traceable. The sum of all applicable contributions MUST equal the displayed total exactly, including adjustments; where an accounting distinction prevents direct reconciliation from a visible transaction list, Reports MUST explain the difference. All contributing records MUST remain reachable without creating a reporting copy of financial data. Opening and returning from detail MUST preserve the report context.
 - **FR-026**: Reports MUST distinguish no activity, no income, no expenses, no records matching filters, and no prior-period activity. Empty distributions MUST use explanatory states instead of misleading zero charts.
 - **FR-027**: Reports MUST remain understandable with many categories/accounts/transactions, a dominant category, small/large BRL amounts, and negative/zero results. Largest contributors and all detail records MUST remain findable.
 - **FR-028**: Reports MUST use Zunera's existing currency, decimal, date, month-name, and percentage conventions; visual differences MUST remain understandable without color alone.
 - **FR-029**: Reports and Dashboard common realized metrics MUST reconcile exactly when workspace, period, filters, and recognition scope match. Any intentional difference in scope or included source MUST be labelled.
 - **FR-030**: Initial release excludes custom report builders, formulas, predictive AI, investment analytics, tax/regulatory statements, public links, scheduled delivery, goal analytics, advanced budget-versus-actual analysis, advice, and bank-data enrichment.
+- **FR-031**: Users MUST be able to inspect the complete numerical breakdown behind evolution on demand. Each interval MUST expose its exact date range, realized income, realized expenses, and result, including zero-activity intervals and partial boundaries. Critical values MUST remain understandable without a chart.
+- **FR-032**: Expense and income distributions MUST retain financially valid uncategorized activity where the authoritative model permits it, identify that activity without inventing a category record, and allow its contribution records to be inspected. A single category MUST remain understandable without a comparative visualization; multiple categories MUST remain discoverable, including smaller contributors. Category shares MUST use the corresponding filtered income or expense total and consistent percentage precision.
+- **FR-033**: All sections of a displayed report MUST represent one coherent financial context and authoritative state. Each contribution-detail response MUST derive its source rows and all-record total from that same state. When a source contribution or its source-backed, report-visible identifying or explanatory information changes between overview and detail, Reports MUST automatically refresh both under the same selected period and filters, show a brief change notice, and present reconciled current records; an unchanged financial total alone MUST NOT conceal changed contributors or explanations. Changes between detail pages MUST also be detected before their rows are presented as one set. Stale sections MUST NOT be shown as though they match the refreshed report. A genuinely unavailable section MUST be identified as unavailable, never represented as a financially valid zero.
+- **FR-034**: Reports MUST apply Zunera's monetary precision before formatting and MUST NOT calculate financial values from rounded display text. The same amount and interval MUST use consistent currency, percentage, and localized date conventions across summary, breakdown, comparison, and detail.
+- **FR-035**: Invalid or missing custom boundaries, start after end, and dates outside the supported financial history range MUST receive actionable feedback and MUST NOT produce a misleading report. An inclusive custom interval MUST compare with the immediately preceding interval of the same number of calendar days, regardless of whether it aligns with a calendar month.
+- **FR-036**: Reports MUST preserve the selected period and compatible filters while users move among sections, open contribution details, and return. Any section whose meaning is restricted by a type or category filter MUST clearly convey that scope; separate transfers and statement settlements follow FR-024.
+- **FR-037**: The financial result MUST follow Zunera's authoritative financial recognition rules; the displayed identity of realized income minus realized expenses MUST reconcile under the same scope. Reports MUST NOT infer financial account balances, asset changes, or net worth from report totals or goal movements.
 
-### Reports dashboard presentation acceptance
+### Experience and accessibility requirements
 
-- **UI-001**: Keep PageHeader. Show selected date boundaries in a compact period toolbar with all six period choices, completed-month picker, and custom dates. Collapse filter fields initially; active filter chips and reset stay visible. URL-backed scope restoration remains intact.
-- **UI-002**: Show three equal summary cards with semantic amount colors, text result meaning, contribution actions, and authoritative comparison differences when available. Keep section-level unavailable and retry states independent.
-- **UI-003**: Give evolution chart primary space, use readable automatic date labels and a tooltip with interval, income, expenses, and server result. Label server-selected day/week/month granularity. Put every interval, including zero and partial intervals, in a collapsed Detailed breakdown table. Honor reduced-motion preference.
-- **UI-004**: Place expense and income categories side by side when space permits. For two or more categories, chart the first six in server order with matching readable rows and contribution actions; expansion reveals every remaining category. One category uses a compact amount and progress bar; zero uses an explanatory state.
-- **UI-005**: Make each account an expandable summary; keep direct income, direct expenses, net flow, transfers, and statement settlement distinct. Explain unattributed card expense in a small note.
-- **UI-006**: Show current, previous, signed difference, and available percentage for three comparison metrics in compact rows. Use `N/A*` when unavailable and one explanatory note covering unequal durations, nonpositive previous values, and sign changes. Collapse expense category comparison initially.
-- **UI-007**: PT-BR and English text, keyboard controls, text chart alternatives, 320px layout, 200% zoom, and system light/dark modes must remain usable. Keep existing API, financial rules, and contribution drawer.
+- **EX-001**: Present the selected analytical context first, followed by financial result, evolution, income and expense composition, account activity, comparison, and accessible underlying detail. Detailed records MAY be disclosed on demand so the overview remains readable.
+- **EX-002**: Visualizations MUST aid interpretation and provide a numerical or textual alternative for critical values. Meaning MUST remain clear without color alone, and controls and detail MUST remain usable by keyboard, at narrow screen widths, and with enlarged text.
+- **EX-003**: Reports MUST follow Zunera's established visual language, semantic financial colors, typography, spacing, locale, and light, dark, and system themes, consistent with Dashboard, Transactions, Budgets, Credit Cards, and Goals. Specific layout and presentation choices belong to planning.
 
 ### Security and Quality Requirements *(mandatory)*
 
 - **SQR-001**: Every report read, filter, comparison, and detail MUST enforce existing workspace authorization. Invalid ranges, inaccessible accounts/categories, and unsupported filters MUST receive clear feedback without foreign data disclosure.
-- **SQR-002**: Automated coverage MUST verify financial integrity, authorization, date boundaries, refunds/corrections, comparison zeros, filters, and detail reconciliation. Report-facing contract changes require contract coverage; critical summary-to-detail, filter, and comparison journeys require end-to-end coverage.
+- **SQR-002**: Acceptance coverage MUST verify financial integrity, authorization, date boundaries, refunds/corrections, comparison zeros, filters, interval detail, and contribution reconciliation, including a critical summary-to-detail journey. Verification approach belongs to planning.
 - **SQR-003**: Reports add no secrets or file uploads. Existing financial-data handling and retention apply; records remain private to authorized workspace users.
 
 ### Delivery Scope *(mandatory)*
 
-1. **Backend** (`../zunera-backend`): Define report-facing contract, authorization, range/filter validation, authoritative financial semantics, traceable detail, and automated tests before frontend implementation. Internal design belongs to Plan.
-2. **Frontend** (`../zunera-frontend`): Build Reports against verified backend contract: periods, summary, trends, categories, accounts, comparison, filters, drill-down, localization, accessibility, and tests. Presentation and state design belong to Plan.
+1. **Backend** (`../zunera-backend`): Provide authorized, validated, read-only financial information and traceable contributions according to the authoritative model; verify recognition, reconciliation, and access before user-facing work.
+2. **Frontend** (`../zunera-frontend`): Present the established report information as one understandable analytical context, with period and filter choices, numerical detail, comparisons, accessible exploration, and locale-aware formatting. Implementation design belongs to Plan.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -233,6 +251,8 @@ As an authorized user, I want reliable period selection and explanatory empty st
 - Initial release is historical and realized-only; it has no expected or forecast panel.
 - Card corrections restate affected installment periods under the implemented Credit Cards specification (`010-credit-cards`); ordinary transaction changes follow Spec 004.
 - Evolution grouping matches existing Dashboard 31/93-day boundaries.
+- The existing previous-month selection is the last completed calendar month; these names have identical financial boundaries, so a duplicate control is not required.
+- Effective future-dated ordinary transactions retain their existing Transaction status and stored date in a custom future report; current-period presets never extend beyond today's business date.
 
 ## Dependencies and Scope Notes
 

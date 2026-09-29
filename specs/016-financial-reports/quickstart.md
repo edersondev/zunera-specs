@@ -1,12 +1,23 @@
 # Quickstart: Financial Reports
 
+**Revision**: 2026-09-27. Reports is already implemented. The build steps below document its original backend-first delivery; use the revision checks first when validating the clarified spec. No new package or report-specific financial table is planned.
+
 ## Read and branch gate
 
-1. Confirm `016-financial-reports` in specs, `../zunera-backend`, and `../zunera-frontend` before editing an application.
+1. Confirm `017-financial-reports` in specs, `../zunera-backend`, and `../zunera-frontend` before editing an application. The established feature directory is still `specs/016-financial-reports`.
 2. Read [spec.md](spec.md), [research.md](research.md), [data-model.md](data-model.md), [API contract](contracts/financial-reports-api.yaml), and `docs/design/{design-foundation,app-shell,navigation,components}.md`.
-3. Finish and test backend contract, authorization, validation, money rules, and the paid-refund recognition repair before frontend work. No new package or report-specific financial table is planned.
+3. Treat the existing backend contract, authorization, validation, money rules, and paid-refund recognition repair as the delivered baseline. Verify any backend delta before changing dependent frontend behavior.
 
-## Backend path
+## Revision checks
+
+1. Run the focused backend Reports and card-recognition tests. Verify previous month means last completed month, current presets end on the Sao Paulo business date, custom future ranges honor an effective transaction's stored date, and invalid date/filter choices reveal no report values.
+2. Verify every evolution interval, including an activity-free date, appears in the detailed numerical breakdown and that interval, category, summary, and contribution totals reconcile to the cent. Existing required-category rules remain authoritative; if a valid uncategorized source is introduced, verify its null-identity distribution/comparison row and category contribution detail without a category ID.
+3. Exercise source changes during an overview read and within a contribution-detail read; verify each response's sections or rows, all-record total, and revision reflect one source state. Change a source after opening an overview but before opening contribution detail, including two offsetting changes with the same total and a same-amount description or displayed identity-label edit. The source revision must change, and Reports must automatically refresh overview and detail under the preserved period and filters, show a brief notice, and present matching revisions. Change a source between detail pages and verify stale rows are rejected. Check the recoverable state when repeated changes prevent a stable pair.
+   The implementation makes three paired refresh attempts. On a later-page mismatch it discards loaded rows and restarts from the first page; after continuing mismatches the user can retry under the retained scope. The source-change notice survives that retry.
+4. Use the live backend with the browser and the 10,000-record/100-category/50-account fixture. Measure at least 20 complete attempts for each representative displayed-total class: summary income/expense/result, income/expense categories including a small contributor, account direct flow and separate movements, and current/prior comparison. Exercise first-page and deeper-page contribution paths. Record per-class and overall shares reaching the requested records within five seconds in `checklists/performance.md`; separate backend and mocked-browser timings do not establish SC-005. If any sampled class misses 95% or a deeper page is unreachable, fix the measured cause and repeat the live measurement before marking SC-005 complete.
+5. Complete the uncoached 10-participant tasks in `checklists/usability.md` for SC-002 and SC-003. Keep results anonymized and use fictional financial data. If either pass rate is below 90%, address the observed obstacle and repeat an equivalent uncoached study before marking that outcome complete.
+
+## Existing backend path (completed)
 
 1. Add tests proving a credit event on a fully/partly paid source purchase reduces that purchase's recognized installment spending in its original periods/categories while card credit and account cash effects remain correct. Repair the shared recognition projection used by Dashboard, Budgets, Financial History, and Reports. Cover centavo allocation across installments and idempotent replay.
 2. Add protected Reports reads matching the contract. Resolve current, previous, selected completed historical-month, custom, and comparison periods in Sao Paulo business-date context. Reject `month` outside historical-month mode and custom dates outside custom mode. Validate filters, target metrics, cursor, owner-scoped account/category IDs, and incompatible type/category combinations. Return only owned data.
@@ -28,7 +39,7 @@ docker exec zunera-backend-app-1 vendor/bin/pint --format=agent
 
 Run contract validation against `contracts/financial-reports-api.yaml`. Docker socket access may require sandbox escalation. Use MySQL in the development stack for refund/aggregation behavior that SQLite cannot prove.
 
-## Frontend path
+## Existing frontend path (completed)
 
 1. Add Reports route, navigation, localized labels, `reportsService`, one canonical URL-backed scope/store, and stale-request cancellation with the initial summary. Reuse that scope for later drill-down, filters, and period controls. Do not calculate authoritative money in the browser.
 2. Add period selector, filter bar, summary, evolution, separate income/expense categories, account activity, comparison, and paged contribution drawer. Reuse existing formatters, chart wrapper, theme tokens, and Element Plus controls. Provide visible numeric alternatives to charts.
@@ -60,5 +71,5 @@ CI=1 npm run test:e2e -- e2e/financial-reports.spec.js
 ## Outcome evidence
 
 - Record centavo-level reconciliation and parity fixtures, including paid-source card refunds and archived historical identities.
-- Record at least 20 representative warm navigations for the 10,000-record fixture and calculate the share meeting the 5-second target.
+- Record at least 20 representative live navigations per displayed-total class on the 10,000-record fixture, including a small category and a deeper contribution page; calculate per-class and overall shares meeting the 5-second target.
 - For SC-002/SC-003, run uncoached tasks with at least 10 representative users; record period/result/largest-category identification within 60 seconds and source/refund tracing within 2 minutes. At least 90% must pass each task. Store anonymized results in a feature checklist during implementation; do not collect credentials or personal transaction contents.
