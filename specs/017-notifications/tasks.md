@@ -46,7 +46,7 @@
 
 **Independent Test**: Seed mixed owner/foreign items and verify count, pages, filters, safe opening, and no financial mutation.
 
-- [ ] T019 [P] [US1] Write list/summary/open/read/read-all API contract and validation tests from `specs/017-notifications/contracts/notifications-api.yaml` in `../zunera-backend/tests/Feature/Notifications/NotificationCenterContractTest.php`.
+- [ ] T019 [P] [US1] Write list/summary/open/read/read-all API contract and validation tests, including PT-BR/English notification text and missing/unsupported `Accept-Language` fallback, from `specs/017-notifications/contracts/notifications-api.yaml` in `../zunera-backend/tests/Feature/Notifications/NotificationCenterContractTest.php`.
 - [ ] T020 [P] [US1] Write retention, cursor stability with equal timestamps, 99/100 unread, filter, read-versus-resolved, and bounded owner-pending-fact freshness on list/summary reads in `../zunera-backend/tests/Feature/Notifications/NotificationCenterLifecycleTest.php`.
 - [ ] T021 [US1] Implement owner-scoped indexed list/count, cursor, retention, bulk read, individual read, and open behavior in `../zunera-backend/app/Services/Notifications/NotificationCenterService.php`; before list/summary responses, boundedly evaluate that owner's pending source facts when scheduler processing lags, and check current authorization for every visible item.
 - [ ] T022 [US1] Add validated list/filter/cursor query in `../zunera-backend/app/Http/Requests/Notifications/ListNotificationsRequest.php` and safe plain-text `../zunera-backend/app/Http/Resources/Notifications/NotificationResource.php`; validate item identity on read/open and match all contract response shapes.

@@ -13,6 +13,7 @@ paths:
       operationId: listNotifications
       summary: List currently accessible notifications in newest-first order
       parameters:
+        - { $ref: '#/components/parameters/AcceptLanguage' }
         - name: view
           in: query
           schema: { type: string, enum: [all, unread, requires_action], default: all }
@@ -68,6 +69,7 @@ paths:
       summary: Mark one currently accessible item read, idempotently
       parameters:
         - { $ref: '#/components/parameters/NotificationId' }
+        - { $ref: '#/components/parameters/AcceptLanguage' }
       responses:
         '200':
           description: Current item and read state
@@ -82,6 +84,7 @@ paths:
       summary: Recheck source access, mark read, and return a safe contextual destination
       parameters:
         - { $ref: '#/components/parameters/NotificationId' }
+        - { $ref: '#/components/parameters/AcceptLanguage' }
       responses:
         '200':
           description: Item with current destination, or null when source unavailable
@@ -133,6 +136,12 @@ components:
   securitySchemes:
     cookieAuth: { type: apiKey, in: cookie, name: zunera_session }
   parameters:
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      required: false
+      description: Optional language for notification title and summary. Supported values are pt-BR and en; missing or unsupported values use pt-BR, consistent with Authentication.
+      schema: { type: string, enum: [pt-BR, en], default: pt-BR }
     NotificationId:
       name: notification_id
       in: path
@@ -219,7 +228,7 @@ components:
         category: { $ref: '#/components/schemas/NotificationCategory' }
         severity: { $ref: '#/components/schemas/Severity' }
         title: { type: string, maxLength: 200, description: Plain text in requested locale; no HTML }
-        summary: { type: string, maxLength: 500, description: Plain text; event-time versus current values labelled clearly }
+        summary: { type: string, maxLength: 500, description: Plain text in requested locale; event-time versus current values labelled clearly }
         origin: { type: string, enum: [credit_cards, recurring_transactions, recurring_card_purchases, budgets, financial_goals] }
         event_at: { type: string, format: date-time }
         created_at: { type: string, format: date-time }

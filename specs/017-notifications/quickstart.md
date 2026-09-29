@@ -33,7 +33,7 @@ Docker socket may require sandbox escalation. Verify schema migration on fresh S
 
 1. Implement `notificationService.js` and service tests against the final backend contract. Add Pinia shared summary/center/preference state; clear it on logout and avoid stale responses after a session change.
 2. Add protected center route, header indicator, simple views, paged list, and preference toggles. Use typed destination map and source availability rather than raw URLs. Add exact card-occurrence and budget month/plan route entry where missing.
-3. Verify server-provided plain-text title/summary follow requested PT-BR/English locale; localize control/count/read/action labels and format dates/amounts with existing rules. Use Element Plus standard controls and semantic theme tokens. Test keyboard/focus, screen-reader labels, responsive/high zoom, and light/dark/system themes.
+3. Verify server-provided plain-text title/summary follow the shared `Accept-Language` header for PT-BR/English and fall back to PT-BR when missing or unsupported; localize control/count/read/action labels and format dates/amounts with existing rules. Use Element Plus standard controls and semantic theme tokens. Test keyboard/focus, screen-reader labels, responsive/high zoom, and light/dark/system themes.
 4. Add service/store/component tests and isolated Playwright journey. Verify mark-read, mark-all, open, source resolution elsewhere, preference suppression, unavailable destination, and unread count. Verify read does not confirm/pay anything.
 
 Frontend checks from `../zunera-frontend/`:
