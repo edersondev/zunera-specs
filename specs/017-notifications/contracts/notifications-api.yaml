@@ -1,0 +1,278 @@
+openapi: 3.1.0
+info:
+  title: Zunera Notifications API
+  version: 1.0.0
+  description: Owner-scoped in-app awareness over authoritative financial domains. Notification actions never mutate source finances.
+servers:
+  - url: /api/v1
+security:
+  - cookieAuth: []
+paths:
+  /notifications:
+    get:
+      operationId: listNotifications
+      summary: List currently accessible notifications in newest-first order
+      parameters:
+        - name: view
+          in: query
+          schema: { type: string, enum: [all, unread, requires_action], default: all }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 50, default: 25 }
+        - name: cursor
+          in: query
+          schema: { type: string, maxLength: 512 }
+          description: Opaque cursor bound to owner and view; invalid or mismatched cursor returns 422.
+      responses:
+        '200':
+          description: Stable newest-first page; hidden, suppressed, and expired events excluded
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NotificationPage' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/InvalidInput' }
+  /notifications/summary:
+    get:
+      operationId: getNotificationSummary
+      summary: Header unread and pending-action counts for currently accessible items
+      responses:
+        '200':
+          description: Current counts
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SummaryResponse' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /notifications/read-all:
+    post:
+      operationId: markAllNotificationsRead
+      summary: Mark all currently accessible unread items read without resolving actions
+      responses:
+        '200':
+          description: Count of changed items and current summary
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [changed_count, summary]
+                    properties:
+                      changed_count: { type: integer, minimum: 0 }
+                      summary: { $ref: '#/components/schemas/NotificationSummary' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /notifications/{notification_id}/read:
+    patch:
+      operationId: markNotificationRead
+      summary: Mark one currently accessible item read, idempotently
+      parameters:
+        - { $ref: '#/components/parameters/NotificationId' }
+      responses:
+        '200':
+          description: Current item and read state
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NotificationResponse' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotAccessible' }
+  /notifications/{notification_id}/open:
+    post:
+      operationId: openNotification
+      summary: Recheck source access, mark read, and return a safe contextual destination
+      parameters:
+        - { $ref: '#/components/parameters/NotificationId' }
+      responses:
+        '200':
+          description: Item with current destination, or null when source unavailable
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NotificationResponse' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotAccessible' }
+  /notification-preferences:
+    get:
+      operationId: getNotificationPreferences
+      summary: Read all four category settings; defaults enabled for new user
+      responses:
+        '200':
+          description: Preference values
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PreferencesResponse' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /notification-preferences/{category}:
+    patch:
+      operationId: updateNotificationPreference
+      summary: Set one category for future first-qualified events
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema: { $ref: '#/components/schemas/NotificationCategory' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [enabled]
+              properties:
+                enabled: { type: boolean }
+      responses:
+        '200':
+          description: Entire current preference set
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PreferencesResponse' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotAccessible' }
+        '422': { $ref: '#/components/responses/InvalidInput' }
+components:
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: zunera_session }
+  parameters:
+    NotificationId:
+      name: notification_id
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+  schemas:
+    NotificationCategory:
+      type: string
+      enum: [credit_cards, recurring_transactions, budgets, financial_goals]
+    NotificationType:
+      type: string
+      enum: [statement_approaching, statement_due_today, statement_overdue, recurrence_review, budget_approaching, budget_reached, budget_exceeded, goal_reached]
+    Severity:
+      type: string
+      enum: [information, attention, success, critical]
+    Destination:
+      description: Server-authorized typed destination, never a free-form URL. Client maps to allowlisted route.
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [kind, params]
+          properties:
+            kind: { const: credit_card_statement }
+            params:
+              type: object
+              additionalProperties: false
+              required: [statement_id]
+              properties:
+                statement_id: { type: integer, minimum: 1 }
+        - type: object
+          additionalProperties: false
+          required: [kind, params]
+          properties:
+            kind: { const: transaction }
+            params:
+              type: object
+              additionalProperties: false
+              required: [transaction_id]
+              properties:
+                transaction_id: { type: integer, minimum: 1 }
+        - type: object
+          additionalProperties: false
+          required: [kind, params]
+          properties:
+            kind: { const: recurring_card_occurrence }
+            params:
+              type: object
+              additionalProperties: false
+              required: [rule_id, occurrence_id]
+              properties:
+                rule_id: { type: integer, minimum: 1 }
+                occurrence_id: { type: integer, minimum: 1 }
+        - type: object
+          additionalProperties: false
+          required: [kind, params]
+          properties:
+            kind: { const: budget_plan }
+            params:
+              type: object
+              additionalProperties: false
+              required: [year, month, plan_id]
+              properties:
+                year: { type: integer, minimum: 1900, maximum: 2100 }
+                month: { type: integer, minimum: 1, maximum: 12 }
+                plan_id: { type: integer, minimum: 1 }
+        - type: object
+          additionalProperties: false
+          required: [kind, params]
+          properties:
+            kind: { const: goal }
+            params:
+              type: object
+              additionalProperties: false
+              required: [goal_id]
+              properties:
+                goal_id: { type: integer, minimum: 1 }
+    Notification:
+      type: object
+      additionalProperties: false
+      required: [id, type, category, severity, title, summary, origin, event_at, created_at, read_at, resolved_at, requires_action, source_available, destination]
+      properties:
+        id: { type: integer, minimum: 1 }
+        type: { $ref: '#/components/schemas/NotificationType' }
+        category: { $ref: '#/components/schemas/NotificationCategory' }
+        severity: { $ref: '#/components/schemas/Severity' }
+        title: { type: string, maxLength: 200, description: Plain text in requested locale; no HTML }
+        summary: { type: string, maxLength: 500, description: Plain text; event-time versus current values labelled clearly }
+        origin: { type: string, enum: [credit_cards, recurring_transactions, recurring_card_purchases, budgets, financial_goals] }
+        event_at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+        read_at: { type: [string, 'null'], format: date-time }
+        resolved_at: { type: [string, 'null'], format: date-time }
+        requires_action: { type: boolean, description: Current source action state, independent of read_at }
+        source_available: { type: boolean }
+        destination:
+          oneOf:
+            - { $ref: '#/components/schemas/Destination' }
+            - { type: 'null' }
+    NotificationSummary:
+      type: object
+      additionalProperties: false
+      required: [unread_count, requires_action_count]
+      properties:
+        unread_count: { type: integer, minimum: 0, description: Exact number; client renders 99+ above 99 }
+        requires_action_count: { type: integer, minimum: 0 }
+    NotificationPage:
+      type: object
+      additionalProperties: false
+      required: [data, next_cursor]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/Notification' } }
+        next_cursor: { type: [string, 'null'] }
+    NotificationResponse:
+      type: object
+      required: [data]
+      properties:
+        data: { $ref: '#/components/schemas/Notification' }
+    SummaryResponse:
+      type: object
+      required: [data]
+      properties:
+        data: { $ref: '#/components/schemas/NotificationSummary' }
+    Preferences:
+      type: object
+      additionalProperties: false
+      required: [credit_cards, recurring_transactions, budgets, financial_goals]
+      properties:
+        credit_cards: { type: boolean, default: true }
+        recurring_transactions: { type: boolean, default: true }
+        budgets: { type: boolean, default: true }
+        financial_goals: { type: boolean, default: true }
+    PreferencesResponse:
+      type: object
+      required: [data]
+      properties:
+        data: { $ref: '#/components/schemas/Preferences' }
+  responses:
+    Unauthenticated:
+      description: Login or session required
+    NotAccessible:
+      description: Unknown, expired, suppressed, or unauthorized item; no source details disclosed
+    InvalidInput:
+      description: Invalid query or body with standard Zunera validation error shape
