@@ -1,0 +1,82 @@
+# Example fixtures for notifications-api.yaml. IDs and timestamps are illustrative.
+summary:
+  request: { method: GET, path: /api/v1/notifications/summary }
+  response:
+    data: { unread_count: 2, requires_action_count: 2 }
+
+list:
+  request: { method: GET, path: '/api/v1/notifications?view=all&limit=25', headers: { Accept-Language: pt-BR } }
+  response:
+    data:
+      - id: 102
+        type: statement_due_today
+        category: credit_cards
+        severity: attention
+        title: Fatura vence hoje
+        summary: 'Cartão •••• 1234, fatura 09/2026, vence 29/09/2026; saldo atual R$ 120,00.'
+        origin: credit_cards
+        event_at: '2026-09-29T03:00:00Z'
+        created_at: '2026-09-29T03:01:00Z'
+        read_at: null
+        resolved_at: null
+        requires_action: true
+        source_available: true
+        destination: { kind: credit_card_statement, params: { statement_id: 41 } }
+      - id: 101
+        type: recurrence_review
+        category: recurring_transactions
+        severity: attention
+        title: Compra recorrente precisa de revisão
+        summary: Compra esperada; nenhuma cobrança foi registrada.
+        origin: recurring_card_purchases
+        event_at: '2026-09-29T03:00:00Z'
+        created_at: '2026-09-29T03:00:30Z'
+        read_at: '2026-09-29T12:00:00Z'
+        resolved_at: null
+        requires_action: true
+        source_available: true
+        destination: { kind: recurring_card_occurrence, params: { rule_id: 7, occurrence_id: 84 } }
+    next_cursor: null
+
+open:
+  request: { method: POST, path: /api/v1/notifications/102/open }
+  response:
+    data:
+      id: 102
+      type: statement_due_today
+      category: credit_cards
+      severity: attention
+      title: Fatura vence hoje
+      summary: 'Cartão •••• 1234, fatura 09/2026, vence 29/09/2026; saldo atual R$ 120,00.'
+      origin: credit_cards
+      event_at: '2026-09-29T03:00:00Z'
+      created_at: '2026-09-29T03:01:00Z'
+      read_at: '2026-09-29T12:05:00Z'
+      resolved_at: null
+      requires_action: true
+      source_available: true
+      destination: { kind: credit_card_statement, params: { statement_id: 41 } }
+
+mark_all_read:
+  request: { method: POST, path: /api/v1/notifications/read-all }
+  response:
+    data:
+      changed_count: 1
+      summary: { unread_count: 0, requires_action_count: 2 }
+
+preferences:
+  request: { method: GET, path: /api/v1/notification-preferences }
+  response:
+    data: { credit_cards: true, recurring_transactions: true, budgets: true, financial_goals: true }
+  disable_budgets:
+    request: { method: PATCH, path: /api/v1/notification-preferences/budgets, body: { enabled: false } }
+    response:
+      data: { credit_cards: true, recurring_transactions: true, budgets: false, financial_goals: true }
+
+destinations:
+  statement: { kind: credit_card_statement, params: { statement_id: 41 } }
+  ordinary_occurrence: { kind: transaction, params: { transaction_id: 63 } }
+  card_occurrence: { kind: recurring_card_occurrence, params: { rule_id: 7, occurrence_id: 84 } }
+  category_plan: { kind: budget_plan, params: { year: 2026, month: 9, plan_id: 12 } }
+  goal: { kind: goal, params: { goal_id: 9 } }
+  unavailable_source: null
