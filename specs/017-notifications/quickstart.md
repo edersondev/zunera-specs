@@ -11,7 +11,9 @@
 1. Add durable event identity, preference/current change history, and projection-request storage. Unique user/event identity must survive suppression and visible-content expiry. Add owner-scoped indexes for center, count, and action views.
 2. Add source adapters that read Card reconciler/state, Budget calculation, goal projection, ordinary generated transaction, and card occurrence. They must never recompute financial values. Add protected routes, Form Requests, Resources, thin controllers, and safe typed destination resolution matching the contract.
 3. Write a projection fact inside each accepted source mutation transaction after authoritative state is settled; consume it after commit. Capture any newly qualified type/stage and event time so delayed processing can use the preference then. Cover all mutations listed in the plan. Reconcile old actionable events as source conditions change.
-4. Add minute scheduler, bounded request drain, date-stage evaluation, recovery scan, retention cleanup, and non-sensitive lag/failure metrics. Add a running scheduler process to Docker/deployment; verify its heartbeat and a real due-boundary evaluation. Existing recurrence due processor remains authoritative.
+4. Add minute scheduler, bounded request drain, date-stage evaluation, recovery scan, retention cleanup, and non-sensitive lag/failure metrics. Add a running scheduler process to Docker/deployment; verify its heartbeat and date-stage evaluation with an isolated clock. Existing recurrence due processor remains authoritative.
+
+   Local Docker runs the `scheduler` service with `php artisan schedule:work` alongside `app`; `./start.sh` starts both. Production must run one persistent `php artisan schedule:work` process or invoke `php artisan schedule:run` every minute under a process manager. Verify the process is alive and that cache key `notifications.scheduler_heartbeat` advances at least once per two minutes. The heartbeat records only time, never financial text. The command is `php artisan notifications:reconcile`; `php artisan schedule:list` confirms minute registration. A registered schedule without a running process does not satisfy the timeliness gate. The local benchmark uses an injected business-midnight clock plus separate live minute-tick pickup samples; an unattended real-midnight observation remains outstanding.
 5. Test each matrix row, source transitions, late eligibility, threshold jumps, recross/read behavior, goal target reuse, disabled/re-enabled preference timing, 90-day expiry, deletion/authorization loss, and navigation. Verify no notification action changes source financial state. Use MySQL for duplicate/concurrent projection and preference races; SQLite alone is insufficient.
 6. Complete all six backend story increments and feature-wide concurrency, privacy, timeliness, routine-action exclusion, and full-suite checks. Gate every frontend task on the passing feature-wide backend gate T049 in [tasks.md](tasks.md).
 
@@ -23,11 +25,11 @@ docker exec zunera-backend-app-1 php artisan test --filter=CreditCard
 docker exec zunera-backend-app-1 php artisan test --filter=Budget
 docker exec zunera-backend-app-1 php artisan test --filter=Recurring
 docker exec zunera-backend-app-1 php artisan test --filter=FinancialGoal
-docker exec zunera-backend-app-1 php artisan test
+docker exec zunera-backend-app-1 php -d memory_limit=512M vendor/bin/phpunit --no-progress
 docker exec zunera-backend-app-1 vendor/bin/pint --format=agent
 ```
 
-Docker socket may require sandbox escalation. Verify schema migration on fresh SQLite and upgraded MySQL databases. Run the new notification reconciliation command in an isolated test environment; do not create real user alerts in the shared development database just to smoke-test.
+Docker socket may require sandbox escalation. The full-suite command above gives the existing 5,000-transaction scale test enough PHP memory; `php artisan test` inherits a 128 MB limit in this environment and exhausts it. Verify schema migration on fresh SQLite and upgraded MySQL databases. Run the new notification reconciliation command in an isolated test environment; do not create real user alerts in the shared development database just to smoke-test.
 
 ## Frontend sequence
 
@@ -43,6 +45,7 @@ npm run test:unit -- --run
 npm run lint
 npm run build
 CI=1 npm run test:e2e -- e2e/notifications.spec.js
+CI=1 npm run test:e2e -- e2e/notifications-performance.spec.js
 ```
 
 ## Acceptance walkthrough

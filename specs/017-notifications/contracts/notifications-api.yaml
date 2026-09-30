@@ -141,7 +141,7 @@ components:
       in: header
       required: false
       description: Optional language for notification title and summary. Supported values are pt-BR and en; missing or unsupported values use pt-BR, consistent with Authentication.
-      schema: { type: string, enum: [pt-BR, en], default: pt-BR }
+      schema: { type: string, default: pt-BR }
     NotificationId:
       name: notification_id
       in: path
