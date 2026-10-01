@@ -1,6 +1,6 @@
 <!-- SPECKIT START -->
 For additional context about technologies, project structure, shell commands,
-and implementation order, read [specs/017-notifications/plan.md](specs/017-notifications/plan.md).
+and implementation order, read [specs/018-edit-profile/plan.md](specs/018-edit-profile/plan.md).
 <!-- SPECKIT END -->
 
 ## Zunera Workspace Layout
