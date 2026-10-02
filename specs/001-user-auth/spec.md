@@ -39,16 +39,16 @@ address, and password so that I can securely access my personal financial worksp
 **Why this priority**: Account creation is the entry point for every new user
 and is required before any authenticated Zunera experience can be used.
 
-**Independent Test**: A visitor can provide valid account details, receive a
-clear success outcome, and enter the authenticated experience without relying
-on any other authentication journey.
+**Independent Test**: A visitor can provide valid account details, receive an
+activation email, activate the account, and then sign in.
 
 **Acceptance Scenarios**:
 
 1. **Given** a visitor uses a full name and an email address that are not associated with an
    account, **When** they submit those values with matching passwords that satisfy
    the displayed password requirements, **Then** one account is created, the
-   user sees confirmation, and they enter the authenticated experience.
+   user sees an email confirmation prompt, and they remain signed out until
+   they activate the account using the emailed link.
 2. **Given** one or more account fields are missing or invalid, **When** the
    visitor attempts to create an account, **Then** no account is created and
    each affected field receives a clear, actionable validation message.
@@ -203,8 +203,9 @@ new password while the old password and used recovery instruction no longer work
   with an actionable message for every affected field.
 - **FR-004**: The system MUST prevent more than one account from being associated
   with the same normalized email address.
-- **FR-005**: Successful account creation MUST clearly confirm the outcome and
-  place the new user into a signed-in state.
+- **FR-005**: Successful account creation MUST clearly confirm the outcome,
+  leave the new user signed out, and send an activation email. The user MUST
+  activate the account through that email before signing in.
 - **FR-006**: The system MUST allow a registered user to sign in using the
   account email address and current password.
 - **FR-007**: Failed sign-in MUST deny access and use a generic invalid-credentials
