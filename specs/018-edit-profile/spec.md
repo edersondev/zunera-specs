@@ -29,9 +29,10 @@ A signed-in user opens Change password from the account menu and changes their p
 
 **Acceptance Scenarios**:
 
-1. **Given** a correct current password and safe matching new password, **When** the user saves, **Then** their password changes, this session stays active, and other sessions end.
+1. **Given** a correct current password and safe matching new password, **When** the user saves, **Then** their password changes, this session stays active while the success message is visible, and other sessions end.
 2. **Given** an incorrect current password or invalid new password, **When** the user saves, **Then** their password remains unchanged and an actionable error appears.
 3. **Given** a successful change, **When** an outstanding password-recovery link is used, **Then** it no longer works.
+4. **Given** a successful change, **When** the user closes the password dialog, **Then** the current session ends and the login page opens.
 
 ### Edge Cases
 
@@ -50,9 +51,10 @@ A signed-in user opens Change password from the account menu and changes their p
 - **FR-003**: Signed-in user MUST be able to update only their name using the registration name rules.
 - **FR-004**: Email MUST remain unchanged even if a client submits an email field to the profile action.
 - **FR-005**: Change password dialog MUST provide a form requiring current password, safe new password, and matching confirmation. Edit profile dialog MUST contain no password fields.
-- **FR-006**: Successful password change MUST keep current session, end other sessions, invalidate recovery tokens, and send existing password-change notice.
+- **FR-006**: Successful password change MUST keep current session until the dialog closes, end other sessions, invalidate recovery tokens, and send existing password-change notice.
 - **FR-007**: Failed current-password attempts MUST be limited to five per 15 minutes across the password action.
 - **FR-008**: Name and password dialogs MUST show independent success and error feedback in Portuguese and English.
+- **FR-009**: Closing the password dialog after a successful change MUST sign out the current device and redirect to login. Closing it before success MUST keep the current session.
 
 ### Security and Quality Requirements
 
@@ -68,7 +70,7 @@ A signed-in user opens Change password from the account menu and changes their p
 ### Key Entities
 
 - **User**: Owns name, immutable-in-this-feature email, and password hash.
-- **Session**: Current session remains after password change; other sessions end.
+- **Session**: Current session remains while the password-success dialog is open, then ends when the dialog closes; other sessions end on password change.
 - **Recovery token**: Outstanding tokens become invalid after password change.
 
 ## Success Criteria
@@ -77,7 +79,7 @@ A signed-in user opens Change password from the account menu and changes their p
 
 - **SC-001**: In acceptance flows, every valid name change appears in header immediately and persists after reload.
 - **SC-002**: In acceptance flows, every invalid or unauthorized request leaves account data unchanged.
-- **SC-003**: In acceptance flows, a successful password change keeps only the initiating session active and prevents reuse of old password or recovery tokens.
+- **SC-003**: In acceptance flows, a successful password change keeps only the initiating session active until the dialog closes, then requires login; old password and recovery tokens cannot be reused.
 - **SC-004**: Both forms remain usable with keyboard, at 320px width and 200% zoom, in Portuguese and English.
 
 ## Assumptions
