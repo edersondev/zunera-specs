@@ -39,7 +39,7 @@ Add a protected profile-name mutation and a separate signed-in password-change m
 ## Design
 
 - Backend: `PATCH /api/v1/auth/profile` accepts name alone and rejects other keys. `PATCH /api/v1/auth/password` validates current password and confirmed safe new password, limits failed checks to five per 15 minutes, rotates hash, invalidates reset tokens, retains current session, deletes other sessions, and queues existing notice. No migration.
-- Frontend: `AppHeader` emits Edit profile or Change password; `AppShell` mounts both dialogs. Profile dialog preloads current name/email and disables email. Password dialog handles only the password save. `authService` uses CSRF-aware API requests; `sessionStore` updates shared user after name save. Closing clears errors and passwords and restores focus.
+- Frontend: `AppHeader` emits Edit profile or Change password; `AppShell` mounts both dialogs. Profile dialog preloads current name/email and disables email. Password dialog handles only the password save. `authService` uses CSRF-aware API requests; `sessionStore` updates shared user after name save. Closing clears errors and passwords; after a successful password change, it signs out and opens login, otherwise it restores focus.
 - Test name changes, unsupported email, unauthenticated/expired access, validation, current-password failures and limits, sessions, tokens, mail, localization, keyboard, and 320px/200% layout. Follow [quickstart.md](quickstart.md).
 
 ## Project Structure
