@@ -55,3 +55,8 @@
 - OWASP Session Management Cheat Sheet: https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html
 - OWASP Forgot Password Cheat Sheet: https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html
 - Brazil ANPD, LGPD guidance: https://www.gov.br/anpd/pt-br
+
+### 2026 password-strength update
+
+- **Decision**: All new-password flows now require 8–64 characters and a zxcvbn score of at least 3 in the browser and backend. Existing common and compromised password checks remain. The earlier 15-character decision above records the original design.
+- **Tradeoff**: An eight-character password may still fail the strength threshold; the two scoring implementations can occasionally disagree, and the backend is authoritative.

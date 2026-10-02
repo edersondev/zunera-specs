@@ -45,7 +45,7 @@ paths:
               required: [current_password, password, password_confirmation]
               properties:
                 current_password: { type: string }
-                password: { type: string, minLength: 15, maxLength: 64 }
+                password: { type: string, minLength: 8, maxLength: 64 }
                 password_confirmation: { type: string }
       responses:
         '204': { description: Password changed; current session remains active }
