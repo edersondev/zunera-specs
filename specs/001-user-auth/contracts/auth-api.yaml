@@ -9,6 +9,7 @@ paths:
   /auth/register:
     post:
       summary: Register an account and start a session
+      description: Passwords scoring below 3 with the submitted name and email as user inputs return 422 with errors.password.
       operationId: register
       security: []
       parameters:
@@ -39,6 +40,7 @@ paths:
   /auth/password/reset:
     post:
       summary: Reset a password with a recovery instruction
+      description: Passwords scoring below 3 return 422 with errors.password.
       operationId: resetPassword
       security: []
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ResetRequest' } } } }
@@ -60,10 +62,10 @@ components:
     cookieAuth: { type: apiKey, in: cookie, name: zunera_session }
     webhookSignature: { type: apiKey, in: header, name: X-Zunera-Signature, description: v1= followed by lowercase hexadecimal HMAC-SHA256 of ASCII timestamp + literal period + exact raw body bytes }
   schemas:
-    RegisterRequest: { type: object, required: [name, email, password, password_confirmation], properties: { name: { type: string, minLength: 2, maxLength: 255, description: Trimmed full name }, email: { type: string, format: email }, password: { type: string, minLength: 15, maxLength: 64 }, password_confirmation: { type: string } } }
+    RegisterRequest: { type: object, required: [name, email, password, password_confirmation], properties: { name: { type: string, minLength: 2, maxLength: 255, description: Trimmed full name }, email: { type: string, format: email }, password: { type: string, minLength: 8, maxLength: 64, description: Requires zxcvbn score 3 or 4 using submitted name and email as user inputs; common and compromised passwords are rejected }, password_confirmation: { type: string } } }
     LoginRequest: { type: object, required: [email, password], properties: { email: { type: string, format: email }, password: { type: string } } }
     RecoveryRequest: { type: object, required: [email], properties: { email: { type: string, format: email } } }
-    ResetRequest: { type: object, required: [email, token, password, password_confirmation], properties: { email: { type: string, format: email }, token: { type: string }, password: { type: string, minLength: 15, maxLength: 64 }, password_confirmation: { type: string } } }
+    ResetRequest: { type: object, required: [email, token, password, password_confirmation], properties: { email: { type: string, format: email }, token: { type: string }, password: { type: string, minLength: 8, maxLength: 64, description: Requires zxcvbn score 3 or 4; common and compromised passwords are rejected }, password_confirmation: { type: string } } }
     AuthenticationMailDeliveryEventRequest: { type: object, additionalProperties: false, required: [event_id, message_id, status, occurred_at], properties: { event_id: { type: string, minLength: 16, maxLength: 255 }, message_id: { type: string, format: uuid, description: Lowercase RFC 4122 UUID copied unchanged from the outbound X-Zunera-Message-ID header }, status: { type: string, enum: [delivered, bounced, deferred, rejected] }, occurred_at: { type: string, format: date-time } } }
     User: { type: object, required: [id, name, email], additionalProperties: false, properties: { id: { type: integer }, name: { type: [string, 'null'], description: Required response field; null only for a pre-existing legacy account }, email: { type: string, format: email } } }
     Session: { type: object, required: [idle_expires_at, absolute_expires_at], properties: { idle_expires_at: { type: string, format: date-time }, absolute_expires_at: { type: string, format: date-time } } }

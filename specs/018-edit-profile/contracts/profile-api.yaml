@@ -45,12 +45,12 @@ paths:
               required: [current_password, password, password_confirmation]
               properties:
                 current_password: { type: string }
-                password: { type: string, minLength: 15, maxLength: 64 }
+                password: { type: string, minLength: 8, maxLength: 64, description: Requires zxcvbn score 3 or 4; common and compromised passwords are rejected }
                 password_confirmation: { type: string }
       responses:
         '204': { description: Password changed; current session remains active }
         '401': { description: Not authenticated or session expired }
-        '422': { description: Invalid current or new password }
+        '422': { description: Invalid current or new password, including new password score below 3 in errors.password }
         '429': { description: Too many failed current-password attempts in 15 minutes }
 components:
   securitySchemes:

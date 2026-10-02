@@ -28,7 +28,7 @@
 
 ## Manual acceptance smoke test
 
-- Register with a 15+ character password; verify immediate protected access.
+- Register with an 8+ character password scoring at least 3; verify immediate protected access.
 - Sign out, sign in with an invalid password, and verify generic feedback, retained email, and cleared password.
 - Request recovery for both known and unknown addresses; verify identical neutral confirmation.
 - Use the newest reset link, then verify old sessions end and the security email is sent.

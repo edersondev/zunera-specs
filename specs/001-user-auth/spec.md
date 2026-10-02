@@ -190,12 +190,14 @@ new password while the old password and used recovery instruction no longer work
   refreshes, and display authenticated full names with email fallback only for
   pre-existing nameless accounts.
 - **FR-002**: The system MUST show password requirements before submission and
-  require a password of at least 15 characters, support a maximum permitted
+  require a password of at least 8 characters, support a maximum permitted
   length of at least 64 characters, allow spaces and printable characters, avoid
   mandatory character-category combinations, and reject known common or
   compromised choices with clear guidance to choose another password. If the
   compromised-password check is unavailable, the system MUST reject the action
   temporarily, invite a retry, and MUST NOT claim that the password is compromised.
+  New-password forms MUST show a localized strength indicator and require score 3
+  or 4; the backend MUST independently enforce that score.
 - **FR-003**: The system MUST reject account creation when required values are
   missing, malformed, mismatched, or do not satisfy the displayed requirements,
   with an actionable message for every affected field.
@@ -352,9 +354,9 @@ new password while the old password and used recovery instruction no longer work
 - An email address identifies one account, and matching ignores letter casing and
   accidental surrounding spaces.
 - Because the password is the only authentication factor in scope, the default
-  password policy uses a minimum of 15 characters without arbitrary composition
-  rules, permits long passphrases, and rejects known common or compromised
-  choices.
+  password policy uses a minimum of 8 characters without arbitrary composition
+  rules, permits long passphrases, and rejects passwords with a strength score
+  below 3 as well as known common or compromised choices.
 - Password recovery depends on the user retaining access to the account email.
   Manual support-led identity recovery is out of scope.
 - Recovery instructions expire after 60 minutes, are single-use, and only the
