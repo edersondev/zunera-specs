@@ -1,5 +1,10 @@
 # Implementation Plan: User Authentication
 
+> Historical implementation plan for feature 001. Feature 019 supersedes the
+> registration response and first-access flow; use the current
+> [authentication contract](contracts/auth-api.yaml) and
+> [account activation plan](../019-account-activation/plan.md) for those details.
+
 **Branch**: `001-user-auth` | **Date**: 2026-08-30 | **Spec**: [spec.md](spec.md)
 
 **Branch Coordination**: The same branch exists in `zunera-specs`,

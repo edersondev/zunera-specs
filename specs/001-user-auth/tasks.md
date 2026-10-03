@@ -1,5 +1,9 @@
 # Tasks: User Authentication
 
+> Historical task record for feature 001. Feature 019 replaces the original
+> registration-and-session outcome with email activation; see
+> [account activation tasks](../019-account-activation/tasks.md).
+
 **Input**: Design artifacts from `/specs/001-user-auth/`
 **Tests**: Required by SQR-005 and the constitution.
 **Delivery gate**: Complete T001–T046 before changing any frontend file.

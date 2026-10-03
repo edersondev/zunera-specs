@@ -1,21 +1,40 @@
 openapi: 3.1.0
 info:
   title: Zunera Authentication API
-  version: 1.0.0
+  version: 1.1.0
   license: { name: Proprietary, identifier: LicenseRef-Proprietary }
 servers:
   - url: /api/v1
 paths:
   /auth/register:
     post:
-      summary: Register an account and start a session
+      summary: Register an inactive account and send an activation link
       description: Passwords scoring below 3 with the submitted name and email as user inputs return 422 with errors.password.
       operationId: register
       security: []
       parameters:
         - { $ref: '#/components/parameters/AcceptLanguage' }
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/RegisterRequest' } } } }
-      responses: { '201': { description: Authenticated session, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResponse' } } } }, '422': { $ref: '#/components/responses/ValidationError' }, '503': { $ref: '#/components/responses/PasswordSafetyUnavailable' } }
+      responses: { '201': { description: Account created without a session; activation email queued, content: { application/json: { schema: { $ref: '#/components/schemas/RegistrationPending' } } } }, '422': { $ref: '#/components/responses/ValidationError' }, '503': { $ref: '#/components/responses/PasswordSafetyUnavailable' } }
+  /auth/activation/confirm:
+    post:
+      summary: Activate an inactive account with its latest unexpired emailed token
+      operationId: confirmAccountActivation
+      security: []
+      parameters:
+        - { $ref: '#/components/parameters/AcceptLanguage' }
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ActivationConfirmRequest' } } } }
+      responses: { '200': { description: Account activated without starting a session, content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } } }, '422': { $ref: '#/components/responses/ActivationConfirmError' } }
+  /auth/activation/resend:
+    post:
+      summary: Request a new activation link with neutral feedback
+      description: All valid email requests receive the same response. Only inactive accounts receive mail, with at most three sends per address and 20 per IP per hour. A new link replaces the prior link.
+      operationId: resendAccountActivation
+      security: []
+      parameters:
+        - { $ref: '#/components/parameters/AcceptLanguage' }
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ActivationResendRequest' } } } }
+      responses: { '202': { description: Neutral confirmation regardless of account existence, state, or send limit, content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } } }, '422': { $ref: '#/components/responses/ValidationError' } }
   /auth/login:
     post:
       summary: Sign in with email and password
@@ -24,12 +43,12 @@ paths:
       parameters:
         - { $ref: '#/components/parameters/AcceptLanguage' }
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/LoginRequest' } } } }
-      responses: { '200': { description: Authenticated session, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResponse' } } } }, '401': { $ref: '#/components/responses/GenericError' }, '429': { $ref: '#/components/responses/ThrottleError' } }
+      responses: { '200': { description: Authenticated session for an active account, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResponse' } } } }, '401': { $ref: '#/components/responses/GenericError' }, '403': { $ref: '#/components/responses/InactiveAccountError' }, '429': { $ref: '#/components/responses/ThrottleError' } }
   /auth/session:
-    get: { summary: Read the current authenticated session, operationId: session, security: [{ cookieAuth: [] }], parameters: [{ $ref: '#/components/parameters/AcceptLanguage' }], responses: { '200': { description: Current session, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResponse' } } } }, '401': { $ref: '#/components/responses/GenericError' } } }
-    delete: { summary: End the current authenticated session, operationId: logout, security: [{ cookieAuth: [] }], responses: { '204': { description: Session ended }, '401': { $ref: '#/components/responses/GenericError' } } }
+    get: { summary: Read the current authenticated session, operationId: session, security: [{ cookieAuth: [] }], parameters: [{ $ref: '#/components/parameters/AcceptLanguage' }], responses: { '200': { description: Current session, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResponse' } } } }, '401': { $ref: '#/components/responses/GenericError' }, '403': { $ref: '#/components/responses/InactiveAccountError' } } }
+    delete: { summary: End the current authenticated session, operationId: logout, security: [{ cookieAuth: [] }], responses: { '204': { description: Session ended }, '401': { $ref: '#/components/responses/GenericError' }, '403': { $ref: '#/components/responses/InactiveAccountError' } } }
   /auth/session/continue:
-    post: { summary: Confirm presence and refresh the idle deadline, operationId: continueSession, security: [{ cookieAuth: [] }], responses: { '200': { description: Idle deadline refreshed, content: { application/json: { schema: { $ref: '#/components/schemas/Session' } } } }, '401': { $ref: '#/components/responses/GenericError' } } }
+    post: { summary: Confirm presence and refresh the idle deadline, operationId: continueSession, security: [{ cookieAuth: [] }], responses: { '200': { description: Idle deadline refreshed, content: { application/json: { schema: { $ref: '#/components/schemas/Session' } } } }, '401': { $ref: '#/components/responses/GenericError' }, '403': { $ref: '#/components/responses/InactiveAccountError' } } }
   /auth/password/recovery:
     post:
       summary: Request neutral password-recovery handling
@@ -63,6 +82,8 @@ components:
     webhookSignature: { type: apiKey, in: header, name: X-Zunera-Signature, description: v1= followed by lowercase hexadecimal HMAC-SHA256 of ASCII timestamp + literal period + exact raw body bytes }
   schemas:
     RegisterRequest: { type: object, required: [name, email, password, password_confirmation], properties: { name: { type: string, minLength: 2, maxLength: 255, description: Trimmed full name }, email: { type: string, format: email }, password: { type: string, minLength: 8, maxLength: 64, description: Requires zxcvbn score 3 or 4 using submitted name and email as user inputs; common and compromised passwords are rejected }, password_confirmation: { type: string } } }
+    ActivationConfirmRequest: { type: object, required: [email, token], properties: { email: { type: string, format: email, maxLength: 255 }, token: { type: string, minLength: 64, maxLength: 64, pattern: '^[a-f0-9]{64}$' } } }
+    ActivationResendRequest: { type: object, required: [email], properties: { email: { type: string, format: email, maxLength: 255 } } }
     LoginRequest: { type: object, required: [email, password], properties: { email: { type: string, format: email }, password: { type: string } } }
     RecoveryRequest: { type: object, required: [email], properties: { email: { type: string, format: email } } }
     ResetRequest: { type: object, required: [email, token, password, password_confirmation], properties: { email: { type: string, format: email }, token: { type: string }, password: { type: string, minLength: 8, maxLength: 64, description: Requires zxcvbn score 3 or 4; common and compromised passwords are rejected }, password_confirmation: { type: string } } }
@@ -70,13 +91,18 @@ components:
     User: { type: object, required: [id, name, email], additionalProperties: false, properties: { id: { type: integer }, name: { type: [string, 'null'], description: Required response field; null only for a pre-existing legacy account }, email: { type: string, format: email } } }
     Session: { type: object, required: [idle_expires_at, absolute_expires_at], properties: { idle_expires_at: { type: string, format: date-time }, absolute_expires_at: { type: string, format: date-time } } }
     AuthResponse: { type: object, required: [data], properties: { data: { type: object, required: [user, session], properties: { user: { $ref: '#/components/schemas/User' }, session: { $ref: '#/components/schemas/Session' } } } } }
+    RegistrationPending: { type: object, required: [message, activation_required], additionalProperties: false, properties: { message: { type: string }, activation_required: { type: boolean, const: true } } }
     Message: { type: object, required: [message], properties: { message: { type: string } } }
     Error: { type: object, required: [message], properties: { message: { type: string }, code: { type: string }, errors: { type: object, additionalProperties: { type: array, items: { type: string } } } } }
+    InactiveAccountError: { allOf: [{ $ref: '#/components/schemas/Error' }, { type: object, required: [code], properties: { code: { type: string, const: account_inactive } } }] }
+    ActivationLinkError: { allOf: [{ $ref: '#/components/schemas/Error' }, { type: object, required: [code], properties: { code: { type: string, enum: [activation_link_expired, activation_link_invalid] } } }] }
     RecoveryLinkError: { allOf: [{ $ref: '#/components/schemas/Error' }, { type: object, required: [code], properties: { code: { type: string, enum: [recovery_link_expired, recovery_link_invalid] } } }] }
     PasswordSafetyUnavailableError: { allOf: [{ $ref: '#/components/schemas/Error' }, { type: object, required: [code], properties: { code: { type: string, const: password_safety_unavailable } } }] }
   responses:
     GenericError: { description: Generic operational error, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    InactiveAccountError: { description: Correct credentials or an authenticated request for an inactive account are denied without a session, content: { application/json: { schema: { $ref: '#/components/schemas/InactiveAccountError' } } } }
     ValidationError: { description: Validation error, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    ActivationConfirmError: { description: 'Invalid request fields or an expired, replaced, used, or unknown activation link', content: { application/json: { schema: { anyOf: [{ $ref: '#/components/schemas/Error' }, { $ref: '#/components/schemas/ActivationLinkError' }] } } } }
     ThrottleError: { description: Delayed request, headers: { Retry-After: { schema: { type: integer } } }, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
     ResetRequestError: { description: Invalid reset fields or an expired/privacy-safe invalid recovery instruction, content: { application/json: { schema: { anyOf: [{ $ref: '#/components/schemas/Error' }, { $ref: '#/components/schemas/RecoveryLinkError' }] } } } }
     PasswordSafetyUnavailable: { description: Password safety validation is temporarily unavailable; the password was not accepted or described as compromised, content: { application/json: { schema: { $ref: '#/components/schemas/PasswordSafetyUnavailableError' } } } }
