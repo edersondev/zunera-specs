@@ -80,17 +80,20 @@ session can no longer access that content.
 
 **Acceptance Scenarios**:
 
-1. **Given** a registered user is signed out, **When** they submit their correct
+1. **Given** an activated user is signed out, **When** they submit their correct
    email and password, **Then** they enter the authenticated experience and see
    a clear indication that sign-in succeeded.
-2. **Given** a user provides an unknown email or incorrect password, **When**
+2. **Given** an inactive user submits the correct email and password, **When**
+   they attempt to sign in, **Then** access is denied with activation guidance
+   and no session is created.
+3. **Given** a user provides an unknown email or incorrect password, **When**
    they attempt to sign in, **Then** access is denied and a single clear message
    explains that the credentials are invalid without identifying which value was
    incorrect.
-3. **Given** required sign-in information is missing or malformed, **When** the
+4. **Given** required sign-in information is missing or malformed, **When** the
    user submits the form, **Then** access is denied and nearby validation
    identifies each field that needs correction.
-4. **Given** a user is signed in, **When** they sign out, **Then** the current
+5. **Given** a user is signed in, **When** they sign out, **Then** the current
    session ends, the user sees a signed-out outcome, and protected account
    content is no longer accessible through that session.
 5. **Given** a user's signed-in state is no longer valid, **When** they attempt a
@@ -206,8 +209,9 @@ new password while the old password and used recovery instruction no longer work
 - **FR-005**: Successful account creation MUST clearly confirm the outcome,
   leave the new user signed out, and send an activation email. The user MUST
   activate the account through that email before signing in.
-- **FR-006**: The system MUST allow a registered user to sign in using the
-  account email address and current password.
+- **FR-006**: The system MUST allow an activated user to sign in using the
+  account email address and current password. Correct credentials for an
+  inactive account MUST be denied without creating a session.
 - **FR-007**: Failed sign-in MUST deny access and use a generic invalid-credentials
   message that does not reveal whether the email or password was incorrect.
 - **FR-008**: After a failed authentication action, the system MAY preserve the
@@ -305,10 +309,11 @@ new password while the old password and used recovery instruction no longer work
 
 ### Measurable Outcomes
 
-- **SC-001**: At least 90% of first-time users in usability testing create an
-  account successfully on their first attempt and complete the journey within
-  two minutes.
-- **SC-002**: At least 95% of registered users in usability testing sign in with
+- **SC-001**: At least 90% of first-time users in usability testing submit a
+  valid registration on their first attempt and reach the check-email result
+  within two minutes. Activation and sign-in are measured separately in feature
+  019.
+- **SC-002**: At least 95% of activated users in usability testing sign in with
   valid credentials within 30 seconds without assistance.
 - **SC-003**: At least 90% of users who open a valid recovery instruction complete
   the password reset within two minutes without assistance.
@@ -350,8 +355,9 @@ new password while the old password and used recovery instruction no longer work
 - Email and password are the only sign-in method in this feature; social sign-in,
   single sign-on, multi-factor authentication, and passwordless access are out of
   scope.
-- Email verification is not required before first access; successful account
-  creation signs the user in immediately.
+- New accounts require activation through a single-use emailed link before first
+  sign-in. Registration leaves the user signed out; accounts created before the
+  activation rollout retain access after the migration backfills their status.
 - An email address identifies one account, and matching ignores letter casing and
   accidental surrounding spaces.
 - Because the password is the only authentication factor in scope, the default

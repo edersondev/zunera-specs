@@ -1,9 +1,14 @@
 # Quickstart: Authentication Feature
 
+Current registration and activation behavior is defined by
+[feature 019](../019-account-activation/spec.md); original branch setup below
+records the feature 001 implementation sequence.
+
 ## Full name and locale update
 
 - Registration requires a trimmed `name` between 2 and 255 characters.
-- Register, login, and session responses include `data.user.id`, `name`, and `email`.
+- Login and session responses include `data.user.id`, `name`, and `email`.
+  Registration returns `{message, activation_required: true}` without a session.
   Only pre-existing accounts can return `name: null`; clients fall back to email.
 - Send `Accept-Language: pt-BR` or `Accept-Language: en` for localized API feedback.
   Missing and unsupported values safely use PT-BR.
@@ -28,7 +33,9 @@
 
 ## Manual acceptance smoke test
 
-- Register with an 8+ character password scoring at least 3; verify immediate protected access.
+- Register with an 8+ character password scoring at least 3; verify the account
+  remains signed out, activate it through the emailed link, then sign in and
+  verify protected access.
 - Sign out, sign in with an invalid password, and verify generic feedback, retained email, and cleared password.
 - Request recovery for both known and unknown addresses; verify identical neutral confirmation.
 - Use the newest reset link, then verify old sessions end and the security email is sent.

@@ -8,7 +8,9 @@
   those accounts so clients can use the documented email fallback.
 - `email`: unique normalized (trimmed, lowercase) login identifier.
 - `password`: framework-hashed secret; never serialized or logged.
-- `email_verified_at`: remains nullable; this feature does not add email verification.
+- `email_verified_at`: activation state. New accounts begin with `null`; the
+  confirmation flow sets the timestamp. The activation migration backfills this
+  field for existing accounts so their access continues.
 - timestamps and remember token: existing framework fields.
 
 ## Authenticated session
@@ -23,6 +25,15 @@
 - Existing broker table keyed by normalized email.
 - Token is single-use, valid for 60 minutes, and replaced when a newer request is created.
 - Raw token appears only in the emailed link and reset form route state; it is never persisted client-side or returned by API responses.
+
+## Account activation token
+
+- One row per inactive user, keyed by `user_id`, with a SHA-256 `token_hash` and
+  `created_at`. The raw token is carried by the queued notification to build the
+  activation email link; it is not stored in this table or returned by the API.
+- A new send replaces the prior token. Confirmation consumes the latest matching
+  token once, within 24 hours of issuance, and sets `email_verified_at`.
+- A token row is deleted when its user is deleted.
 
 ## Rate-limit records
 
@@ -42,8 +53,11 @@
 
 ## Relationships and lifecycle
 
-- A user has many authenticated sessions and at most one active broker recovery token.
-- Registration creates a named user and authenticates one session transactionally.
+- A user has many authenticated sessions, at most one active broker recovery
+  token, and at most one pending account activation token.
+- Registration creates an inactive named user without a session and queues an
+  activation email. A valid activation confirms the account without signing in;
+  the user then signs in separately.
 - Sign-out invalidates only the current session.
 - Successful password reset changes the hash, consumes the token, deletes all sessions for the user, and queues a security notification after commit.
 - Recovery notification attempts correlate to zero or more idempotent delivery
