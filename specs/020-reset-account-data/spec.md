@@ -3,14 +3,14 @@
 **Feature Branch**: `020-reset-account-data`
 **Backend Branch**: `020-reset-account-data` (`../zunera-backend`)
 **Frontend Branch**: `020-reset-account-data` (`../zunera-frontend`)
-**Status**: Implemented
+**Status**: Implemented; archive restoration added by [021-restore-account-data](../021-restore-account-data/spec.md)
 **Input**: Let a signed-in user start fresh by archiving or permanently deleting all financial data.
 
 ## User Scenarios
 
 ### Archive all
 
-A user confirms **Archive all** without entering a password. Their active financial workspace becomes empty. They can browse each saved archive and its records, but cannot restore or edit them from the archive view.
+A user confirms **Archive all** without entering a password. Their active financial workspace becomes empty. They can browse each saved archive and its records. Archive records remain read-only in the detail view; the archive item on this page offers restoration.
 
 ### Delete all
 
@@ -30,7 +30,7 @@ A user confirms **Delete all** only after entering their current password. The d
 - **FR-003**: Delete removes live financial records and every prior snapshot, while retaining user credentials, profile, session, and notification preferences.
 - **FR-004**: Delete requires server-validated current password. Five failed password checks within 15 minutes temporarily block further checks.
 - **FR-005**: Both actions clear derived financial notifications and mutation replay records; existing global category defaults remain available for a fresh workspace.
-- **FR-006**: Archive list and paginated records are available only to their owner. Archive records have no mutation endpoint.
+- **FR-006**: Archive list and paginated records are available only to their owner. Archive records cannot be edited individually; whole-archive restoration is defined by feature 021.
 - **FR-007**: The UI provides clear confirmation and error feedback, clears password fields on close, and reloads workspace state after success.
 
 ## Success Criteria
@@ -43,5 +43,5 @@ A user confirms **Delete all** only after entering their current password. The d
 ## Assumptions
 
 - “All data” means financial records. Authentication data, profile, and notification preferences remain.
-- Multiple archives may exist; each is view-only. Restoring archived data is outside this feature.
+- Multiple archives may exist; their detail views are read-only. Feature 021 adds whole-archive restoration from the archive list.
 - The warning promises no in-app restore; it does not change existing infrastructure backup retention.
