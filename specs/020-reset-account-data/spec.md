@@ -37,6 +37,7 @@ A user confirms **Delete all** only after entering their current password. The d
 
 - Archive and delete integration tests cover linked accounts, transactions, transfers, budgets, cards, recurring activity, and goals without violating foreign keys or affecting another user.
 - A wrong password changes no records; valid deletion removes current data and archives, then the same session remains usable.
+- Failed password attempts accumulate against the five-attempt limit with the default database-backed cache.
 - Browser flow covers archive viewing, permanent-deletion warning, wrong-password feedback, and success at 320 px width.
 
 ## Assumptions
