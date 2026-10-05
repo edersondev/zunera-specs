@@ -2,6 +2,8 @@
 
 **Branch**: `020-reset-account-data` | **Spec**: [spec.md](spec.md)
 
+**Extension**: [021-restore-account-data](../021-restore-account-data/plan.md) adds whole-archive restore while keeping individual archive records read-only.
+
 ## Backend first
 
 1. Add `financial_data_archives` and `financial_data_archive_records` with owner-scoped, immutable JSON snapshots and indexed record type/source IDs. The migration is additive and reversible.
