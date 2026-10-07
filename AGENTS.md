@@ -1,6 +1,6 @@
 <!-- SPECKIT START -->
 For additional context about technologies, project structure, shell commands,
-and implementation order, read [specs/018-edit-profile/plan.md](specs/018-edit-profile/plan.md).
+and implementation order, read [specs/023-visual-color-selector/plan.md](specs/023-visual-color-selector/plan.md).
 <!-- SPECKIT END -->
 
 ## Zunera Workspace Layout

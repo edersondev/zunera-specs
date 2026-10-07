@@ -1,0 +1,3 @@
+# Color API Contract
+
+Existing authenticated create/update endpoints for financial accounts, categories, and credit cards keep the `color` request and response field as a semantic string. Accepted non-null values are `blue`, `violet`, `pink`, `red`, `orange`, `yellow`, `green`, `cyan`, `brown`, `gray`, and the legacy values `teal`, `indigo`, `purple`, `rose`, `amber`, `lime`, `emerald`, `sky`, `slate`. Unsupported values return existing validation errors. Null or omitted color defaults to `cyan` for new accounts/categories and `violet` for new cards. Existing authorization, response shapes, and stored values remain unchanged. The frontend offers only the ten current values and maps legacy strings at presentation time.

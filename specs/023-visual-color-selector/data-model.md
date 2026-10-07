@@ -1,0 +1,3 @@
+# Data Model: Visual Color Selector
+
+The existing `color` string field on financial accounts, categories, and credit cards remains unchanged. The ten current selection values are `blue`, `violet`, `pink`, `red`, `orange`, `yellow`, `green`, `cyan`, `brown`, and `gray`. The API also accepts the nine previously supported values `teal`, `indigo`, `purple`, `rose`, `amber`, `lime`, `emerald`, `sky`, and `slate` for compatibility. All 19 strings fit the existing 24/32-character columns. New records with null or absent color default to `cyan` for accounts/categories or `violet` for cards. Existing records and category color snapshots retain their stored strings; no migration is needed.

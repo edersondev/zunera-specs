@@ -139,6 +139,20 @@ expense comparisons, use financial positive and negative tokens. Charts MUST
 provide labels, legends, values, patterns, or other non-color cues when meaning
 would otherwise be ambiguous.
 
+### User-Selectable Color Palette
+
+Financial accounts, categories, and credit cards share one ten-color appearance
+palette: `--palette-blue` (`#3B82F6`), `--palette-violet` (`#A78BFA`),
+`--palette-pink` (`#F472B6`), `--palette-red` (`#DC2626`),
+`--palette-orange` (`#F97316`), `--palette-yellow` (`#EAB308`),
+`--palette-green` (`#22C55E`), `--palette-cyan` (`#06B6D4`),
+`--palette-brown` (`#A47148`), and `--palette-gray` (`#64748B`).
+The five-column/two-row picker uses localized names and a selected indicator.
+Previously saved `indigo`, `purple`, `amber`, `lime`, `emerald`, `sky`,
+`teal`, `rose`, and `slate` present as current equivalents without changing
+stored values. Chart tokens remain independent. Selection and status still
+require labels or other non-color cues.
+
 ## Typography, Spacing, Shape, and Elevation
 
 Use one system sans-serif stack until brand typography is approved. Maintain one
