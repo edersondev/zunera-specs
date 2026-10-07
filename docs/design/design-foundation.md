@@ -141,16 +141,17 @@ would otherwise be ambiguous.
 
 ### User-Selectable Color Palette
 
-Financial accounts, categories, and credit cards share one 16-color appearance
-palette. The existing six chart hues map unchanged to `--palette-teal`,
-`--palette-blue`, `--palette-violet`, `--palette-amber`, `--palette-rose`, and
-`--palette-cyan`. Additional tokens are `--palette-indigo` (`#6366F1`),
-`--palette-purple` (`#A855F7`), `--palette-pink` (`#EC4899`),
-`--palette-red` (`#EF4444`), `--palette-orange` (`#F97316`),
-`--palette-lime` (`#84CC16`), `--palette-green` (`#22C55E`),
-`--palette-emerald` (`#10B981`), `--palette-sky` (`#0EA5E9`), and
-`--palette-slate` (`#94A3B8`). These values distinguish user-chosen records;
-selection and status still require labels or other non-color cues.
+Financial accounts, categories, and credit cards share one ten-color appearance
+palette: `--palette-blue` (`#3B82F6`), `--palette-violet` (`#A78BFA`),
+`--palette-pink` (`#F472B6`), `--palette-red` (`#DC2626`),
+`--palette-orange` (`#F97316`), `--palette-yellow` (`#EAB308`),
+`--palette-green` (`#22C55E`), `--palette-cyan` (`#06B6D4`),
+`--palette-brown` (`#A47148`), and `--palette-gray` (`#64748B`).
+The five-column/two-row picker uses localized names and a selected indicator.
+Previously saved `indigo`, `purple`, `amber`, `lime`, `emerald`, `sky`,
+`teal`, `rose`, and `slate` present as current equivalents without changing
+stored values. Chart tokens remain independent. Selection and status still
+require labels or other non-color cues.
 
 ## Typography, Spacing, Shape, and Elevation
 

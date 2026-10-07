@@ -35,40 +35,42 @@ A keyboard or screen-reader user can identify and choose any color, including th
 
 Previously saved colors remain recognizable after the new palette is released.
 
-**Independent Test**: Load records with each of the six existing values and verify their displayed names and hues remain unchanged.
+**Independent Test**: Load records with every previously accepted value and verify that its mapped swatch and localized name appear without changing its stored string.
 
 **Acceptance Scenarios**:
 
-1. **Given** a record with an existing color value, **when** it is viewed or edited, **then** its existing color and localized name remain correct.
-2. **Given** any of the ten new colors, **when** the record is saved and reloaded, **then** the same value and visual color return.
+1. **Given** a record with a deprecated color value, **when** it is viewed or edited, **then** the mapped swatch, localized name, and selected indicator appear.
+2. **Given** an edit with no new color selection, **when** it is saved, **then** the API retains the original stored color string.
+3. **Given** any of the ten selectable colors, **when** the record is saved and reloaded, **then** the chosen semantic string and visual color return.
 
 ### Edge Cases
 
 - A narrow dialog or 320px viewport must keep the whole palette visible without horizontal overflow.
 - Focus and hover names must remain available in both Portuguese and English.
-- Unknown or invalid color values must remain rejected by the API; existing default behavior for null or missing color remains.
+- Unknown color values remain rejected by the API; null or missing color defaults to cyan for new accounts/categories and violet for new cards.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: All three Color fields MUST use one shared visual selector and one ordered palette of 16 semantic values: teal, blue, indigo, violet, purple, pink, rose, red, orange, amber, lime, green, emerald, cyan, sky, slate.
+- **FR-001**: All three Color fields MUST use one shared visual selector and one ordered palette of exactly 10 semantic values: blue, violet, pink, red, orange, yellow, green, cyan, brown, gray.
 - **FR-002**: The closed field MUST match adjacent controls in size, typography, radius, and focus treatment, and show a 12–14px actual-color swatch, localized name, and chevron.
-- **FR-003**: The open field MUST present a compact swatch grid with a clear selected indicator, selected color name, and localized names on hover and focus.
+- **FR-003**: The open field MUST present a compact five-column/two-row swatch grid when space permits, with a clear selected indicator, selected color name, and localized names on hover and focus.
 - **FR-004**: Every option MUST have an accessible name, keyboard access, visible focus, and a non-color selected indicator. The selector MUST expose expanded and selected states.
 - **FR-005**: The palette MUST adapt to narrow dialogs and 320px screens, respect both themes and reduced motion, and avoid layout overflow.
-- **FR-006**: Existing values, default choices, stored records, and request/response field shapes MUST remain unchanged. New values MUST be accepted in all three resources.
+- **FR-006**: Stored values and request/response field shapes MUST remain unchanged. The API MUST accept all 16 previously supported values plus yellow, brown, and gray. New accounts/categories default to cyan; cards default to violet.
 - **FR-007**: Other form fields and layouts MUST remain unchanged.
+- **FR-008**: Presentation-only aliases MUST map indigo→blue, purple→violet, amber→orange, lime→green, emerald→green, sky→cyan, teal→cyan, rose→pink, and slate→gray. New selections emit only the ten current values.
 
 ### Security and Quality Requirements
 
-- **SQR-001**: Existing authentication and authorization remain; backend request validation accepts only palette values.
-- **SQR-002**: Backend contract tests cover old, new, and invalid values. Component tests cover accessibility and interaction; Playwright covers the three critical save flows.
+- **SQR-001**: Existing authentication and authorization remain; backend request validation accepts only the ten current or nine legacy values.
+- **SQR-002**: Backend contract tests cover current, legacy, default, and invalid values. Component tests cover accessibility and interaction; Playwright covers the three critical save flows.
 - **SQR-003**: No new secrets, uploads, packages, or database migration.
 
 ### Delivery Scope
 
-1. **Backend** (`../zunera-backend`): Extend the allowed semantic color values consistently for financial accounts, categories, and credit cards; preserve defaults, authorization, persistence, and resource output; add tests.
+1. **Backend** (`../zunera-backend`): Extend the allowed semantic color values consistently for financial accounts, categories, and credit cards; update new-record defaults while preserving authorization, stored values, and resource output; add tests.
 2. **Frontend** (`../zunera-frontend`): Shared selector, centralized palette and translations, theme tokens, integration into the three forms, tests and design documentation, after backend contract passes.
 
 ### Key Entities
@@ -79,13 +81,13 @@ Previously saved colors remain recognizable after the new palette is released.
 
 ### Measurable Outcomes
 
-- **SC-001**: All three forms offer the same 16 colors and save every new choice correctly.
-- **SC-002**: All six previously available choices display their original hue and name after the change.
+- **SC-001**: All three forms offer the same 10 colors in a 5 × 2 grid on normal widths and save every new choice correctly.
+- **SC-002**: All nine deprecated values display a current equivalent without rewriting the persisted value on an unchanged edit.
 - **SC-003**: Every choice can be made without a mouse, with a visible focus and selected indication.
 - **SC-004**: No horizontal overflow occurs in the Color palette at 320px viewport width or 200% zoom.
 
 ## Assumptions
 
-- Existing `rose` keeps “Rosa”; `pink` is “Rosa-claro” in pt-BR.
-- Existing API field name and semantic string format remain stable.
+- `pink` is “Rosa” in pt-BR; legacy `rose` is presented as pink. Legacy `teal`, `rose`, and `slate` map to cyan, pink, and gray respectively.
+- Existing API field name and semantic string format remain stable. Clients may still send previously accepted values.
 - Backend support is delivered before the frontend offers new colors.
