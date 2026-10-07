@@ -53,6 +53,7 @@ closes a detail drawer and does not start a mutation.
 | `ConfirmAction` | Standard destructive confirmation copy and dialog | Action config; confirm/cancel events |
 | `StatusBadge` | Maps domain status to label, tag type, and icon | Status prop only |
 | `IconPicker` | Shows a visual, keyboard-accessible icon grid in a form field | String model value, localized icon options, field label; emits `update:modelValue` |
+| `ColorPicker` | Shows a visual, keyboard-accessible color palette in a form field | Semantic string model value and field label; emits `update:modelValue` |
 
 Composition components MUST remain domain-light. Domain terminology and API calls
 belong to feature components and services.
