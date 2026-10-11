@@ -6,7 +6,7 @@
 
 ## Summary
 
-Refine the shared selector to ten distinct visual choices. Preserve all 16 previously accepted API strings while mapping nine deprecated values to current swatches only in presentation. Update backend validation/defaults first, then the existing frontend palette and tests.
+Refine the shared selector to ten distinct visual choices. Preserve the six previously accepted API strings and expand validation to 19 total values: seven new selectable colors and six new nonselectable aliases. Map all nine nonselectable values to current swatches only in presentation. Update backend validation/defaults first, then the existing frontend palette and tests.
 
 ## Technical Context
 
@@ -37,7 +37,7 @@ Refine the shared selector to ten distinct visual choices. Preserve all 16 previ
 
 ## Design
 
-- Backend: One shared definition exposes ten selectable values and 19 accepted values (ten current plus nine legacy). All three Form Requests validate against accepted values; new account/category defaults become cyan.
+- Backend: One shared definition exposes ten selectable values and 19 accepted values (ten current plus nine nonselectable aliases). All three Form Requests validate against accepted values; new account/category defaults become cyan.
 - Frontend: Keep existing `--chart-*` tokens unchanged. Define exactly ten `--palette-*` tokens, including adjusted violet, pink, red, and earth brown hues. One utility owns current values, presentation-only aliases, localized labels, and safe token lookup; existing display helpers delegate to it.
 - UI: `ColorPicker` uses `ElPopover` like `IconPicker`, full-width trigger matching `ElSelect`, a responsive 5/4/3/2-column grid with 44px targets, selected ring/check, localized tooltip, and listbox semantics. Arrow/Home/End navigation, Enter/Space selection, Escape/outside close, and focus return are required.
 - i18n: Shared color labels in pt-BR and en; `pink` is “Rosa”; legacy `rose` presents as pink. New labels include “Amarelo”, “Marrom”, and “Cinza”. Update design component catalog and palette documentation.

@@ -19,5 +19,5 @@
 ## Phase 4 — Palette refinement
 
 - [x] T008 Separate ten selectable colors from 19 API-accepted values; update account/category defaults and backend tests.
-- [x] T009 Map nine legacy strings only in frontend presentation; reduce shared picker to ten colors and five columns.
+- [x] T009 Map nine nonselectable aliases only in frontend presentation; reduce shared picker to ten colors and five columns.
 - [x] T010 Update frontend unit and Playwright coverage, design docs, and run full validation.

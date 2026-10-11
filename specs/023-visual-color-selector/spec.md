@@ -58,14 +58,14 @@ Previously saved colors remain recognizable after the new palette is released.
 - **FR-003**: The open field MUST present a compact five-column/two-row swatch grid when space permits, with a clear selected indicator, selected color name, and localized names on hover and focus.
 - **FR-004**: Every option MUST have an accessible name, keyboard access, visible focus, and a non-color selected indicator. The selector MUST expose expanded and selected states.
 - **FR-005**: The palette MUST adapt to narrow dialogs and 320px screens, respect both themes and reduced motion, and avoid layout overflow.
-- **FR-006**: Stored values and request/response field shapes MUST remain unchanged. The API MUST accept all 16 previously supported values plus yellow, brown, and gray. New accounts/categories default to cyan; cards default to violet.
+- **FR-006**: Stored values and request/response field shapes MUST remain unchanged. The API MUST continue accepting the six previously supported values (`teal`, `blue`, `violet`, `amber`, `rose`, `cyan`) and additionally accept seven new selectable values (`pink`, `red`, `orange`, `yellow`, `green`, `brown`, `gray`) and six nonselectable aliases (`indigo`, `purple`, `lime`, `emerald`, `sky`, `slate`), for 19 accepted values total. New accounts/categories default to cyan; cards default to violet.
 - **FR-007**: Other form fields and layouts MUST remain unchanged.
 - **FR-008**: Presentation-only aliases MUST map indigo→blue, purple→violet, amber→orange, lime→green, emerald→green, sky→cyan, teal→cyan, rose→pink, and slate→gray. New selections emit only the ten current values.
 
 ### Security and Quality Requirements
 
-- **SQR-001**: Existing authentication and authorization remain; backend request validation accepts only the ten current or nine legacy values.
-- **SQR-002**: Backend contract tests cover current, legacy, default, and invalid values. Component tests cover accessibility and interaction; Playwright covers the three critical save flows.
+- **SQR-001**: Existing authentication and authorization remain; backend request validation accepts only the ten current or nine nonselectable alias values.
+- **SQR-002**: Backend contract tests cover current, alias, default, and invalid values. Component tests cover accessibility and interaction; Playwright covers the three critical save flows.
 - **SQR-003**: No new secrets, uploads, packages, or database migration.
 
 ### Delivery Scope
@@ -82,12 +82,12 @@ Previously saved colors remain recognizable after the new palette is released.
 ### Measurable Outcomes
 
 - **SC-001**: All three forms offer the same 10 colors in a 5 × 2 grid on normal widths and save every new choice correctly.
-- **SC-002**: All nine deprecated values display a current equivalent without rewriting the persisted value on an unchanged edit.
+- **SC-002**: All nine nonselectable alias values display a current equivalent without rewriting the persisted value on an unchanged edit.
 - **SC-003**: Every choice can be made without a mouse, with a visible focus and selected indication.
 - **SC-004**: No horizontal overflow occurs in the Color palette at 320px viewport width or 200% zoom.
 
 ## Assumptions
 
-- `pink` is “Rosa” in pt-BR; legacy `rose` is presented as pink. Legacy `teal`, `rose`, and `slate` map to cyan, pink, and gray respectively.
+- `pink` is “Rosa” in pt-BR; alias `rose` is presented as pink. Aliases `teal`, `rose`, and `slate` map to cyan, pink, and gray respectively.
 - Existing API field name and semantic string format remain stable. Clients may still send previously accepted values.
 - Backend support is delivered before the frontend offers new colors.

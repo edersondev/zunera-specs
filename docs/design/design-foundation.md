@@ -54,8 +54,11 @@ markup unless a documented requirement cannot be met by the library.
 ## Visual Direction and Semantic Meaning
 
 Zunera is modern, calm personal-finance application. Teal communicates brand
-and primary actions. Slate-based neutrals provide structure. Green and red are
-reserved for financial and status meaning, not decoration.
+and primary actions. Slate-based neutrals provide structure. Green and red
+communicate financial and status meaning in system UI. User-selected appearance
+colors may also use green and red to identify accounts, categories, or cards;
+labels, icons, and financial signs MUST carry their meaning independently of
+the chosen color.
 
 ```text
 Teal    → brand, primary action, active selection
@@ -148,7 +151,7 @@ palette: `--palette-blue` (`#3B82F6`), `--palette-violet` (`#A78BFA`),
 `--palette-green` (`#22C55E`), `--palette-cyan` (`#06B6D4`),
 `--palette-brown` (`#A47148`), and `--palette-gray` (`#64748B`).
 The five-column/two-row picker uses localized names and a selected indicator.
-Previously saved `indigo`, `purple`, `amber`, `lime`, `emerald`, `sky`,
+The nonselectable aliases `indigo`, `purple`, `amber`, `lime`, `emerald`, `sky`,
 `teal`, `rose`, and `slate` present as current equivalents without changing
 stored values. Chart tokens remain independent. Selection and status still
 require labels or other non-color cues.
