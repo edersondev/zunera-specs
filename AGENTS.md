@@ -1,6 +1,6 @@
 <!-- SPECKIT START -->
 For additional context about technologies, project structure, shell commands,
-and implementation order, read [specs/023-visual-color-selector/plan.md](specs/023-visual-color-selector/plan.md).
+and implementation order, read [specs/024-manage-card-purchases/plan.md](specs/024-manage-card-purchases/plan.md).
 <!-- SPECKIT END -->
 
 ## Zunera Workspace Layout
