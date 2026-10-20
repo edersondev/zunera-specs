@@ -4,7 +4,7 @@
 
 **Tests**: Required by SQR-003 and the project tasks template. Write focused failing tests before changed behavior where practical; execute them before each backend API gate and frontend delivery gate.
 
-**Delivery rule**: Finish all backend contract, authorization, validation, reconciliation, and focused tests through T040 before starting any frontend task. Every application checkout must remain on `024-manage-card-purchases`; preserve the unrelated frontend `package-lock.json` change. No new packages.
+**Delivery rule**: Finish all backend contract, authorization, validation, reconciliation, and focused tests through T040 before starting any frontend task. Every application checkout must remain on `024-manage-card-purchases`; the separately committed frontend `package-lock.json` refresh is outside these tasks. No new packages.
 
 **Paths**: Backend paths begin `../zunera-backend/`; frontend paths begin `../zunera-frontend/`; specification paths begin `specs/024-manage-card-purchases/`.
 
@@ -12,7 +12,7 @@
 
 **Purpose**: Confirm the three coordinated checkouts before editing either application.
 
-- [ ] T001 Verify `024-manage-card-purchases` in `specs/024-manage-card-purchases/plan.md`, `../zunera-backend/.git/HEAD`, and `../zunera-frontend/.git/HEAD`; record and preserve the existing `../zunera-frontend/package-lock.json` change.
+- [ ] T001 Verify `024-manage-card-purchases` in `specs/024-manage-card-purchases/plan.md`, `../zunera-backend/.git/HEAD`, and `../zunera-frontend/.git/HEAD`; leave the separately committed frontend lockfile refresh outside feature work.
 
 ---
 
@@ -20,11 +20,11 @@
 
 **Purpose**: Give moves and deletion the same cycle rules and card-wide payment-surplus reconciliation.
 
-- [ ] T002 [P] Add failing cycle-resolution tests for inclusive closing dates, month-end clamping, historical statement snapshots, and direct empty-future-month lookup in `../zunera-backend/tests/Unit/CreditCards/StatementCycleResolverTest.php`.
+- [ ] T002 [P] Add failing cycle-resolution tests for inclusive closing dates, month-end clamping, stored-period overlap precedence, exact-date historical-row reuse, and direct empty-future-month lookup. Include a stored January 10 statement, changed closing day 25, and January 15 purchase that must resolve to January 25 despite the January row in `../zunera-backend/tests/Unit/CreditCards/StatementCycleResolverTest.php`.
 - [ ] T003 [P] Add failing reconciliation tests for paid source statements, surplus applied to oldest unpaid statements, residual card credit, payment update/remove/restore, and nonnegative outstanding in `../zunera-backend/tests/Unit/CreditCards/CreditCardObligationReconcilerTest.php`.
 - [ ] T004 Create `credit_card_payment_surplus_applications` with owner/card/source/destination foreign keys, positive amount, active/superseded timestamps, and lookup indexes in `../zunera-backend/database/migrations/2026_10_20_000001_create_credit_card_payment_surplus_applications_table.php`.
 - [ ] T005 Create the `CreditCardPaymentSurplusApplication` model with owned statement relationships and active allocation scope in `../zunera-backend/app/Models/CreditCardPaymentSurplusApplication.php`.
-- [ ] T006 Implement canonical same-card cycle lookup, historical-row precedence, date eligibility, and finite window/direct-month options in `../zunera-backend/app/Services/CreditCards/StatementCycleResolver.php`, using `../zunera-backend/app/Services/CreditCards/BillingCycleCalculator.php`.
+- [ ] T006 Implement same-card cycle lookup using a stored period containing the purchase date (earliest closing date on overlap), otherwise the current billing configuration; reuse a row only for an exact closing-date match and never suppress a calculated cycle because another row shares the month. Validate eligible stored historical or calculated targets, and provide finite window/direct-month options in `../zunera-backend/app/Services/CreditCards/StatementCycleResolver.php`, using `../zunera-backend/app/Services/CreditCards/BillingCycleCalculator.php`.
 - [ ] T007 Reconcile all statement gross/net charges, effective payments, active credit allocations, surplus allocations, used credit, card credit, and available credit in centavos under deterministic card/statement locks in `../zunera-backend/app/Services/CreditCards/CreditCardObligationReconciler.php`.
 - [ ] T008 Trigger the card-wide reconciliation after payment and credit-event lifecycle changes without changing paying-account movements in `../zunera-backend/app/Services/CreditCards/CreditCardStatementPaymentService.php` and `../zunera-backend/app/Services/CreditCards/CreditCardCreditEventService.php`.
 - [ ] T009 Run the focused foundational tests and migration rollback/reapply, fixing defects in `../zunera-backend/tests/Unit/CreditCards/StatementCycleResolverTest.php`, `../zunera-backend/tests/Unit/CreditCards/CreditCardObligationReconcilerTest.php`, and `../zunera-backend/database/migrations/2026_10_20_000001_create_credit_card_payment_surplus_applications_table.php`.
@@ -42,7 +42,7 @@
 ### Tests first
 
 - [ ] T010 [P] [US1] Add failing owner-scoped contract tests for the preview, confirmation, and history response shapes, invalid mode/target/installment, stale preview, missing/invalid `Idempotency-Key`, and idempotent replay in `../zunera-backend/tests/Feature/CreditCards/CreditCardPurchaseMoveContractTest.php`.
-- [ ] T011 [P] [US1] Add a deterministic 100-case matrix of distinct single/multi-installment moves across month/year boundaries with exact totals and one statement per installment; also test closed/paid sources, linked credit reallocation, full-schedule rebuilding, individual ordering, budgets, dashboard, history, and notifications in `../zunera-backend/tests/Feature/CreditCards/CreditCardPurchaseMoveAccountingTest.php`.
+- [ ] T011 [P] [US1] Add a deterministic 100-case matrix of distinct single/multi-installment moves across month/year boundaries with exact totals and one statement per installment; also test closed/paid sources, linked credit reallocation, full-schedule rebuilding, individual ordering, budgets, dashboard, history, and notifications. Add a separate regression: move to a later open statement, PATCH description/category/notes, and assert unchanged installment IDs, placement, recognition dates, and move history; PATCH each changed card/date/amount/count field and assert conflict with no mutation in `../zunera-backend/tests/Feature/CreditCards/CreditCardPurchaseMoveAccountingTest.php`.
 
 ### Implementation
 
@@ -51,7 +51,7 @@
 - [ ] T014 [US1] Create move-history and active-credit relationships/scopes in `../zunera-backend/app/Models/CreditCardPurchaseMove.php`, `../zunera-backend/app/Models/CreditCardPurchase.php`, and `../zunera-backend/app/Models/CreditCardCreditApplication.php`.
 - [ ] T015 [P] [US1] Define validated mode, target closing date, optional installment, preview token, and required `Idempotency-Key` header for confirmed moves in `../zunera-backend/app/Data/CreditCards/MovePurchaseData.php`, `../zunera-backend/app/Http/Requests/CreditCards/PreviewCreditCardPurchaseMoveRequest.php`, and `../zunera-backend/app/Http/Requests/CreditCards/MoveCreditCardPurchaseRequest.php`.
 - [ ] T016 [US1] Build a read-only preview with source/destination periods, due dates, changed installments, resulting charges/outstanding/surplus, and a state fingerprint in `../zunera-backend/app/Services/CreditCards/CreditCardPurchaseMoveService.php`.
-- [ ] T017 [US1] Add locked, idempotent move execution to `../zunera-backend/app/Services/CreditCards/CreditCardPurchaseMoveService.php`: reject stale previews, materialize eligible cycles once, preserve installment IDs/amounts, rebuild full schedules or move one ordered installment, and insert history only for changed rows.
+- [ ] T017 [US1] Add locked, idempotent move execution to `../zunera-backend/app/Services/CreditCards/CreditCardPurchaseMoveService.php`: reject stale previews, materialize eligible cycles once, preserve installment IDs/amounts, rebuild full schedules or move one ordered installment, and insert history only for changed rows. In `../zunera-backend/app/Services/CreditCards/CreditCardPurchaseCorrectionService.php`, keep the existing open-statement guard, update category/description/notes of a moved purchase without deleting installments, preserve move history and projections, and reject actual card/date/amount/count changes before mutation with an actionable conflict.
 - [ ] T018 [US1] Supersede and rebuild active linked credit-event applications after moves, with active-only statement and installment sums, in `../zunera-backend/app/Services/CreditCards/CreditCardCreditEventService.php` and `../zunera-backend/app/Services/CreditCards/CreditCardObligationReconciler.php`.
 - [ ] T019 [US1] Render preview, confirmed move, and history through dedicated `../zunera-backend/app/Http/Resources/CreditCards/CreditCardPurchaseMovePreviewResource.php`, `../zunera-backend/app/Http/Resources/CreditCards/CreditCardPurchaseMoveResultResource.php`, and `../zunera-backend/app/Http/Resources/CreditCards/CreditCardPurchaseMoveResource.php`; expose them through `../zunera-backend/app/Http/Controllers/Api/V1/CreditCardPurchaseController.php` and `../zunera-backend/routes/api.php` following `specs/024-manage-card-purchases/contracts/purchase-statement-management-api.yaml`.
 - [ ] T020 [US1] Recompute recognition months, category spending, budget/dashboard/history summaries, and old/new statement notifications after a move in `../zunera-backend/app/Services/CreditCards/RecognizedCardExpenseProjection.php`, `../zunera-backend/app/Services/CreditCards/CreditCardBudgetProjectionService.php`, and `../zunera-backend/app/Services/Notifications/StatementNotificationProjector.php`.
@@ -69,7 +69,7 @@
 
 ### Tests first
 
-- [ ] T022 [P] [US2] Add a deterministic 100-case before/on/after-closing date matrix for closed-cycle detection, required choice, and saved installment allocation; also test the statement-options response shape, owner isolation, São Paulo business day, invalid `purchase_date`/`from_month`/`limit`, window/direct-month lookup, no read-side materialization, and stale choice in `../zunera-backend/tests/Feature/CreditCards/CreditCardPurchaseStatementChoiceTest.php`.
+- [ ] T022 [P] [US2] Add a deterministic 100-case before/on/after-closing date matrix for closed-cycle detection, required choice, and saved installment allocation, including old/new closing days in one month. Test January 10 stored and January 25 calculated cycles with a January 15 purchase, plus the statement-options response shape, owner isolation, São Paulo business day, invalid `purchase_date`/`from_month`/`limit`, window/direct-month lookup, no read-side materialization, and stale choice in `../zunera-backend/tests/Feature/CreditCards/CreditCardPurchaseStatementChoiceTest.php`.
 - [ ] T023 [P] [US2] Add failing regression tests proving recurring occurrence purchase generation retains automatic date-based placement in `../zunera-backend/tests/Feature/CreditCards/RecurringCardPurchaseAccountingTest.php`.
 
 ### Implementation
@@ -114,7 +114,7 @@
 **Purpose**: Complete the project-required backend-first gate for all three stories.
 
 - [ ] T038 Seed a representative card with 1,000 purchases; after 10 warmups, measure 100 statement-option requests and 100 move-preview requests separately, assert each p95 is under 2 seconds, and inspect bounded query plans in `../zunera-backend/tests/Feature/CreditCards/CreditCardQueryPerformanceTest.php` and `../zunera-backend/tests/Performance/CreditCards/query-plans.md`.
-- [ ] T039 Run all `../zunera-backend/tests/Feature/CreditCards/`, relevant `../zunera-backend/tests/Feature/RecurringTransactions/`, budget/dashboard/notification tests, and `../zunera-backend/tests/Unit/CreditCards/`; verify the implemented routes against `specs/024-manage-card-purchases/contracts/purchase-statement-management-api.yaml` and fix any regression before T040.
+- [ ] T039 Run all `../zunera-backend/tests/Feature/CreditCards/`, relevant `../zunera-backend/tests/Feature/RecurringTransactions/`, budget/dashboard/notification tests, and `../zunera-backend/tests/Unit/CreditCards/`; include existing direct-correction regression coverage for moved purchases, verify the implemented routes against `specs/024-manage-card-purchases/contracts/purchase-statement-management-api.yaml`, and fix any regression before T040.
 - [ ] T040 Run the full backend suite and Pint in the live Docker container, confirming clean results for `../zunera-backend/tests/` and `../zunera-backend/app/` before any frontend task.
 
 ---
@@ -153,14 +153,14 @@
 ### Tests first
 
 - [ ] T050 [P] [US2] Add failing service/store tests for `statement-options`, conditional `statement_closing_date`, changed-date requests, and stale-choice errors in `../zunera-frontend/src/services/__tests__/creditCardService.spec.js` and `../zunera-frontend/src/stores/credit-cards/__tests__/creditCardStore.spec.js`.
-- [ ] T051 [P] [US2] Add a deterministic 100-case before/on/after-closing component matrix for Statement-select visibility, empty initial choice, and required selection; also test date/card reset, windowed future choices, and field-level errors in `../zunera-frontend/src/components/credit-cards/__tests__/CreditCardPurchaseForm.spec.js`.
+- [ ] T051 [P] [US2] Add a deterministic 100-case before/on/after-closing component matrix for Statement-select visibility, empty initial choice, and required selection; also test date/card reset, windowed future choices, field-level errors, and actionable feedback for a moved-purchase correction conflict in `../zunera-frontend/src/components/credit-cards/__tests__/CreditCardPurchaseForm.spec.js`.
 
 ### Implementation
 
 - [ ] T052 [US2] Add statement-option transport and conditional create payload handling using the verified API in `../zunera-frontend/src/services/creditCardService.js` and `../zunera-frontend/src/stores/credit-cards/creditCardStore.js`.
-- [ ] T053 [US2] Add labelled Statement select, loading/empty/error states, date/card-triggered clearing, and on-demand future month choices in `../zunera-frontend/src/components/credit-cards/CreditCardPurchaseForm.vue`.
+- [ ] T053 [US2] Add labelled Statement select, loading/empty/error states, date/card-triggered clearing, and on-demand future month choices in `../zunera-frontend/src/components/credit-cards/CreditCardPurchaseForm.vue`; surface the backend conflict when an existing moved purchase is directly edited in an allocation-changing way.
 - [ ] T054 [US2] Wire date/card option requests, create validation errors, and post-create refresh into `../zunera-frontend/src/views/credit-cards/CreditCardDetailView.vue`.
-- [ ] T055 [US2] Add pt-BR/en statement-choice labels, future-cycle text, empty/loading states, and missing/stale-choice errors in `../zunera-frontend/src/i18n/messages.js`.
+- [ ] T055 [US2] Add pt-BR/en statement-choice labels, future-cycle text, empty/loading states, missing/stale-choice errors, and moved-purchase correction conflict guidance in `../zunera-frontend/src/i18n/messages.js`.
 - [ ] T056 [US2] Add isolated Playwright cases for open and closed dates, required choice, date reset, future empty cycle, and saved allocation in `../zunera-frontend/e2e/support/creditCardFixtures.js` and `../zunera-frontend/e2e/credit-cards.spec.js`.
 - [ ] T057 [US2] Run focused form/service/store tests and the isolated create journey; fix defects in `../zunera-frontend/src/components/credit-cards/__tests__/CreditCardPurchaseForm.spec.js` and `../zunera-frontend/e2e/credit-cards.spec.js`.
 
@@ -243,4 +243,4 @@ US1 is the MVP. Its backend is independently testable after Foundation; its fron
 - `[P]` marks work in separate files with no unfinished dependency; other tasks follow the explicit gates above.
 - API paths and error codes are defined in [purchase-statement-management-api.yaml](contracts/purchase-statement-management-api.yaml).
 - Use existing Laravel services/DTOs/Resources and Vue `<script setup>`/Pinia/Axios/Element Plus conventions. Keep financial calculations on the server.
-- Do not edit unrelated `../zunera-frontend/package-lock.json` content.
+- Keep the separately committed `../zunera-frontend/package-lock.json` refresh outside feature implementation edits.

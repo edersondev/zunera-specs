@@ -3,7 +3,7 @@
 **Branch**: `024-manage-card-purchases` | **Date**: 2026-10-20 | **Spec**: [spec.md](spec.md)
 **Input**: Feature specification from `specs/024-manage-card-purchases/spec.md`
 
-**Branch Coordination**: `024-manage-card-purchases` is active in specs, backend, and frontend. The existing unrelated frontend `package-lock.json` change is left untouched.
+**Branch Coordination**: `024-manage-card-purchases` is active in specs, backend, and frontend. The frontend `package-lock.json` refresh was committed separately; it is outside this feature's implementation tasks.
 
 ## Summary
 
@@ -42,11 +42,11 @@ Extend manual card purchase creation with a server-validated statement choice wh
 
 ### Backend sequence
 
-1. Add `statement_closing_date` to manual create only. A statement-options query returns whether the date-derived cycle has closed and windowed choices, including an on-demand empty future cycle. Use closing date as cycle identity because empty cycles lack a database ID; resolve existing statement rows before synthesizing with current card billing days.
-2. Add read-only move preview and idempotent move mutation. Both modes validate same-card eligibility and unchanged purchase fields. Full mode rebuilds consecutive cycles; one mode retains other allocations and enforces nondecreasing statement dates. Under card/purchase/statement locks, compare preview state, move existing installment rows, record move history, and reconcile credit-event applications.
+1. Add `statement_closing_date` to manual create only. A statement-options query returns whether the date-derived cycle has closed and windowed choices, including an on-demand empty future cycle. Use closing date as cycle identity because empty cycles lack a database ID. For date-derived allocation, select a stored period containing the purchase date (earliest closing date on overlap); otherwise calculate from current billing days even if another stored row shares the month. Reuse a row only on an exact closing-date match. Validate explicit historical or calculated choices by their exact closing date and purchase-date eligibility.
+2. Add read-only move preview and idempotent move mutation. Both modes validate same-card eligibility and unchanged purchase fields. Full mode rebuilds consecutive cycles; one mode retains other allocations and enforces nondecreasing statement dates. Under card/purchase/statement locks, compare preview state, move existing installment rows, record move history, and reconcile credit-event applications. Integrate the existing direct-correction service: preserve installment rows and move audit for allowed category/description/notes edits, and reject allocation-changing corrections after a move before mutation.
 3. Add confirmed, idempotent hard delete. Reject any linked refund/correction credit; remove purchase, installments, and move history. Preserve payments and account debits. Mark a linked recurring occurrence as purchase-deleted while keeping it non-generatable. Scrub cached purchase response snapshots without dropping idempotency keys; return minimal delete summary.
 4. Extend card-wide obligation reconciliation with a payment-surplus source and application ledger. Rebuild active credit allocations deterministically after financial mutations, apply available credit to oldest unpaid statements, derive used credit from per-statement outstanding, and capture affected budget/statement notifications. Keep historical credit allocations readable via supersession rather than silent overwrite.
-5. Prove date boundaries, old billing-day snapshots, linked credits, partial/paid statements, payment updates/removal/restoration, repeated/concurrent requests, recurrence, and exact once dashboard/budget/history results before frontend starts.
+5. Prove date boundaries, two closing dates in one month after a billing-day change, post-move correction preservation and conflict behavior, linked credits, partial/paid statements, payment updates/removal/restoration, repeated/concurrent requests, recurrence, and exact once dashboard/budget/history results before frontend starts.
 
 ### Frontend component map
 

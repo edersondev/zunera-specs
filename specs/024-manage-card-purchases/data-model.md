@@ -2,7 +2,7 @@
 
 ## Ownership and cycle identity
 
-Every persisted record is owner-scoped through the card and `user_id`. Financial amounts are integer BRL centavos. A selectable statement cycle is identified by `(credit_card_id, closing_date)`; a cycle can be offered before it has a statement row. Existing rows retain their stored period and due-date snapshots after billing-day edits. For a month without a row, the cycle is calculated with the card's current closing and due days. The service rejects a target whose closing date is not the canonical date for its card/month or is before the purchase date.
+Every persisted record is owner-scoped through the card and `user_id`. Financial amounts are integer BRL centavos. A selectable statement cycle is identified by `(credit_card_id, closing_date)`; a cycle can be offered before it has a statement row. Existing rows retain their stored period and due-date snapshots after billing-day edits. For date-derived allocation, use a stored row whose preserved period contains the purchase date; if several overlap, choose the earliest closing date. When none contains the date, calculate the cycle with the card's current closing and due days, even if a different row exists in that calendar month. Reuse a stored row only on an exact closing-date match; otherwise offer the calculated cycle without materializing it. A selected target is valid when it is an eligible stored historical row or the exact current-configuration closing date for an empty cycle, and its closing date is on or after the purchase date. A historical row never suppresses a distinct current-configuration cycle solely because they share a month.
 
 The business day is calculated in `America/Sao_Paulo`. Closing date is inclusive: a cycle closes on the following business date. Statement options and mutations use the same resolver so a preview and save cannot disagree. Windowed options or a requested month permit any eligible future cycle without materializing empty statements during a read.
 
@@ -18,6 +18,8 @@ The business day is calculated in `America/Sao_Paulo`. Closing date is inclusive
 | Deletion | Physical removal after confirming owner/card and zero linked credit events. Installments and move records are removed; related statement payments remain. |
 
 Manual create includes the optional choice in its idempotency fingerprint. Automatic recurring purchase generation keeps its existing date-based cycle assignment.
+
+After any move, direct correction may change only category, description, or notes while the existing open-statement edit guard permits it. The correction service must update those purchase fields and affected projections without deleting or recreating installments, changing statement assignments or recognition dates, or cascading move records. A changed card, purchase date, total amount, or installment count returns a conflict before mutation. An unchanged value supplied for one of those fields is not an allocation change. Hard deletion intentionally removes the purchase, installments, and move records together.
 
 ### CreditCardInstallment
 
@@ -68,7 +70,7 @@ One record per installment whose statement changes during a confirmed move.
 | Source/destination closing date, period, due date snapshots | Immutable display of what moved even if statement presentation later changes. |
 | `moved_at`, `idempotency_key` or mutation reference | Time and one confirmed operation identity; unique operation plus installment prevents duplicate history on retry. |
 
-Read through the purchase while it exists. Full-schedule move records only installments whose statement actually changed. A later hard delete removes these records with the purchase.
+Read through the purchase while it exists. Full-schedule move records only installments whose statement actually changed. Direct metadata correction retains the referenced installment IDs and every move record; a later hard delete removes these records with the purchase.
 
 ### CreditCardPaymentSurplusApplication
 

@@ -5,7 +5,12 @@ info:
   description: >-
     Additions to the Credit Cards 010 contract. Existing card, purchase,
     statement, payment, and credit-event routes keep their current shapes unless
-    a changed field is specified here. All routes are owner-scoped.
+    a changed field is specified here. All routes are owner-scoped. Existing
+    purchase correction must preserve installment placement and move history for
+    permitted category, description, or notes edits after a move; changes to card,
+    purchase date, amount, or installment count then return a conflict. Statement
+    options resolve historical rows by stored period and calculated cycles by exact
+    closing date, so a different row in the same month does not hide an option.
 servers:
   - url: /api/v1
 security:
@@ -120,6 +125,24 @@ paths:
         '401': { $ref: '#/components/responses/Error' }
         '404': { $ref: '#/components/responses/Error' }
   /credit-card-purchases/{purchase_id}:
+    patch:
+      operationId: correctMovedCreditCardPurchase
+      summary: Existing direct correction retains move history when permitted
+      description: >-
+        Keep the existing update request, success response, and open-statement
+        guard. After any move, category, description, or notes changes preserve
+        installment IDs, statement placement, recognition dates, and move history.
+        An actual change to card, purchase date, total amount, or installment
+        count returns 409 before mutation. Unchanged values for those fields
+        do not count as allocation changes.
+      parameters:
+        - $ref: '#/components/parameters/PurchaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200': { description: Existing purchase correction response }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
     delete:
       operationId: deleteCreditCardPurchase
       summary: Permanently remove an owned purchase and all its installments

@@ -83,6 +83,8 @@ As a card owner, I can permanently delete a mistaken purchase so its charge and 
 - Eligible destination is an empty future cycle, including one beyond the next upcoming statement.
 - Statement becomes ineligible after form choices load or between preview and confirmation.
 - Full-schedule move spans year end, billing-day changes, both open and closed statements, or an installment schedule previously changed by individual moves.
+- A stored statement with an old closing day and a newly calculated cycle share a calendar month; a purchase date after the stored statement closes still finds the new cycle.
+- A purchase with move history is directly edited while its current installments remain open; descriptive edits keep its statement placement and audit, while allocation-changing edits fail without mutation.
 - Single-installment move puts two installments on one statement or leaves a gap; original sequence labels remain visible and statement dates stay in sequence order.
 - Move or delete changes a closed, partly paid, paid, or card-credit-adjusted statement.
 - Repeated or simultaneous commands must not apply money changes twice.
@@ -108,6 +110,8 @@ As a card owner, I can permanently delete a mistaken purchase so its charge and 
 - **FR-014**: Repeated or overlapping confirmed move or delete requests MUST NOT duplicate financial changes. A request to delete an already deleted purchase MUST have no second money effect.
 - **FR-015**: Deleting a purchase created from a recurring occurrence MUST preserve its rule and other occurrences and MUST NOT recreate the deleted purchase automatically.
 - **FR-016**: A completed move MUST leave a readable history of the affected installment, original and destination statement, and time of change, including when either statement was closed.
+- **FR-017**: When the existing open-statement correction rule permits a direct edit of a moved purchase, changes limited to category, description, or notes MUST preserve installment IDs, statement assignments, recognition dates, and move history. A direct edit that changes card, purchase date, total amount, or installment count after any move MUST return an actionable conflict with no partial change. Permanent Delete MUST remove the move history with the purchase.
+- **FR-018**: The date-derived cycle MUST use a stored statement whose preserved period contains the purchase date, choosing the earliest closing date when stored periods overlap; otherwise it MUST use the card's current billing days. A stored statement in the same calendar month MUST NOT suppress a distinct cycle calculated from current billing days. Statement choices MUST accept an eligible stored historical closing date or the exact calculated closing date for an empty cycle, subject to the purchase-date and ownership rules.
 
 ### Security and Quality Requirements *(mandatory)*
 
@@ -134,8 +138,8 @@ As a card owner, I can permanently delete a mistaken purchase so its charge and 
 ### Measurable Outcomes
 
 - **SC-001**: In a scripted usability check with 20 card-feature users using fixture data (five each for Full schedule/mobile, One installment/mobile, Full schedule/desktop, and One installment/desktop), at least 19 complete their assigned move from the purchase list within 2 minutes, measured from opening Move to confirmation, without facilitator help.
-- **SC-002**: In a deterministic 100-case matrix of distinct single- and multi-installment moves spanning month and year boundaries, every installment appears once in its selected statement and all amounts sum to the original purchase total.
-- **SC-003**: In a deterministic 100-case date matrix including dates before, on, and after closing day, backend allocation and the form agree: the Statement select appears exactly when the date-derived cycle is already closed, begins unselected, requires a choice, and the saved purchase uses that eligible statement.
+- **SC-002**: In a deterministic 100-case matrix of distinct single- and multi-installment moves spanning month and year boundaries, every installment appears once in its selected statement and all amounts sum to the original purchase total. A separate moved-purchase correction check preserves every installment ID and move-history row after an allowed descriptive edit and rejects each allocation-changing field without changing either.
+- **SC-003**: In a deterministic 100-case date matrix including dates before, on, and after closing day and old/new closing days within one month, backend allocation and the form agree: the Statement select appears exactly when the date-derived cycle is already closed, begins unselected, requires a choice, and the saved purchase uses that eligible statement. A specific changed-billing-day case proves that a January 10 stored statement does not suppress a January 25 calculated cycle for a January 15 purchase.
 - **SC-004**: In a deterministic 100-case matrix of moves and deletions across open, closed, partly paid, and paid statements, charges, recognized spending, balances, payments, and card credit reconcile to the centavo with no duplicate cash movement.
 - **SC-005**: In a deterministic 100-attempt matrix of repeated or overlapping move and delete requests, one confirmed operation changes financial totals at most once.
 - **SC-006**: In the same 20-user scripted check as SC-001, at least 18 correctly name the installments affected by a move and recognize that Delete is permanent before confirming; after a confirmed action, they locate the changed statement or totals within 30 seconds without facilitator help.

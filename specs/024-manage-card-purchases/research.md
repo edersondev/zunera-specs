@@ -4,7 +4,7 @@
 
 **Decision**: Identify a selected cycle by its `closing_date` plus the owned card. Expose a windowed statement-options query with a month cursor and direct month lookup. Return the date-derived cycle, whether it is closed on the São Paulo business date, and each option's period, closing date, due date, persisted statement ID when present, and open/closed state. Include empty future cycles; a requested month can be reached without loading every intervening cycle.
 
-**Rationale**: Empty cycles have no statement ID. Existing `CreditCardStatement` rows retain historical billing dates after a card's billing-day change; these rows take precedence over a newly calculated cycle. `BillingCycleCalculator` already owns inclusive closing, month-end clamping, and due dates. Revalidate a selected closing date against the locked card and existing statement row before mutation.
+**Rationale**: Empty cycles have no statement ID. Existing `CreditCardStatement` rows retain historical billing dates after a card's billing-day change. For date-derived allocation, a stored row takes precedence only if its preserved period contains the purchase date; overlapping stored periods resolve to the earliest closing date. Otherwise calculate using current billing days, regardless of whether another row exists in the same month. Reuse a stored row only when its closing date exactly matches the calculated date. For explicit choices, validate an eligible stored historical closing date or the exact calculated date of an empty current-configuration cycle against the locked card. `BillingCycleCalculator` already owns inclusive closing, month-end clamping, and due dates.
 
 **Alternatives considered**: Statement IDs alone cannot identify empty future cycles. A single unbounded list cannot support any future cycle efficiently. Client-side date arithmetic would diverge around billing-day changes and time zones.
 
@@ -23,6 +23,8 @@
 **Rationale**: Closed and paid statement effects must be understandable before confirmation. Recomputing under locks prevents a stale preview from authorizing a different financial result.
 
 **Alternatives considered**: Reusing the open-only purchase correction endpoint would bypass its lifecycle guard and mix unrelated field edits with reassignment. Updating statement foreign keys without a preview would hide payment and spending changes.
+
+**Existing correction integration**: The current correction service deletes and recreates every installment, including on description-only updates. Once a purchase has move history, an otherwise permitted category, description, or notes edit must instead retain installment rows, statement placement, recognition dates, and the move audit. Reject an actual change to card, purchase date, total amount, or installment count on such a purchase before any write, with an actionable conflict. The existing open-statement guard still applies. Explicit permanent deletion remains the only operation that cascades its move records.
 
 ## 4. Traceable moves and historical credit adjustments
 
