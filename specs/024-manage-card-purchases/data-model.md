@@ -4,7 +4,7 @@
 
 Every persisted record is owner-scoped through the card and `user_id`. Financial amounts are integer BRL centavos. A selectable statement cycle is identified by `(credit_card_id, closing_date)`; a cycle can be offered before it has a statement row. Existing rows retain their stored period and due-date snapshots after billing-day edits. For date-derived allocation, use a stored row whose preserved period contains the purchase date; if several overlap, choose the earliest closing date. When none contains the date, calculate the cycle with the card's current closing and due days, even if a different row exists in that calendar month. Reuse a stored row only on an exact closing-date match; otherwise offer the calculated cycle without materializing it. A selected target is valid when it is an eligible stored historical row or the exact current-configuration closing date for an empty cycle, and its closing date is on or after the purchase date. A historical row never suppresses a distinct current-configuration cycle solely because they share a month.
 
-The business day is calculated in `America/Sao_Paulo`. Closing date is inclusive: a cycle closes on the following business date. Statement options and mutations use the same resolver so a preview and save cannot disagree. Windowed options or a requested month permit any eligible future cycle without materializing empty statements during a read.
+The business day is calculated in `America/Sao_Paulo`. Closing date is inclusive: a cycle closes on the following business date. Statement options and mutations use the same resolver so a preview and save cannot disagree. Windowed options or a requested month permit any eligible future cycle without materializing empty statements during a read. Purchase dates retain the existing 1900-01-01 through 2100-12-31 validation range; statement choices have no additional horizon, but their periods, closing dates, due dates, and all later installment-cycle dates must fit four-digit ISO calendar dates. Reject overflow before materializing any statement.
 
 ## Existing entities and changed attributes
 
@@ -91,7 +91,7 @@ Add nullable `purchase_deleted_at`. Keep `state=recorded` and scheduled-date uni
 
 ### CreditCardMutationRequest handling
 
-Keep owner, idempotency key, operation, fingerprint, and deleted purchase's opaque target ID. Delete response contains only deleted ID and affected statement IDs; identical replay returns it without a second effect. On deletion, overwrite cached purchase-specific create/update/move responses with a deleted-resource outcome and remove purchase descriptive/financial payloads. Old keys remain claimed, so an old create cannot recreate the purchase. Recurrence mutation snapshots that embed the deleted purchase must receive the same scrub treatment.
+Keep owner, idempotency key, operation, fingerprint, and deleted purchase's opaque target ID. Delete response contains only deleted ID and affected statement closing dates; identical replay returns it without a second effect. On deletion, overwrite cached purchase-specific create/update/move responses with a deleted-resource outcome and remove purchase descriptive/financial payloads. Old keys remain claimed, so an old create cannot recreate the purchase. Recurrence mutation snapshots that embed the deleted purchase must receive the same scrub treatment.
 
 ## Reconciliation invariants and state transitions
 

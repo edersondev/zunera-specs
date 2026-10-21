@@ -7,7 +7,7 @@ Use the `024-manage-card-purchases` branch in specs, backend, and frontend. The 
 ## Backend verification path
 
 1. Apply migrations in the existing backend environment. Confirm the move-history and payment-surplus tables, credit-application supersession field, and recurring purchase-deleted marker exist.
-2. With an owned active card closing on day 10, request statement options for a purchase dated on day 10 and on day 9 after that cycle closes. Day 10 belongs to its own inclusive cycle; after closing, the form requires an explicit choice. Change the card's closing day to 25 while its January 10 statement remains stored; a January 15 purchase must resolve to the January 25 cycle, and both exact closing-date options must remain distinguishable. Jump the options query to an empty future month and verify its calculated closing/due dates without creating a statement row.
+2. With an owned active card closing on day 10, request statement options for a purchase dated on day 10 and on day 9 after that cycle closes. Day 10 belongs to its own inclusive cycle; after closing, the form requires an explicit choice. Change the card's closing day to 25 while its January 10 statement remains stored; a January 15 purchase must resolve to the January 25 cycle, and both exact closing-date options must remain distinguishable. Jump the options query to an empty future month and verify its calculated closing/due dates without creating a statement row. Check the existing purchase-date range of 1900-01-01 through 2100-12-31 and reject a choice whose generated installment cycles would exceed four-digit ISO dates without partial mutation.
 3. Create a backdated single-payment purchase with `statement_closing_date`, then one with installments. Verify the first selected cycle and later consecutive cycles, exact centavos, and unchanged cash-account balance. Omitted or foreign/invalid choice fails with field errors and no purchase.
 4. Preview and move a full schedule. Move one installment so two share a statement, then run Full schedule again and verify consecutive rebuilding. Reject any individual move that reverses sequence order. Repeat a confirmed move with the same idempotency key and verify one history/effect. On a moved purchase whose current statements are open, PATCH description/category/notes and verify installment IDs, placement, recognition dates, and history persist; PATCH changed card/date/amount/count values and verify conflicts with no mutation.
 5. Move a purchase from a paid statement. Verify original payment and paying-account debit remain, source payment surplus is applied to oldest unpaid statement, residual card credit is visible, and used/available credit and budgets/history reconcile to the centavo. Repeat with a linked refund/correction event and verify active credit applications follow the moved installment.
@@ -36,7 +36,6 @@ rtk docker exec zunera-backend-app-1 php artisan test
 2. From purchase history, open Move, choose Full schedule, inspect the server preview, and confirm. Repeat One installment from a statement line; verify it preselects the clicked installment. Refresh both source and destination statements and move history.
 3. Open Delete, dismiss once, then confirm. Check permanent-removal copy, retained payment display, updated card credit, and blocked linked-credit feedback.
 4. Repeat at 320px and 200% zoom, keyboard only, in Light/Dark/System themes. Check labelled fields, focus return, readable currency/status text, and pt-BR/en messages.
-5. Run a scripted check with 20 card-feature users on fixture data: five each for Full schedule/mobile, One installment/mobile, Full schedule/desktop, and One installment/desktop. Measure Move from opening to confirmation without facilitator help (at least 19 finish within 2 minutes). Before confirmation, ask each user which installments change and whether Delete is permanent; after confirmation, time discovery of the changed statement or totals (at least 18 answer correctly and find the result within 30 seconds). Record anonymous participant IDs, mode/layout, timings, and pass/fail in `usability-results.md`; do not record personal or financial data.
 
 From `../zunera-frontend/`:
 
@@ -48,6 +47,12 @@ rtk proxy env CI=1 npm run test:e2e -- e2e/credit-cards.spec.js
 ```
 
 The Playwright CI preview server uses the build from the prior command. Its isolated fixtures must cover the changed request/response contract, including stale preview, linked credits, and paid-statement surplus.
+
+## Deferred usability verification (T067)
+
+This check is outside the current `/speckit-implement` pass. SC-001 and SC-006 remain pending after automated verification; do not report them as met without the study.
+
+Run a scripted check with 20 card-feature users on fixture data: five each for Full schedule/mobile, One installment/mobile, Full schedule/desktop, and One installment/desktop. Measure Move from opening to confirmation without facilitator help (at least 19 finish within 2 minutes). Before confirmation, ask each user which installments change and whether Delete is permanent; after confirmation, time discovery of the changed statement or totals (at least 18 answer correctly and find the result within 30 seconds). Record anonymous participant IDs, mode/layout, timings, and pass/fail in `usability-results.md`; do not record personal or financial data.
 
 ## Contract and financial acceptance
 

@@ -14,11 +14,11 @@ Extend manual card purchase creation with a server-validated statement choice wh
 **Language/Version**: PHP 8.3 / Laravel 13.17; JavaScript / Vue 3.5 with `<script setup>`
 **Primary Dependencies**: Existing Sanctum/session auth, Eloquent, Element Plus 2.14, Pinia 4, Axios 1.19, Tailwind CSS 4, vue-i18n 11
 **Storage**: Existing relational card tables; SQLite test environment; new move-history and payment-surplus allocation tables plus small lifecycle columns
-**Testing**: PHPUnit feature/unit in backend with deterministic 100-case financial/date/retry matrices; Vitest service/component/store with a 100-case form matrix; Playwright isolated journeys; Pint and frontend lint; scripted 20-user usability check
+**Testing**: PHPUnit feature/unit in backend with deterministic 100-case financial/date/retry matrices; Vitest service/component/store with a 100-case form matrix; Playwright isolated journeys; Pint and frontend lint. The scripted 20-user usability check for SC-001/SC-006 is deferred outside the current implementation pass.
 **Target Platform**: Authenticated responsive web app, pt-BR/en, São Paulo business calendar, Light/Dark/System themes
 **Project Type**: Full-stack financial feature across sibling Laravel API and Vue client
 **Performance Goals**: Windowed statement-option queries and preview; p95 option/preview responses under 2 seconds on representative cards with 1,000 purchases; no unbounded cycle enumeration
-**Constraints**: No new packages, no new cash movement from reassignment/deletion, exact centavos, permanent purchase removal, retained payment history, owner isolation, idempotent mutations
+**Constraints**: No new packages, no new cash movement from reassignment/deletion, exact centavos, permanent purchase removal, retained payment history, owner isolation, idempotent mutations; purchase dates stay within 1900-01-01 through 2100-12-31, while selected and generated cycle dates must fit four-digit ISO dates
 **Scale/Scope**: Up to 360 installments per purchase; any eligible empty future cycle can be selected through direct month lookup; three purchase journeys and affected card projections
 
 ## Delivery Scope and Order
@@ -42,7 +42,7 @@ Extend manual card purchase creation with a server-validated statement choice wh
 
 ### Backend sequence
 
-1. Add `statement_closing_date` to manual create only. A statement-options query returns whether the date-derived cycle has closed and windowed choices, including an on-demand empty future cycle. Use closing date as cycle identity because empty cycles lack a database ID. For date-derived allocation, select a stored period containing the purchase date (earliest closing date on overlap); otherwise calculate from current billing days even if another stored row shares the month. Reuse a row only on an exact closing-date match. Validate explicit historical or calculated choices by their exact closing date and purchase-date eligibility.
+1. Add `statement_closing_date` to manual create only. A statement-options query returns whether the date-derived cycle has closed and windowed choices, including an on-demand empty future cycle. Use closing date as cycle identity because empty cycles lack a database ID. For date-derived allocation, select a stored period containing the purchase date (earliest closing date on overlap); otherwise calculate from current billing days even if another stored row shares the month. Reuse a row only on an exact closing-date match. Validate explicit historical or calculated choices by their exact closing date, purchase-date eligibility, and representable four-digit ISO dates for every resulting cycle; do not add a future horizon.
 2. Add read-only move preview and idempotent move mutation. Both modes validate same-card eligibility and unchanged purchase fields. Full mode rebuilds consecutive cycles; one mode retains other allocations and enforces nondecreasing statement dates. Under card/purchase/statement locks, compare preview state, move existing installment rows, record move history, and reconcile credit-event applications. Integrate the existing direct-correction service: preserve installment rows and move audit for allowed category/description/notes edits, and reject allocation-changing corrections after a move before mutation.
 3. Add confirmed, idempotent hard delete. Reject any linked refund/correction credit; remove purchase, installments, and move history. Preserve payments and account debits. Mark a linked recurring occurrence as purchase-deleted while keeping it non-generatable. Scrub cached purchase response snapshots without dropping idempotency keys; return minimal delete summary.
 4. Extend card-wide obligation reconciliation with a payment-surplus source and application ledger. Rebuild active credit allocations deterministically after financial mutations, apply available credit to oldest unpaid statements, derive used credit from per-statement outstanding, and capture affected budget/statement notifications. Keep historical credit allocations readable via supersession rather than silent overwrite.
@@ -71,7 +71,7 @@ specs/024-manage-card-purchases/
 ├── research.md
 ├── data-model.md
 ├── quickstart.md
-├── usability-results.md         # Recorded during final verification
+├── usability-results.md         # Recorded during deferred T067 usability verification
 ├── contracts/purchase-statement-management-api.yaml
 └── tasks.md
 ```

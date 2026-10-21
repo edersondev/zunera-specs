@@ -4,7 +4,7 @@
 **Backend Branch**: `024-manage-card-purchases` (`../zunera-backend`)
 **Frontend Branch**: `024-manage-card-purchases` (`../zunera-frontend`)
 **Created**: 2026-10-20
-**Status**: Ready for planning
+**Status**: Ready for implementation
 **Input**: User description: "Move a purchase between statements; show a Statement select for a new purchase dated in a closed cycle; delete purchases."
 
 ## Clarifications
@@ -97,9 +97,9 @@ As a card owner, I can permanently delete a mistaken purchase so its charge and 
 - **FR-001**: Owners MUST be offered Full schedule and One installment modes when moving a purchase. The choice and affected statement periods MUST be clear before confirmation.
 - **FR-002**: A Full schedule move MUST place the first installment in the selected destination and every later installment in its next consecutive billing cycle, even if earlier individual moves created gaps or shared statements. It MUST preserve sequence, each amount, exact total, purchase date, category, and card.
 - **FR-003**: A One installment move MUST change only the chosen installment's statement. Other installments MUST retain their original statements, amounts, and sequence. Resulting statement closing dates MUST remain in nondecreasing installment-number order; multiple installments MAY share a statement or leave an empty cycle.
-- **FR-004**: A move destination MUST belong to the purchase's card and close on or after the purchase date. A One installment move MUST change that installment's statement; a Full schedule move MUST change at least one installment's statement, but MAY keep the first installment in place while rebuilding the rest consecutively. Any eligible future billing cycle MUST be selectable even if it has no existing activity, subject to existing supported date limits. Full-schedule moves MUST also have valid subsequent cycles. Invalid, unavailable, foreign, or stale choices MUST cause no partial change.
+- **FR-004**: A move destination MUST belong to the purchase's card and close on or after the purchase date. A One installment move MUST change that installment's statement; a Full schedule move MUST change at least one installment's statement, but MAY keep the first installment in place while rebuilding the rest consecutively. Any eligible future billing cycle MUST be selectable even if it has no existing activity. Full-schedule moves MUST also have valid subsequent cycles. Every resulting statement period, closing date, and due date MUST fit a four-digit ISO calendar date; a choice whose schedule would exceed that representable range MUST be rejected without partial change. Invalid, unavailable, foreign, or stale choices MUST cause no partial change.
 - **FR-005**: The move preview MUST identify affected installments, source and proposed destination periods, closing dates, due dates, and resulting statement charges. Confirmation MUST be required.
-- **FR-006**: The new-purchase Statement select MUST appear only when the date-derived statement has already closed by the current business date. It MUST start unselected and require an explicit choice before saving. It MUST let the owner select any same-card billing cycle closing on or after the purchase date, including empty future cycles within existing supported date limits, and show each choice's period, closing date, and due date.
+- **FR-006**: The new-purchase Statement select MUST appear only when the date-derived statement has already closed by the current business date. It MUST start unselected and require an explicit choice before saving. It MUST let the owner select any same-card billing cycle closing on or after the purchase date, including empty future cycles, and show each choice's period, closing date, and due date. Purchase dates remain within the existing 1900-01-01 through 2100-12-31 limit; statement choices have no additional future horizon, provided every resulting statement period, closing date, and due date fits a four-digit ISO calendar date.
 - **FR-007**: With the select hidden because the date-derived statement remains open, existing date-based purchase allocation MUST apply. When the select is shown, the chosen eligible statement MUST receive the first installment and subsequent installments MUST use consecutive cycles; an omitted choice MUST be rejected.
 - **FR-008**: Changing date or card MUST refresh statement choices and clear the previous choice whenever the select remains visible. Missing, invalid, or stale submitted choices MUST produce field-level feedback and no purchase.
 - **FR-009**: Delete MUST require explicit confirmation describing permanent removal and the affected purchase and installment count. Dismissal MUST make no change.
@@ -144,13 +144,15 @@ As a card owner, I can permanently delete a mistaken purchase so its charge and 
 - **SC-005**: In a deterministic 100-attempt matrix of repeated or overlapping move and delete requests, one confirmed operation changes financial totals at most once.
 - **SC-006**: In the same 20-user scripted check as SC-001, at least 18 correctly name the installments affected by a move and recognize that Delete is permanent before confirming; after a confirmed action, they locate the changed statement or totals within 30 seconds without facilitator help.
 
+SC-001 and SC-006 remain intended outcomes, but their 20-user study (T067) is deferred outside the current `/speckit-implement` pass. Automated implementation verification does not establish these two outcomes.
+
 ## Assumptions
 
 - Existing Credit Cards 010 rules remain authoritative except where this feature explicitly allows moving purchases across closed statements and permanently deleting them. The owner chose permanent deletion over the earlier cancellation-only rule.
 - A date-derived statement is "already closed" only after its inclusive closing date passes in the app's business calendar. A purchase dated on today's closing day is still in an open cycle.
 - Late entry into a closed cycle always requires an explicit Statement choice, including when the owner wants the date-derived statement.
 - Statement reassignment changes billing allocation, not purchase date. A target cannot close before that purchase date.
-- Eligible statement choice has no additional horizon or existing-activity requirement; an empty future cycle is valid within existing supported date limits.
+- Eligible statement choice has no additional horizon or existing-activity requirement. The existing 1900-01-01 through 2100-12-31 limit applies to the purchase date, not to statement closing dates. An empty future cycle is valid when its dates and all later installment-cycle dates remain representable as four-digit ISO calendar dates.
 - One installment may move without changing the rest while statement dates remain in installment-number order; it may share a statement with another installment or leave a gap. A later Full schedule move replaces those custom placements with consecutive cycles.
 - Existing statement payments remain cash history after reassignment or deletion. Existing card-credit rules handle any excess settlement.
 - A purchase with any linked refund or correction credit cannot be permanently deleted in this feature, regardless of application state; existing correction actions remain available.
