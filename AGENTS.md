@@ -1,6 +1,6 @@
 <!-- SPECKIT START -->
 For additional context about technologies, project structure, shell commands,
-and implementation order, read [specs/023-visual-color-selector/plan.md](specs/023-visual-color-selector/plan.md).
+and implementation order, read [specs/024-manage-card-purchases/plan.md](specs/024-manage-card-purchases/plan.md).
 <!-- SPECKIT END -->
 
 ## Zunera Workspace Layout
@@ -15,8 +15,8 @@ and implementation order, read [specs/023-visual-color-selector/plan.md](specs/0
   the suite inside the live container instead of on the host:
 
   ```bash
-  docker exec zunera-backend-app-1 php artisan test
-  docker exec zunera-backend-app-1 php artisan test --filter=CreditCards
+  docker exec -u www-data zunera-backend-app-1 php artisan test --do-not-cache-result
+  docker exec -u www-data zunera-backend-app-1 php artisan test --do-not-cache-result --filter=CreditCards
   docker exec zunera-backend-app-1 vendor/bin/pint --format=agent
   ```
 
@@ -25,6 +25,9 @@ and implementation order, read [specs/023-visual-color-selector/plan.md](specs/0
   `../zunera-backend/` with `./start.sh` and `./stop.sh` when the container is
   not running. In a sandboxed Codex session, Docker commands must run with
   escalated permissions because the Docker socket is not reachable otherwise.
+  Run tests as `www-data` so authentication audit logs stay writable by PHP-FPM.
+  Disable PHPUnit's result cache because `www-data` cannot write it in the
+  bind-mounted project root.
 - **Frontend**: `npm run test:unit -- --run` (Vitest), `CI=1 npm run test:e2e --
   e2e/<feature>.spec.js` (Playwright; build first because CI mode uses the
   preview server), and `npm run lint` from `../zunera-frontend/`. Playwright

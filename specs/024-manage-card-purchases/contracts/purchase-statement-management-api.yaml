@@ -1,0 +1,374 @@
+openapi: 3.1.0
+info:
+  title: Zunera Credit Card Purchase Statement Management
+  version: 1.0.0
+  description: >-
+    Additions to the Credit Cards 010 contract. Existing card, purchase,
+    statement, payment, and credit-event routes keep their current shapes unless
+    a changed field is specified here. All routes are owner-scoped. Existing
+    purchase correction must preserve installment placement and move history for
+    permitted category, description, or notes edits after a move; changes to card,
+    purchase date, amount, or installment count then return a conflict. Statement
+    options resolve historical rows by stored period and calculated cycles by exact
+    closing date, so a different row in the same month does not hide an option.
+servers:
+  - url: /api/v1
+security:
+  - cookieAuth: []
+paths:
+  /credit-cards/{card_id}/statement-options:
+    get:
+      operationId: listCreditCardStatementOptions
+      summary: Discover date-derived and selectable billing cycles without creating statements
+      parameters:
+        - $ref: '#/components/parameters/CardId'
+        - name: purchase_date
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: from_month
+          in: query
+          description: Four-digit YYYY-MM month to start a window; may jump directly to any eligible future month. Reject if resulting cycle dates cannot be represented as four-digit ISO calendar dates.
+          schema: { type: string, pattern: '^(?!0000)\d{4}-(0[1-9]|1[0-2])$' }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 24, default: 12 }
+      responses:
+        '200':
+          description: Date-derived cycle and a finite window of same-card choices
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatementOptionsResponse' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /credit-cards/{card_id}/purchases:
+    post:
+      operationId: createCreditCardPurchaseWithStatementChoice
+      summary: Extend existing manual purchase create with conditional statement choice
+      description: >-
+        Existing create fields and over-limit handshake remain. If the
+        purchase date's date-derived statement closed before the São Paulo
+        business date, statement_closing_date is required and must name an
+        eligible same-card cycle. If the cycle is still open, the field must be
+        absent. The selected date participates in the idempotency fingerprint.
+        Automatic recurring purchase generation is unchanged.
+      parameters:
+        - $ref: '#/components/parameters/CardId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreatePurchaseRequestExtension' }
+      responses:
+        '201': { description: Existing purchase response with selected installment allocation }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /credit-card-purchases/{purchase_id}/move-preview:
+    post:
+      operationId: previewCreditCardPurchaseMove
+      summary: Preview statement charge and installment changes without mutation
+      parameters:
+        - $ref: '#/components/parameters/PurchaseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MoveChoice' }
+      responses:
+        '200':
+          description: Server-authoritative preview and state fingerprint
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MovePreviewResponse' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /credit-card-purchases/{purchase_id}/move:
+    post:
+      operationId: moveCreditCardPurchase
+      summary: Move full schedule or one installment after preview
+      parameters:
+        - $ref: '#/components/parameters/PurchaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MoveRequest' }
+      responses:
+        '200':
+          description: Changed purchase, move records, affected statements, and card summary
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MoveResponse' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /credit-card-purchases/{purchase_id}/moves:
+    get:
+      operationId: listCreditCardPurchaseMoves
+      summary: Read source and destination history for an owned purchase
+      parameters:
+        - $ref: '#/components/parameters/PurchaseId'
+      responses:
+        '200':
+          description: Ordered move history while purchase exists
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MoveHistoryResponse' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+  /credit-card-purchases/{purchase_id}:
+    patch:
+      operationId: correctMovedCreditCardPurchase
+      summary: Existing direct correction retains move history when permitted
+      description: >-
+        Keep the existing update request, success response, and open-statement
+        guard. After any move, category, description, or notes changes preserve
+        installment IDs, statement placement, recognition dates, and move history.
+        An actual change to card, purchase date, total amount, or installment
+        count returns 409 before mutation. Unchanged values for those fields
+        do not count as allocation changes.
+      parameters:
+        - $ref: '#/components/parameters/PurchaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200': { description: Existing purchase correction response }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+    delete:
+      operationId: deleteCreditCardPurchase
+      summary: Permanently remove an owned purchase and all its installments
+      description: >-
+        Reject when any linked refund or correction credit exists. Keep original
+        statement payments and account cash movements. The same idempotency key
+        replays the minimal success response after the purchase row is gone;
+        a new key for a missing purchase has no effect.
+      parameters:
+        - $ref: '#/components/parameters/PurchaseId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Minimal deletion receipt and affected statement identities
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeleteResponse' }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /recurring-transactions/{recurring_transaction_id}/occurrences:
+    get:
+      operationId: listRecurringCardOccurrencesWithDeletedPurchaseMarker
+      summary: Existing card-occurrence list adds purchase-deleted marker
+      parameters:
+        - name: recurring_transaction_id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: Existing paginated card-occurrence response also includes purchase_deleted_at
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      required: [state, purchase_id, purchase_deleted_at]
+                      properties:
+                        state: { type: string }
+                        purchase_id: { type: [integer, 'null'] }
+                        purchase_deleted_at: { type: [string, 'null'], format: date-time }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: zunera_session
+  parameters:
+    CardId:
+      name: card_id
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+    PurchaseId:
+      name: purchase_id
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, minLength: 1, maxLength: 255 }
+  schemas:
+    StatementOption:
+      type: object
+      required: [closing_date, period_from, period_to, due_date, statement_id, closed_by_date, is_persisted]
+      properties:
+        closing_date: { type: string, format: date }
+        period_from: { type: string, format: date }
+        period_to: { type: string, format: date }
+        due_date: { type: string, format: date }
+        statement_id: { type: [integer, 'null'], minimum: 1 }
+        closed_by_date: { type: boolean }
+        is_persisted: { type: boolean }
+    StatementOptionsResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [business_date, date_derived_closing_date, requires_statement_choice, options, next_from_month]
+          properties:
+            business_date: { type: string, format: date }
+            date_derived_closing_date: { type: string, format: date }
+            requires_statement_choice: { type: boolean }
+            options: { type: array, items: { $ref: '#/components/schemas/StatementOption' } }
+            next_from_month: { type: [string, 'null'], pattern: '^(?!0000)\d{4}-(0[1-9]|1[0-2])$' }
+    CreatePurchaseRequestExtension:
+      description: Existing Credit Cards 010 CreatePurchaseRequest plus statement_closing_date.
+      type: object
+      required: [category_id, description, purchase_date, total_amount_centavos, installment_count, confirm_over_limit]
+      properties:
+        category_id: { type: integer, minimum: 1 }
+        description: { type: string, minLength: 1, maxLength: 200 }
+        purchase_date: { type: string, format: date, description: Existing manual purchase range is 1900-01-01 through 2100-12-31. }
+        total_amount_centavos: { type: integer, minimum: 1, maximum: 99999999999 }
+        installment_count: { type: integer, minimum: 1, maximum: 360 }
+        notes: { type: [string, 'null'], maxLength: 1000 }
+        confirm_over_limit: { type: boolean, default: false }
+        expected_available_credit_centavos: { type: [integer, 'null'] }
+        statement_closing_date:
+          type: string
+          format: date
+          description: Required only if the date-derived statement has closed; omitted otherwise. No additional future horizon applies, but every resulting cycle date must fit a four-digit ISO calendar date.
+    MoveChoice:
+      oneOf:
+        - type: object
+          required: [mode, target_closing_date]
+          properties:
+            mode: { type: string, const: full_schedule }
+            target_closing_date: { type: string, format: date, description: Every resulting cycle date must fit a four-digit ISO calendar date. }
+        - type: object
+          required: [mode, target_closing_date, installment_id]
+          properties:
+            mode: { type: string, const: one_installment }
+            target_closing_date: { type: string, format: date, description: Every resulting cycle date must fit a four-digit ISO calendar date. }
+            installment_id: { type: integer, minimum: 1 }
+    MoveRequest:
+      allOf:
+        - $ref: '#/components/schemas/MoveChoice'
+        - type: object
+          required: [preview_token]
+          properties:
+            preview_token: { type: string, minLength: 1 }
+    MovePreviewResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [preview_token, affected_installments, affected_statements]
+          properties:
+            preview_token: { type: string }
+            affected_installments:
+              type: array
+              items: { $ref: '#/components/schemas/InstallmentMove' }
+            affected_statements:
+              type: array
+              items: { $ref: '#/components/schemas/StatementImpact' }
+    InstallmentMove:
+      type: object
+      required: [installment_id, sequence, amount_centavos, source, destination]
+      properties:
+        installment_id: { type: integer, minimum: 1 }
+        sequence: { type: integer, minimum: 1 }
+        amount_centavos: { type: integer, minimum: 1 }
+        source: { $ref: '#/components/schemas/StatementOption' }
+        destination: { $ref: '#/components/schemas/StatementOption' }
+    StatementImpact:
+      type: object
+      required: [closing_date, charge_before_centavos, charge_after_centavos, outstanding_before_centavos, outstanding_after_centavos, payment_surplus_after_centavos]
+      properties:
+        closing_date: { type: string, format: date }
+        charge_before_centavos: { type: integer, minimum: 0 }
+        charge_after_centavos: { type: integer, minimum: 0 }
+        outstanding_before_centavos: { type: integer, minimum: 0 }
+        outstanding_after_centavos: { type: integer, minimum: 0 }
+        payment_surplus_after_centavos: { type: integer, minimum: 0 }
+    MoveHistoryItem:
+      type: object
+      required: [id, mode, installment_id, sequence, source, destination, moved_at]
+      properties:
+        id: { type: integer, minimum: 1 }
+        mode: { type: string, enum: [full_schedule, one_installment] }
+        installment_id: { type: integer, minimum: 1 }
+        sequence: { type: integer, minimum: 1 }
+        source: { $ref: '#/components/schemas/StatementOption' }
+        destination: { $ref: '#/components/schemas/StatementOption' }
+        moved_at: { type: string, format: date-time }
+    MoveHistoryResponse:
+      type: object
+      required: [data]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/MoveHistoryItem' } }
+    MoveResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [purchase, moves, affected_statements, card]
+          properties:
+            purchase: { type: object, description: Existing CreditCardPurchaseResource shape. }
+            moves: { type: array, items: { $ref: '#/components/schemas/MoveHistoryItem' } }
+            affected_statements: { type: array, items: { type: object, description: Existing statement summary shape. } }
+            card: { type: object, description: Existing card summary shape, including available credit. }
+    DeleteResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [deleted_purchase_id, affected_statement_closing_dates]
+          properties:
+            deleted_purchase_id: { type: integer, minimum: 1 }
+            affected_statement_closing_dates:
+              type: array
+              items: { type: string, format: date }
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+        code:
+          type: string
+          description: >-
+            Examples: STALE_MOVE_PREVIEW, PURCHASE_HAS_LINKED_CREDITS,
+            PURCHASE_DELETED, INVALID_STATEMENT_CHOICE.
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+  responses:
+    Error:
+      description: Authentication, owner lookup, validation, idempotency, or state conflict.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
